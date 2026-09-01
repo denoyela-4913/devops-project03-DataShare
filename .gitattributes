@@ -1,2 +1,35 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Normalize line endings: store LF in the repo for everything text.
+* text=auto eol=lf
+
+# Explicit LF for code / config (avoids CRLF issues in CI, esp. shell scripts).
+*.java   text eol=lf
+*.ts     text eol=lf
+*.js     text eol=lf
+*.html   text eol=lf
+*.scss   text eol=lf
+*.css    text eol=lf
+*.json   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.xml    text eol=lf
+*.md     text eol=lf
+*.sh     text eol=lf
+*.properties text eol=lf
+Dockerfile text eol=lf
+mvnw     text eol=lf
+
+# Windows scripts keep CRLF.
+*.cmd    text eol=crlf
+*.bat    text eol=crlf
+mvnw.cmd text eol=crlf
+
+# Binaries.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.pdf    binary
+*.jar    binary
+*.woff   binary
+*.woff2  binary
