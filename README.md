@@ -67,11 +67,37 @@ sont maintenus dans **VS Code / Claude Code**. Frontière documentée dans
 | PR | Contenu |
 |---|---|
 | `#0001` | bootstrap : `.gitignore`, squelette CI, templates, `docs/CI.md` |
-| `#0002` | `backend/` + `deploy/docker-compose` (Postgres + MinIO) |
+| `#0002` | `backend/` (squelette Spring Boot 4.1) + `deploy/docker-compose` (Postgres + MinIO) |
 | `#0003` | `frontend/` (squelette + stubs `@figma-owned`) |
 | `#0004` | docs qualité (`TESTING` / `SECURITY` / `PERF` / `MAINTENANCE` / `DESIGN`) + `design/` |
 | `#0005+` | fonctionnalités US01→US06, puis US07→US10 |
 
+Éléments différés : voir [`docs/BACKLOG.md`](docs/BACKLOG.md).
+
 ## Démarrage
 
-_À compléter avec l'arrivée de `backend/` et `frontend/` (voir `deploy/`)._
+### Dépendances (PostgreSQL + MinIO)
+
+```bash
+cd deploy && cp .env.example .env && docker compose --env-file .env up -d
+```
+
+Détail et interfaces web : [`deploy/README.md`](deploy/README.md).
+
+### Backend
+
+```bash
+cd backend
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev      # http://localhost:8080
+./mvnw test                                                # tests unitaires
+./mvnw verify -Dsurefire.skip=true                         # tests d'intégration (Docker requis)
+./mvnw spotless:apply                                      # formatage
+```
+
+- Smoke : `GET http://localhost:8080/api/ping` → `{"status":"ok"}`
+- Santé : `GET http://localhost:8080/actuator/health`
+- Swagger (profil dev) : `http://localhost:8080/swagger-ui.html`
+
+### Frontend
+
+_À compléter (PR #0003)._

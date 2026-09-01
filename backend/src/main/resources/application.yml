@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: DataShare
+  datasource:
+    url: ${DATASHARE_DB_URL:jdbc:postgresql://localhost:5432/datashare}
+    username: ${DATASHARE_DB_USERNAME:datashare}
+    password: ${DATASHARE_DB_PASSWORD:datashare}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+      file-size-threshold: 2MB
+
+# Défauts durcis : mode non verbeux, aucune fuite technique. Surchargés en dev.
+datashare:
+  error:
+    verbose: false
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

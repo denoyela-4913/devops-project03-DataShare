@@ -1,11 +1,9 @@
 name: CI
 
-# Skeleton pipeline (PR #0001).
-# Every job is a green placeholder for now — its real steps land in the PR that
-# introduces the code it checks. The purpose here is to register the job names so
-# they can be added as required status checks on `master`.
+# Pipeline. Backend jobs are wired (PR #0002). Frontend jobs + full `security`
+# scanning land with the PRs that introduce their code. See docs/CI.md.
 #
-# Job map (see docs/CI.md for the full breakdown):
+# Job map:
 #   lint-front  lint-back  lint-repo  commitlint
 #   backend-unit  backend-integ  frontend-unit  frontend-e2e
 #   assert-prod-bundle  security
@@ -22,63 +20,111 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  JAVA_VERSION: "21"
+
 jobs:
+  # ---------- lint ----------
   lint-front:
     name: lint-front
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — ESLint (TS + a11y templates) + Stylelint + Prettier. Implemented with frontend/."
+      - run: echo "placeholder — ESLint (TS + a11y templates) + Stylelint + Prettier. Wired with frontend/ (PR #0003)."
 
   lint-back:
     name: lint-back
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — Spotless + Checkstyle + PMD. Implemented with backend/."
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Spotless + Checkstyle + PMD
+        working-directory: backend
+        run: ./mvnw -B -ntp spotless:check checkstyle:check pmd:check
 
   lint-repo:
     name: lint-repo
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — actionlint + yamllint + markdownlint + @figma-owned header check."
+      - run: echo "placeholder — actionlint + yamllint + markdownlint + @figma-owned header check (PR #0003)."
 
   commitlint:
     name: commitlint
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: read
     steps:
-      - run: echo "placeholder — Conventional Commits check on the PR title."
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # ---------- backend tests ----------
   backend-unit:
     name: backend-unit
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — mvn test (Surefire, *Test). Implemented with backend/."
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Unit tests (Surefire)
+        working-directory: backend
+        run: ./mvnw -B -ntp test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-unit-reports
+          path: backend/target/surefire-reports/
+          if-no-files-found: ignore
 
   backend-integ:
     name: backend-integ
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — mvn verify (Failsafe, *IT) + Testcontainers + JaCoCo 70% gate."
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Integration tests (Failsafe + Testcontainers)
+        working-directory: backend
+        run: ./mvnw -B -ntp verify -Dsurefire.skip=true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: backend/target/site/
+          if-no-files-found: ignore
 
+  # ---------- frontend tests ----------
   frontend-unit:
     name: frontend-unit
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — jest --coverage, incl. debug/prod modes + environment.prod guard."
+      - run: echo "placeholder — jest --coverage incl. debug/prod modes + environment.prod guard (PR #0003)."
 
   frontend-e2e:
     name: frontend-e2e
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — Cypress against a built stack (auth, upload/download, history, error-modes)."
+      - run: echo "placeholder — Cypress against a built stack (PR #0003+)."
 
   assert-prod-bundle:
     name: assert-prod-bundle
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — build prod, fail if debugErrors or the styleguide route leak into dist/."
+      - run: echo "placeholder — build prod, fail if debugErrors or the styleguide route leak into dist/ (PR #0003)."
 
+  # ---------- security ----------
   security:
     name: security
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — npm audit + OWASP dependency-check + CodeQL + SpotBugs + gitleaks."
+      - run: echo "placeholder — npm audit + OWASP dependency-check + CodeQL + SpotBugs + gitleaks (PR #0003/#0004)."
