@@ -1,0 +1,12 @@
+# Profil des tests d'intégration. La datasource est fournie par Testcontainers
+# (@ServiceConnection) — rien à configurer ici.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+datashare:
+  error:
+    verbose: false

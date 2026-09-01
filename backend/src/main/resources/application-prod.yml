@@ -1,0 +1,25 @@
+# Profil prod. Toutes les valeurs sensibles viennent de l'environnement — aucun défaut ici.
+# Les réglages durcis (error.verbose=false, swagger off, stacktrace never) sont hérités
+# de application.yml ; ils sont redéclarés ci-dessous de façon explicite : c'est le contrat
+# vérifié par ProdProfileErrorContractIT et par le job CI assert-prod-bundle côté front.
+spring:
+  datasource:
+    url: ${DATASHARE_DB_URL}
+    username: ${DATASHARE_DB_USERNAME}
+    password: ${DATASHARE_DB_PASSWORD}
+
+datashare:
+  error:
+    verbose: false
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
