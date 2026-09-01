@@ -1,0 +1,17 @@
+# Solo project — everything is reviewed/owned by the repo owner.
+# This file also DOCUMENTS the two-editor boundary (see design/HANDOFF.md):
+#   - "Figma-owned" files are generated/maintained from Figma via Cursor (MCP).
+#   - Everything else (logic, tests, infra) is maintained in VS Code / Claude Code.
+
+*                                   @denoyela-4913
+
+# --- Figma-owned zone (Cursor) ---
+/frontend/src/styles/_tokens.scss        @denoyela-4913
+/frontend/src/styles/_typography.scss    @denoyela-4913
+/frontend/src/styles/_breakpoints.scss   @denoyela-4913
+/frontend/src/assets/icons/              @denoyela-4913
+/frontend/src/assets/images/             @denoyela-4913
+/design/tokens.reference.json            @denoyela-4913
+/design/screens/                         @denoyela-4913
+*.component.html                         @denoyela-4913
+*.component.scss                         @denoyela-4913

@@ -1,0 +1,12 @@
+{
+  "//": "Figma MCP bridge — used ONLY from Cursor (the connection is unreliable in VS Code for this project). Copy this file to .mcp.json, then set the exact command/args from the gethopp/figma-mcp-bridge plugin README. Requires Figma desktop open with the plugin running. Never commit a real token — pass it via an environment variable.",
+  "mcpServers": {
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "@gethopp/figma-mcp-bridge"],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}"
+      }
+    }
+  }
+}

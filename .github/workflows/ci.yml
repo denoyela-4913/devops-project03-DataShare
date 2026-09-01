@@ -1,0 +1,84 @@
+name: CI
+
+# Skeleton pipeline (PR #0001).
+# Every job is a green placeholder for now — its real steps land in the PR that
+# introduces the code it checks. The purpose here is to register the job names so
+# they can be added as required status checks on `master`.
+#
+# Job map (see docs/CI.md for the full breakdown):
+#   lint-front  lint-back  lint-repo  commitlint
+#   backend-unit  backend-integ  frontend-unit  frontend-e2e
+#   assert-prod-bundle  security
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint-front:
+    name: lint-front
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — ESLint (TS + a11y templates) + Stylelint + Prettier. Implemented with frontend/."
+
+  lint-back:
+    name: lint-back
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — Spotless + Checkstyle + PMD. Implemented with backend/."
+
+  lint-repo:
+    name: lint-repo
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — actionlint + yamllint + markdownlint + @figma-owned header check."
+
+  commitlint:
+    name: commitlint
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — Conventional Commits check on the PR title."
+
+  backend-unit:
+    name: backend-unit
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — mvn test (Surefire, *Test). Implemented with backend/."
+
+  backend-integ:
+    name: backend-integ
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — mvn verify (Failsafe, *IT) + Testcontainers + JaCoCo 70% gate."
+
+  frontend-unit:
+    name: frontend-unit
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — jest --coverage, incl. debug/prod modes + environment.prod guard."
+
+  frontend-e2e:
+    name: frontend-e2e
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — Cypress against a built stack (auth, upload/download, history, error-modes)."
+
+  assert-prod-bundle:
+    name: assert-prod-bundle
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — build prod, fail if debugErrors or the styleguide route leak into dist/."
+
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder — npm audit + OWASP dependency-check + CodeQL + SpotBugs + gitleaks."
