@@ -1,6 +1,6 @@
 name: CI
 
-# Pipeline. Backend jobs are wired (PR #0002). Frontend jobs + full `security`
+# Pipeline. Backend jobs are wired (PR 0002). Frontend jobs and full security
 # scanning land with the PRs that introduce their code. See docs/CI.md.
 #
 # Job map:
@@ -29,7 +29,7 @@ jobs:
     name: lint-front
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — ESLint (TS + a11y templates) + Stylelint + Prettier. Wired with frontend/ (PR #0003)."
+      - run: 'echo "placeholder: ESLint + Stylelint + Prettier, wired with frontend in PR 0003"'
 
   lint-back:
     name: lint-back
@@ -49,7 +49,7 @@ jobs:
     name: lint-repo
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — actionlint + yamllint + markdownlint + @figma-owned header check (PR #0003)."
+      - run: 'echo "placeholder: actionlint + yamllint + markdownlint + figma-owned header check, PR 0003"'
 
   commitlint:
     name: commitlint
@@ -108,23 +108,23 @@ jobs:
     name: frontend-unit
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — jest --coverage incl. debug/prod modes + environment.prod guard (PR #0003)."
+      - run: 'echo "placeholder: jest --coverage incl. debug/prod modes + environment.prod guard, PR 0003"'
 
   frontend-e2e:
     name: frontend-e2e
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — Cypress against a built stack (PR #0003+)."
+      - run: 'echo "placeholder: Cypress against a built stack, PR 0003+"'
 
   assert-prod-bundle:
     name: assert-prod-bundle
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — build prod, fail if debugErrors or the styleguide route leak into dist/ (PR #0003)."
+      - run: 'echo "placeholder: build prod, fail if debugErrors or styleguide route leak into dist, PR 0003"'
 
   # ---------- security ----------
   security:
     name: security
     runs-on: ubuntu-latest
     steps:
-      - run: echo "placeholder — npm audit + OWASP dependency-check + CodeQL + SpotBugs + gitleaks (PR #0003/#0004)."
+      - run: 'echo "placeholder: npm audit + OWASP dependency-check + CodeQL + SpotBugs + gitleaks, PR 0003/0004"'
