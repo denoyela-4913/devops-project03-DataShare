@@ -1,0 +1,46 @@
+// Accessibilité transverse (utilisateurs PSH). Complète les règles de composant.
+// Maintenu côté logique (Claude Code), pas @figma-owned.
+
+// Focus visible homogène, jamais supprimé. --color-focus est défini dans _tokens.scss.
+:focus-visible {
+  outline: 2px solid var(--color-focus, currentcolor);
+  outline-offset: 2px;
+}
+
+// Respecte la préférence système « réduire les animations ».
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Masquage visuel en conservant la lecture par lecteur d'écran.
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Lien d'évitement clavier.
+.skip-link {
+  position: absolute;
+  left: -999px;
+
+  &:focus {
+    left: 0;
+  }
+}
+
+// Cibles tactiles : la taille minimale (>= 44px) est vérifiée par composant
+// (design-system + checklist de PR), pas imposée globalement ici.

@@ -1,12 +1,11 @@
 name: CI
 
-# Pipeline. Backend jobs are wired (PR 0002). Frontend jobs and full security
-# scanning land with the PRs that introduce their code. See docs/CI.md.
+# Backend + frontend wired. See docs/CI.md.
 #
 # Job map:
 #   lint-front  lint-back  lint-repo  commitlint
-#   backend-unit  backend-integ  frontend-unit  frontend-e2e
-#   assert-prod-bundle  security
+#   backend-unit  backend-integ  frontend-unit  frontend-integ
+#   frontend-e2e  assert-prod-bundle  security
 
 on:
   pull_request:
@@ -29,7 +28,23 @@ jobs:
     name: lint-front
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "placeholder: ESLint + Stylelint + Prettier, wired with frontend in PR 0003"'
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci
+      - name: ESLint
+        working-directory: frontend
+        run: npm run lint
+      - name: Stylelint
+        working-directory: frontend
+        run: npm run lint:style
+      - name: Prettier
+        working-directory: frontend
+        run: npm run format:check
 
   lint-back:
     name: lint-back
@@ -49,7 +64,15 @@ jobs:
     name: lint-repo
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "placeholder: actionlint + yamllint + markdownlint + figma-owned header check, PR 0003"'
+      - uses: actions/checkout@v4
+      - name: actionlint
+        run: |
+          bash <(curl -sSf https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color
+      - name: yamllint
+        run: pipx run yamllint -c .yamllint.yaml .
+      - name: figma-owned headers
+        run: bash tools/check-figma-owned.sh
 
   commitlint:
     name: commitlint
@@ -108,23 +131,95 @@ jobs:
     name: frontend-unit
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "placeholder: jest --coverage incl. debug/prod modes + environment.prod guard, PR 0003"'
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci
+      - name: Config guard (prod is not debug)
+        working-directory: frontend
+        run: npm run verify:config
+      - name: Unit tests (Vitest)
+        working-directory: frontend
+        run: npm run test:unit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-unit-coverage
+          path: frontend/coverage/
+          if-no-files-found: ignore
+
+  frontend-integ:
+    name: frontend-integ
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci
+      - name: Integration tests (Vitest + TestBed)
+        working-directory: frontend
+        run: npm run test:integ
 
   frontend-e2e:
     name: frontend-e2e
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "placeholder: Cypress against a built stack, PR 0003+"'
+      - run: 'echo "placeholder: Cypress against a built stack, wired with the auth feature (US03/US04)"'
 
   assert-prod-bundle:
     name: assert-prod-bundle
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "placeholder: build prod, fail if debugErrors or styleguide route leak into dist, PR 0003"'
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci
+      - name: Config guard
+        working-directory: frontend
+        run: npm run verify:config
+      - name: Production build
+        working-directory: frontend
+        run: npm run build
+      - name: Debug config must not leak into dist
+        working-directory: frontend
+        run: |
+          if grep -rlE 'debugErrors:( *true|!0)' dist/; then
+            echo "::error::debug flag found in production bundle"; exit 1
+          fi
+          if grep -rl 'styleguide' dist/; then
+            echo "::error::styleguide route leaked into production bundle"; exit 1
+          fi
+          echo "OK - production bundle is clean"
 
   # ---------- security ----------
   security:
     name: security
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "placeholder: npm audit + OWASP dependency-check + CodeQL + SpotBugs + gitleaks, PR 0003/0004"'
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: npm audit (frontend)
+        working-directory: frontend
+        run: npm audit --audit-level=high

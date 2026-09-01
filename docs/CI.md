@@ -1,105 +1,114 @@
 # CI / Pipeline — DataShare
 
-Living reference for the GitHub Actions pipeline. Cross-linked from `TESTING.md`
-and `MAINTENANCE.md` once those exist.
+Référence vivante du pipeline GitHub Actions. Recoupée par `TESTING.md` et
+`MAINTENANCE.md` une fois ceux-ci créés.
 
 ## Vue d'ensemble
 
-Le workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) se déclenche sur
-chaque **pull request** et sur **push vers `master`**. Tous les jobs tournent en
-parallèle. `master` est protégée : PR obligatoire, historique linéaire, pas de
-force-push ni de suppression, merge **squash uniquement** (le titre de PR devient
-le message de commit).
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) se déclenche sur chaque
+**pull request** et sur **push vers `master`**. Tous les jobs tournent en parallèle.
 
-> Les *required status checks* sont ajoutés à la protection de `master` **après le
-> premier run** du pipeline (les noms de jobs n'existent côté GitHub qu'une fois
-> exécutés au moins une fois).
+`master` est protégée : PR obligatoire, historique linéaire, pas de force-push ni de
+suppression, merge **squash uniquement** (titre de PR = message de commit), **CI verte
+obligatoire**.
+
+> Après l'ajout d'un job, il faut l'ajouter à la liste des *required status checks* de
+> `master` **une fois qu'il a tourné au moins une fois** (les noms n'existent côté
+> GitHub qu'après un run).
 
 ## Jobs
 
-| Job | Rôle | Bloquant sur `master` |
-|---|---|---|
-| `lint-front` | Qualité statique frontend | oui |
-| `lint-back` | Qualité statique backend | oui |
-| `lint-repo` | Qualité des fichiers transverses | oui |
-| `commitlint` | Convention de nommage des commits/PR | oui |
-| `backend-unit` | Tests unitaires backend (Surefire, `*Test`) | oui |
-| `backend-integ` | Tests d'intégration + fonctionnels (Failsafe, `*IT`, Testcontainers) + porte de couverture | oui |
-| `frontend-unit` | Tests unitaires frontend (Jest) | oui |
-| `frontend-e2e` | Tests end-to-end (Cypress) | oui |
-| `assert-prod-bundle` | Garde : la config debug ne fuit pas dans le build de prod | oui |
-| `security` | Scans de sécurité et d'analyse de bugs | oui |
+| Job | Rôle |
+|---|---|
+| `lint-front` | ESLint (TS + a11y templates) + Stylelint + Prettier |
+| `lint-back` | Spotless + Checkstyle + PMD |
+| `lint-repo` | actionlint + yamllint + contrôle des en-têtes `@figma-owned` |
+| `commitlint` | Conventional Commits sur le titre de PR |
+| `backend-unit` | Tests unitaires backend (Surefire, `*Test`) |
+| `backend-integ` | Tests d'intégration + fonctionnels backend (Failsafe, `*IT`, Testcontainers) |
+| `frontend-unit` | Tests unitaires frontend (Vitest) + garde de config prod/dev |
+| `frontend-integ` | Tests d'intégration frontend (Vitest + Angular TestBed) |
+| `frontend-e2e` | *(placeholder)* Cypress — activé avec la feature auth (US03/US04) |
+| `assert-prod-bundle` | Build prod + vérifie que la config debug ne fuit pas dans `dist/` |
+| `security` | gitleaks + `npm audit`. À venir : OWASP dependency-check, CodeQL, SpotBugs |
 
 ## Détail du lint
 
-Le lint = vérifications **statiques, rapides, sans compilation lourde, sans test,
-sans réseau**. Découpé en 4 jobs.
+Vérifications **statiques, rapides, sans test, sans réseau**.
 
 ### `lint-front` — périmètre `frontend/`
 
 | Outil | Commande | Ce qu'il attrape |
 |---|---|---|
-| **ESLint** (`angular-eslint`) | `npm run lint` | variables / imports inutilisés, `any` implicite, règles RxJS, `console.*` oublié, conventions Angular (inputs/outputs, lifecycle) |
-| **ESLint — plugin template** (`@angular-eslint/template`) | inclus dans `ng lint` | **accessibilité dans les templates HTML** : `alt` manquant, `label`↔`for`, `aria-*` valides, `click` sans équivalent clavier, pas d'`autofocus`, rôles valides — **premier filet de sécurité PSH** |
-| **Stylelint** | `npm run lint:style` | SCSS : règle `color-no-hex` **hors `_tokens.scss`** (garde de la frontière Figma), ordre des propriétés, nesting, unités |
-| **Prettier** | `npm run format:check` | formatage homogène TS / HTML / SCSS / JSON (échoue si non formaté, ne corrige pas) |
+| **ESLint** (`angular-eslint`) | `npm run lint` | variables/imports inutilisés, conventions Angular, `any` implicite |
+| **ESLint — règles template** (`@angular-eslint/template` + `templateAccessibility`) | inclus dans `ng lint` | **a11y HTML** : `alt`, `label`/`for`, `aria-*` valides, click/clavier, rôles — filet PSH |
+| **Stylelint** (`stylelint-config-standard-scss`) | `npm run lint:style` | SCSS : règle **`color-no-hex` hors `src/styles/_tokens.scss`** (frontière Figma), syntaxe |
+| **Prettier** | `npm run format:check` | formatage TS/HTML/SCSS/JSON |
 
 ### `lint-back` — périmètre `backend/`
 
-Nécessite le JDK, **pas** de base de données ni de conteneur (`-DskipTests`).
-
 | Outil | Commande | Ce qu'il attrape |
 |---|---|---|
-| **Spotless** (`palantir-java-format`) | `mvn spotless:check` | formatage Java, ordre des imports, imports inutilisés |
-| **Checkstyle** | `mvn checkstyle:check` | nommage, longueur de ligne, Javadoc sur l'API publique, `final` sur les paramètres, conventions |
-| **PMD** | `mvn pmd:check` | mauvaises pratiques : `catch` vide, complexité cyclomatique, `String` concaténée en boucle, code mort |
+| **Spotless** (`palantir-java-format`) | `mvn spotless:check` | formatage Java, ordre + imports inutilisés |
+| **Checkstyle** | `mvn checkstyle:check` | nommage, accolades, imports superflus, blocs vides |
+| **PMD** | `mvn pmd:check` | code mort, `catch` vide, comparaisons douteuses |
 
-### `lint-repo` — périmètre racine / fichiers transverses
+### `lint-repo` — fichiers transverses
 
 | Outil | Ce qu'il attrape |
 |---|---|
-| **actionlint** | erreurs de syntaxe / références dans `.github/workflows/*.yml` |
-| **yamllint** | indentation, clés dupliquées des YAML (`docker-compose`, workflows) |
-| **markdownlint** | cohérence des `.md` (TESTING / SECURITY / PERF / MAINTENANCE / DESIGN) |
-| **`@figma-owned` check** (script maison) | un `*.component.html` / `*.component.scss` sans l'en-tête `@figma-owned` → échoue |
+| **actionlint** | erreurs de syntaxe/refs dans `.github/workflows/*.yml` |
+| **yamllint** (`.yamllint.yaml`, profil *relaxed*) | indentation, clés dupliquées |
+| **`tools/check-figma-owned.sh`** | tout `frontend/src/app/**/*.{html,scss}` doit porter l'en-tête `@figma-owned` |
 
-### `commitlint` — convention de commits
+*(markdownlint : à ajouter.)*
 
-| Élément vérifié | Outil |
-|---|---|
-| **Titre de la PR** (squash → titre PR = message de commit sur `master`) | `amannn/action-semantic-pull-request` |
-| Messages de commits de la branche (optionnel, plus strict) | `wagoid/commitlint-github-action` + `commitlint.config.js` |
+### `commitlint`
 
-Types autorisés : `feat, fix, docs, test, chore, ci, refactor, perf, build, style`.
-Scope conseillé : `feat(upload):`, `test(auth):`, `ci(cache):`…
+Titre de PR au format Conventional Commits (`amannn/action-semantic-pull-request`).
+Types : `feat, fix, docs, test, chore, ci, refactor, perf, build, style`.
+
+## Les 4 couches de test frontend
+
+| Couche | Job | Outil | DOM | Backend | HTTP | Exemples |
+|---|---|---|---|---|---|---|
+| **unit** | `frontend-unit` | Vitest | non / shallow | non | service mocké | pipes, services, `token.store`, logique isolée |
+| **integ** | `frontend-integ` | Vitest + `TestBed` + jsdom | oui | non | `HttpTestingController` | `error-toast` rendu + intercepteur, formulaire + validation, garde de route |
+| **e2e** | `frontend-e2e` | Cypress | oui (navigateur) | réel (dockerisé) | réel | 3–4 parcours critiques |
+| *(bundle)* | `assert-prod-bundle` | build + grep | — | — | — | la config debug ne fuit pas dans `dist/` |
+
+Séparation par nommage : `*.spec.ts` = unit, `*.integ.spec.ts` = integ. Un `test`
+target Angular avec deux configurations (`unit` / `integ`).
 
 ## `backend-unit` vs `backend-integ`
 
 | | `backend-unit` | `backend-integ` |
 |---|---|---|
-| Plugin Maven | Surefire | Failsafe |
-| Convention de nom | `*Test` | `*IT` |
-| Commande | `mvn test` | `mvn verify` |
-| Dépendances externes | aucune (Mockito) | Testcontainers (PostgreSQL, MinIO) |
-| Contenu | services isolés, validators, mapping | repositories, contrôleurs (MockMvc), scénarios fonctionnels (RestAssured) |
-| Couverture | agrégée avec `backend-integ` (JaCoCo) | porte **≥ 70 %** sur l'agrégat |
+| Plugin | Surefire | Failsafe |
+| Nom | `*Test` | `*IT` |
+| Commande | `./mvnw test` | `./mvnw verify -Dsurefire.skip=true` |
+| Dépendances | aucune (Mockito) | Testcontainers (PostgreSQL, MinIO) |
 
-## `security`
+## Couverture
 
-- **`npm audit`** (`--audit-level=high`) — CVE des dépendances frontend
-- **OWASP dependency-check** — CVE des dépendances backend (Maven)
-- **CodeQL** — SAST (Java + TypeScript)
-- **SpotBugs** — *patterns* de bugs Java (ex. `NullPointerException` probable sur un chemin d'exécution) ; exige la compilation, d'où sa place ici plutôt que dans `lint-back`
-- **gitleaks** — secrets commités par erreur
-
-Résultats et analyse consolidés dans `SECURITY.md`.
+**Rapport seul** pour l'instant (back : JaCoCo ; front : Vitest v8), pas de seuil
+bloquant. La porte à **70 %** est activée quand le code métier arrive (PR US01).
 
 ## `assert-prod-bundle`
 
-Après `ng build --configuration production` :
+1. `npm run verify:config` — `environment.ts` (prod) : `production=true`, `debugErrors=false` ;
+   `environment.development.ts` : l'inverse. Hors build Angular (donc non soumis aux
+   `fileReplacements`).
+2. `npm run build` (config `production`).
+3. Échoue si `dist/` contient `debugErrors: true` / `debugErrors:!0`, ou un chunk `styleguide`.
 
-- échoue si `debugErrors: true` (ou sa forme minifiée) apparaît dans `dist/`
-- échoue si la route `styleguide` (dev only) est incluse dans le bundle livré
+Pendants côté back : `ProdProfileConfigTest` (unit) — le profil prod ne réactive pas le
+mode verbeux.
 
-Complète la garde côté frontend (`environment.prod.spec.ts`) et côté backend
-(`ErrorResponseProdIT`).
+## `security`
+
+- **gitleaks** — secrets commités
+- **`npm audit --audit-level=high`** — CVE des dépendances frontend
+
+À venir (PR dédiée) : OWASP dependency-check (Maven), CodeQL (Java + TS), SpotBugs
+(*patterns* de bugs Java, ex. `NullPointerException` probable sur un chemin d'exécution).

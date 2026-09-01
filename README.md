@@ -33,12 +33,13 @@ et, à venir, `DESIGN.md`.
 ## Structure du dépôt (cible)
 
 ```
-backend/     API Spring Boot (package-by-feature : auth, user, file, download, tag, storage, expiration)
-frontend/    SPA Angular (core / shared design-system / features) + Cypress
+backend/     API Spring Boot 4.1 (package-by-feature : auth, user, file, download, tag, storage, expiration)
+frontend/    SPA Angular 22 (zoneless) — core / shared design-system / features + Vitest + Cypress
 deploy/      docker-compose (dev : Postgres + MinIO) + scripts d'installation
 perf/        scripts k6
 design/      passation Figma ⇄ code (voir design/HANDOFF.md) + captures de référence
-docs/        documentation vivante (CI, etc.)
+docs/        documentation vivante (CI, backlog, etc.)
+tools/       scripts de contrôle (en-têtes @figma-owned, etc.)
 .github/     workflows, templates, CODEOWNERS, dependabot
 ```
 
@@ -57,10 +58,11 @@ Documents qualité à la racine : `TESTING.md`, `SECURITY.md`, `PERF.md`,
 
 ## Deux éditeurs
 
-Le frontend visuel (`*.component.html` / `*.scss`, tokens, icônes) est généré
+Le frontend visuel (`*.html` / `*.scss` de composants, tokens, icônes) est généré
 depuis une maquette Figma via **Cursor** (MCP). La logique, les tests et l'infra
 sont maintenus dans **VS Code / Claude Code**. Frontière documentée dans
-`design/HANDOFF.md` ; les fichiers issus de Figma portent un en-tête `@figma-owned`.
+[`design/HANDOFF.md`](design/HANDOFF.md) ; les fichiers issus de Figma portent un
+en-tête `@figma-owned` (vérifié en CI).
 
 ## Roadmap
 
@@ -68,8 +70,8 @@ sont maintenus dans **VS Code / Claude Code**. Frontière documentée dans
 |---|---|
 | `#0001` | bootstrap : `.gitignore`, squelette CI, templates, `docs/CI.md` |
 | `#0002` | `backend/` (squelette Spring Boot 4.1) + `deploy/docker-compose` (Postgres + MinIO) |
-| `#0003` | `frontend/` (squelette + stubs `@figma-owned`) |
-| `#0004` | docs qualité (`TESTING` / `SECURITY` / `PERF` / `MAINTENANCE` / `DESIGN`) + `design/` |
+| `#0003` | `frontend/` (squelette Angular 22 + Vitest + pile d'erreurs + stubs `@figma-owned`) + `design/` |
+| `#0004` | docs qualité (`TESTING` / `SECURITY` / `PERF` / `MAINTENANCE` / `DESIGN`) |
 | `#0005+` | fonctionnalités US01→US06, puis US07→US10 |
 
 Éléments différés : voir [`docs/BACKLOG.md`](docs/BACKLOG.md).
@@ -100,4 +102,17 @@ cd backend
 
 ### Frontend
 
-_À compléter (PR #0003)._
+Requiert **Node 24** (`nvm use 24` dans `frontend/`, voir `frontend/.nvmrc`).
+
+```bash
+cd frontend
+npm ci
+npm start                    # http://localhost:4200  (route /styleguide en dev)
+npm run test:unit            # tests unitaires (Vitest)
+npm run test:integ           # tests d'intégration (Vitest + TestBed)
+npm run lint && npm run lint:style && npm run format:check
+npm run build                # build de production
+```
+
+Le proxy `/api` vers le backend est géré par `nginx.conf` en conteneur ; en dev,
+configurer un proxy `ng serve` quand les features consommeront l'API.
