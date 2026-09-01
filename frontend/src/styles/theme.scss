@@ -1,0 +1,9 @@
+// Assemble les tokens de design (fichiers @figma-owned) en un thème unique.
+// Maintenu côté logique (Claude Code).
+
+@use 'tokens';
+@use 'typography';
+@use 'breakpoints';
+
+// theme.scss ne fait que regrouper les partials ci-dessus (et dériver des valeurs
+// si besoin plus tard). Les tokens eux-mêmes sont déclarés dans _tokens.scss.

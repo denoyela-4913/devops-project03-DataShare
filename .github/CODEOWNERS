@@ -3,7 +3,7 @@
 #   - "Figma-owned" files are generated/maintained from Figma via Cursor (MCP).
 #   - Everything else (logic, tests, infra) is maintained in VS Code / Claude Code.
 
-*                                   @denoyela-4913
+*                                        @denoyela-4913
 
 # --- Figma-owned zone (Cursor) ---
 /frontend/src/styles/_tokens.scss        @denoyela-4913
@@ -13,5 +13,5 @@
 /frontend/src/assets/images/             @denoyela-4913
 /design/tokens.reference.json            @denoyela-4913
 /design/screens/                         @denoyela-4913
-*.component.html                         @denoyela-4913
-*.component.scss                         @denoyela-4913
+/frontend/src/app/**/*.html              @denoyela-4913
+/frontend/src/app/**/*.scss              @denoyela-4913

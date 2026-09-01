@@ -1,0 +1,30 @@
+<!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
+     À PRÉSERVER lors du restylage : les `data-testid`, le contrôle de flux @if,
+     les liaisons (click)/[title], les rôles et libellés ARIA.
+     Frame: <à renseigner> · voir design/figma-map.md -->
+@if (error(); as e) {
+  <div class="error-toast" role="alert" data-testid="error-toast">
+    <p class="error-toast__message" data-testid="error-message">{{ e.message }}</p>
+
+    @if (debugDetail(); as detail) {
+      <span
+        class="error-toast__detail"
+        data-testid="error-detail"
+        [title]="detail"
+        tabindex="0"
+        role="note"
+        aria-label="Détail technique de l'erreur"
+        >&#9432;</span
+      >
+    }
+
+    <button
+      type="button"
+      class="error-toast__dismiss"
+      (click)="dismiss()"
+      aria-label="Fermer le message d'erreur"
+    >
+      &times;
+    </button>
+  </div>
+}

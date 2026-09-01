@@ -1,0 +1,15 @@
+// Feuille de style globale. Assemblage + reset — maintenu côté logique (Claude Code).
+@use 'styles/theme';
+@use 'styles/a11y';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-block-size: 100%;
+}
