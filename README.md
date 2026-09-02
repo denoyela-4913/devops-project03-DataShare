@@ -43,8 +43,14 @@ tools/       scripts de contrôle (en-têtes @figma-owned, etc.)
 .github/     workflows, templates, CODEOWNERS, dependabot
 ```
 
-Documents qualité à la racine : `TESTING.md`, `SECURITY.md`, `PERF.md`,
-`MAINTENANCE.md` (+ `DESIGN.md`).
+## Suivi de qualité et maintenance
+
+- [`TESTING.md`](TESTING.md) — stratégie de test, matrice US × tests, couverture, exécution
+- [`SECURITY.md`](SECURITY.md) — surface d'attaque, décisions, scans de dépendances
+- [`PERF.md`](PERF.md) — méthodo k6, budget de bundle, métriques
+- [`MAINTENANCE.md`](MAINTENANCE.md) — MAJ des dépendances, runbook, versioning
+- [`DESIGN.md`](DESIGN.md) — carte US→route→composant→endpoint, design system, accessibilité
+- [`docs/CI.md`](docs/CI.md) — pipeline · [`docs/BACKLOG.md`](docs/BACKLOG.md) — éléments différés
 
 ## Workflow Git
 

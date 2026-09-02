@@ -28,9 +28,25 @@ réellement utilisés. Le `docker-compose` de dev fournit déjà MinIO.
 
 ## Couverture de tests
 
-La porte JaCoCo à 70 % (goal `check`) est **désactivée** tant qu'il n'y a pas de code
-métier. À activer dès la première PR de feature (US01), avec exclusions
-(`config/**`, `*Application`, DTO).
+La porte à 70 % (JaCoCo `check` côté back, seuil Vitest côté front) est **désactivée**
+tant qu'il n'y a pas de code métier. À activer dès la première PR de feature (US01),
+avec exclusions (`config/**`, `*Application`, DTO, `*.routes.ts`, `environments/**`).
+
+## Scans de sécurité à câbler
+
+Job CI `security` : actuellement gitleaks + `npm audit`. À ajouter dans une PR dédiée :
+
+- **OWASP dependency-check** (Maven) — CVE des dépendances backend. 1er run long
+  (téléchargement de la base NVD) → prévoir le cache / une clé API NVD.
+- **CodeQL** — SAST Java + TypeScript (workflow `codeql.yml` séparé possible).
+- **SpotBugs** (`spotbugs-maven-plugin`) — *patterns* de bugs Java. Exige la
+  compilation, d'où sa place dans `security` et non `lint-back`.
+
+## Durcissement HTTP (prod)
+
+CORS restreint à l'origine du front, en-têtes de sécurité via nginx (CSP,
+X-Frame-Options, X-Content-Type-Options, Referrer-Policy), HTTPS au reverse-proxy.
+À traiter avec la PR de déploiement.
 
 ## Conteneurisation complète
 
