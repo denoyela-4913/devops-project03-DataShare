@@ -1,10 +1,26 @@
 <!-- @figma-owned — coquille applicative (en-tête, navigation, pied de page) maintenue
      depuis Figma via Cursor. À PRÉSERVER : <app-error-toast/>, <router-outlet/>, le
-     lien d'évitement. Frame: <à renseigner> · voir design/figma-map.md -->
+     lien d'évitement, les data-testid.
+     Frame: DataShare_local · Login 55:333 — en-tête/pied de page communs aux frames
+     Desktop 6/7/8 (55:400, 55:419, 55:438) et iPhone 16 8/9/10 (55:334, 55:343, 56:491)
+     · voir design/figma-map.md -->
 <a class="skip-link" href="#main">Aller au contenu</a>
 
 <app-error-toast />
 
-<main id="main">
-  <router-outlet />
-</main>
+<div class="page">
+  <header class="site-header">
+    <a class="site-header__logo" routerLink="/" data-testid="app-logo">DataShare</a>
+    <a class="site-header__login-link" routerLink="/login" data-testid="app-header-login-link"
+      >Se connecter</a
+    >
+  </header>
+
+  <main id="main" class="site-main">
+    <router-outlet />
+  </main>
+
+  <footer class="site-footer">
+    <p class="site-footer__copy">DataShare &copy; 2026</p>
+  </footer>
+</div>

@@ -1,0 +1,68 @@
+<!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
+     À PRÉSERVER : les data-testid, [formGroup]/formControlName, (ngSubmit), les
+     libellés for/id, aria-labelledby, routerLink vers /login.
+     Frame: DataShare_local · Desktop - 7 (55:419) Créer un compte ·
+     iPhone 16 - 10 (56:491) · voir design/figma-map.md -->
+<section class="card" aria-labelledby="register-title" data-testid="register-view">
+  <h1 class="card__title" id="register-title">Créer un compte</h1>
+
+  <form
+    class="form"
+    data-testid="register-form"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    novalidate
+  >
+    <div class="form__fields">
+      <div class="field">
+        <label class="field__label" for="register-email">Email</label>
+        <input
+          class="field__input"
+          id="register-email"
+          formControlName="email"
+          type="email"
+          autocomplete="email"
+          placeholder="Saisissez votre email..."
+          data-testid="register-email-input"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="register-password">Mot de passe</label>
+        <input
+          class="field__input"
+          id="register-password"
+          formControlName="password"
+          type="password"
+          autocomplete="new-password"
+          placeholder="Saisissez votre mot de passe..."
+          data-testid="register-password-input"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="register-password-confirm"
+          >Vérification du mot de passe</label
+        >
+        <input
+          class="field__input"
+          id="register-password-confirm"
+          formControlName="passwordConfirm"
+          type="password"
+          autocomplete="new-password"
+          placeholder="Saisissez-le à nouveau..."
+          data-testid="register-password-confirm-input"
+        />
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <a class="btn btn--tertiary" routerLink="/login" data-testid="register-goto-login"
+        >J'ai déjà un compte</a
+      >
+      <button class="btn btn--primary" type="submit" data-testid="register-submit">
+        Créer mon compte
+      </button>
+    </div>
+  </form>
+</section>

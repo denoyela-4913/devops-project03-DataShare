@@ -1,0 +1,45 @@
+<!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
+     À PRÉSERVER : les data-testid, [formGroup]/formControlName, (ngSubmit), les
+     libellés for/id, aria-labelledby, routerLink vers /register.
+     Frame: DataShare_local · Desktop - 6 (55:400) Connexion · iPhone 16 - 9 (55:343)
+     · voir design/figma-map.md -->
+<section class="card" aria-labelledby="login-title" data-testid="login-view">
+  <h1 class="card__title" id="login-title">Connexion</h1>
+
+  <form class="form" data-testid="login-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form__fields">
+      <div class="field">
+        <label class="field__label" for="login-email">Email</label>
+        <input
+          class="field__input"
+          id="login-email"
+          formControlName="email"
+          type="email"
+          autocomplete="email"
+          placeholder="Saisissez votre email..."
+          data-testid="login-email-input"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="login-password">Mot de passe</label>
+        <input
+          class="field__input"
+          id="login-password"
+          formControlName="password"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Saisissez votre mot de passe..."
+          data-testid="login-password-input"
+        />
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <a class="btn btn--tertiary" routerLink="/register" data-testid="login-goto-register"
+        >Créer un compte</a
+      >
+      <button class="btn btn--primary" type="submit" data-testid="login-submit">Connexion</button>
+    </div>
+  </form>
+</section>
