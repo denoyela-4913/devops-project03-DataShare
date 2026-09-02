@@ -59,9 +59,8 @@ Vérifications **statiques, rapides, sans test, sans réseau**.
 |---|---|
 | **actionlint** | erreurs de syntaxe/refs dans `.github/workflows/*.yml` |
 | **yamllint** (`.yamllint.yaml`, profil *relaxed*) | indentation, clés dupliquées |
+| **markdownlint** (`.markdownlint-cli2.jsonc`, profil permissif) | structure des titres, cohérence des listes, sauts de ligne, liens |
 | **`tools/check-figma-owned.sh`** | tout `frontend/src/app/**/*.{html,scss}` doit porter l'en-tête `@figma-owned` |
-
-*(markdownlint : à ajouter.)*
 
 ### `commitlint`
 
