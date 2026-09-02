@@ -1,5 +1,57 @@
 // @figma-owned — variables de design (couleurs, espacements, rayons, ombres, z-index)
 // synchronisées depuis les variables Figma via Cursor. Voir design/figma-map.md.
 // SEUL fichier autorisé à contenir des couleurs hexadécimales (règle Stylelint color-no-hex).
-// Doit au minimum définir la custom property --color-focus (utilisée par _a11y.scss).
-// stub — à remplir depuis la maquette.
+// -
+// Source : DataShare_local — Login 55:333 / Desktop - 6 (55:400) Connexion /
+// Desktop - 7 (55:419) Créer un compte / iPhone 16 - 9 (55:343) / iPhone 16 - 10 (56:491).
+// Valeurs extraites par Cursor (paints Background/Header/Button/Input) puis migrées ici
+// par Claude Code (voir design/HANDOFF.md — passation ponctuelle, écran login/register).
+
+:root {
+  // Couleurs
+  --color-black: #000;
+  --color-white: #fff;
+  --color-label: #1e1e1e;
+  --color-placeholder: #b3b3b3;
+  --color-input-border: #d9d9d9;
+  --color-canvas-mobile: #fff7f7;
+
+  --color-header-btn: #2c2c2c;
+  --color-header-btn-text: #f3eeea;
+
+  --color-btn-tertiary-text: #e27f29;
+  --color-btn-primary-fill: rgb(255 129 45 / 13%);
+  --color-btn-primary-fill-hover: rgb(255 129 45 / 20%);
+  --color-btn-primary-text: #ba681f;
+  --color-btn-primary-stroke: rgb(205 94 20 / 50%);
+
+  --color-gradient-start: #ffb88c;
+  --color-gradient-end: #de6262;
+
+  --color-focus: #ba681f;
+
+  // Polices (familles uniquement — l'échelle est dans _typography.scss)
+  --font-display: 'DM Sans', sans-serif;
+  --font-body: 'Inter', 'DM Sans', sans-serif;
+
+  // Rayons
+  --radius-sm: 8px;
+  --radius-card: 16px;
+
+  // Ombres
+  --shadow-card: 0 0 12px rgb(0 0 0 / 25%);
+
+  // Layout
+  --header-height: 72px;
+  --footer-height: 56px;
+  --page-gutter: 80px;
+  --content-width: 1280px;
+  --card-width: 640px;
+}
+
+@media (max-width: 833px) {
+  :root {
+    --page-gutter: 0px;
+    --card-width: 345px;
+  }
+}

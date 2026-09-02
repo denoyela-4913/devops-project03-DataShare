@@ -1,4 +1,49 @@
 {
-  "_comment": "Dump des variables Figma — rempli par Cursor lors de la synchro des tokens. Voir design/HANDOFF.md.",
-  "tokens": {}
+  "_comment": "Dump des variables Figma — normalement rempli par Cursor lors de la synchro (voir design/HANDOFF.md). Ce dump-ci a été reconstruit par Claude Code à partir des styles générés par Cursor pour l'écran login/register (frame DataShare_local, Login 55:333) ; à confirmer/compléter par Cursor lors de sa prochaine synchro Figma.",
+  "source": {
+    "file": "DataShare_local",
+    "frames": ["Login 55:333", "Desktop - 6 (55:400)", "Desktop - 7 (55:419)", "iPhone 16 - 9 (55:343)", "iPhone 16 - 10 (56:491)"]
+  },
+  "tokens": {
+    "color": {
+      "black": "#000000",
+      "white": "#ffffff",
+      "label": "#1e1e1e",
+      "placeholder": "#b3b3b3",
+      "input-border": "#d9d9d9",
+      "canvas-mobile": "#fff7f7",
+      "header-btn": "#2c2c2c",
+      "header-btn-text": "#f3eeea",
+      "btn-tertiary-text": "#e27f29",
+      "btn-primary-fill": "rgb(255 129 45 / 13%)",
+      "btn-primary-fill-hover": "rgb(255 129 45 / 20%)",
+      "btn-primary-text": "#ba681f",
+      "btn-primary-stroke": "rgb(205 94 20 / 50%)",
+      "gradient-start": "#ffb88c",
+      "gradient-end": "#de6262",
+      "focus": "#ba681f"
+    },
+    "typography": {
+      "xlarge": { "font": "DM Sans", "size": "32px", "line": "40px", "weight": 700 },
+      "h1": { "font": "DM Sans", "size": "28px", "line": "40px", "weight": 700 },
+      "normal": { "font": "Inter", "size": "16px", "line": "24px", "weight": 400 },
+      "input": { "font": "DM Sans", "size": "16px", "line": "16px", "weight": 400 }
+    },
+    "radius": {
+      "sm": "8px",
+      "card": "16px"
+    },
+    "shadow": {
+      "card": "0 0 12px rgb(0 0 0 / 25%)"
+    },
+    "layout": {
+      "header-height": "72px",
+      "footer-height": "56px",
+      "page-gutter": "80px",
+      "page-gutter-mobile": "0px",
+      "content-width": "1280px",
+      "card-width": "640px",
+      "card-width-mobile": "345px"
+    }
+  }
 }

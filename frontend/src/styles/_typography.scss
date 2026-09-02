@@ -1,3 +1,35 @@
 // @figma-owned — échelle typographique (familles, tailles, hauteurs de ligne, graisses)
 // synchronisée depuis Figma via Cursor. Voir design/figma-map.md.
-// stub — à remplir depuis la maquette.
+// -
+// Mappe les 4 styles de texte Figma de la maquette Login (préfixe "Ag" = aperçu de
+// style Figma) vers des custom properties réutilisables par tous les écrans :
+// -
+//   Ag XLarge -> --type-xlarge-*  (logo "DataShare")
+//   Ag H1     -> --type-h1-*      (titres de carte : "Connexion", "Créer un compte")
+//   Ag Normal -> --type-normal-*  (libellés de champ, footer)
+//   Ag Input  -> --type-input-*   (texte saisi/placeholder, liens, boutons)
+// -
+// Tailles/graisses confirmées par Cursor via le pont Figma MCP (polices réelles :
+// DM Sans pour l'affichage, Inter pour le corps de texte).
+
+:root {
+  --type-xlarge-font: var(--font-display);
+  --type-xlarge-size: 32px;
+  --type-xlarge-line: 40px;
+  --type-xlarge-weight: 700;
+
+  --type-h1-font: var(--font-display);
+  --type-h1-size: 28px;
+  --type-h1-line: 40px;
+  --type-h1-weight: 700;
+
+  --type-normal-font: var(--font-body);
+  --type-normal-size: 16px;
+  --type-normal-line: 24px;
+  --type-normal-weight: 400;
+
+  --type-input-font: var(--font-display);
+  --type-input-size: 16px;
+  --type-input-line: 16px;
+  --type-input-weight: 400;
+}

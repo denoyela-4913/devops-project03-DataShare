@@ -1,1 +1,115 @@
-/* @figma-owned — style de la coquille applicative, maintenu depuis Figma via Cursor. */
+/* @figma-owned — style de la coquille applicative, maintenu depuis Figma via Cursor.
+   Utiliser les tokens de src/styles/_tokens.scss et src/styles/_typography.scss,
+   jamais de valeurs en dur.
+   Frame: DataShare_local · Login 55:333 · voir design/figma-map.md */
+
+:host {
+  display: contents;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(
+    168deg,
+    var(--color-gradient-start) 0%,
+    var(--color-gradient-end) 100%
+  );
+}
+
+.site-header,
+.site-footer {
+  flex-shrink: 0;
+  width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2)));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+}
+
+.site-header {
+  height: var(--header-height);
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.site-header__logo {
+  font-family: var(--type-xlarge-font);
+  font-weight: var(--type-xlarge-weight);
+  font-size: var(--type-xlarge-size);
+  line-height: var(--type-xlarge-line);
+  color: var(--color-black);
+  text-decoration: none;
+}
+
+.site-header__login-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-header-btn);
+  color: var(--color-header-btn-text);
+  font-family: var(--type-input-font);
+  font-size: var(--type-input-size);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px var(--page-gutter);
+  min-height: 896px;
+}
+
+.site-footer {
+  height: var(--footer-height);
+}
+
+.site-footer__copy {
+  margin: 0;
+  width: 100%;
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-white);
+}
+
+@media (max-width: 833px) {
+  .page {
+    position: relative;
+    background: var(--color-canvas-mobile);
+  }
+
+  .page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      168deg,
+      var(--color-gradient-start) 0%,
+      var(--color-gradient-end) 100%
+    );
+  }
+
+  .site-header,
+  .site-footer {
+    width: 100%;
+  }
+
+  .site-main {
+    min-height: calc(100vh - var(--header-height));
+    padding: 0 24px;
+    align-items: center;
+  }
+
+  .site-footer {
+    display: none;
+  }
+}
