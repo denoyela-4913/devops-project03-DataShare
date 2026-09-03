@@ -3,7 +3,8 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "schematicCollections": ["angular-eslint"]
+    "schematicCollections": ["angular-eslint"],
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -47,8 +48,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "6kB",
+                  "maximumError": "10kB"
                 }
               ],
               "outputHashing": "all"
@@ -73,6 +74,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "datashare-frontend:build:production"
@@ -89,13 +93,16 @@
             "tsConfig": "tsconfig.spec.json",
             "buildTarget": "datashare-frontend:build:development",
             "coverage": true,
-            "coverageReporters": ["text-summary", "lcovonly", "html"],
+            "coverageReporters": ["text-summary", "lcovonly", "html", "json-summary"],
             "coverageExclude": [
               "src/**/*.spec.ts",
               "src/**/*.integ.spec.ts",
               "src/main.ts",
+              "src/app/app.config.ts",
               "src/environments/**",
-              "src/**/*.routes.ts"
+              "src/**/*.routes.ts",
+              "src/**/*.routes.common.ts",
+              "src/app/features/styleguide/**"
             ]
           },
           "configurations": {

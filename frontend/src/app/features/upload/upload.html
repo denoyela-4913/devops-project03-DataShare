@@ -1,0 +1,340 @@
+<!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
+     À PRÉSERVER : les data-testid, (change)="onFileChange($event)", (ngSubmit),
+     [class.field--error], [disabled], aria-*, routerLink.
+     Frames: DataShare_local · Téléversement 32:515
+       Landing  : Desktop - 2 (10:217) · iPhone 16 - 1 (1:2)
+       Formulaire : Desktop - 1 (10:122) · iPhone 16 - 2 (2:42)
+       Erreur taille : iPhone 16 - 4 (5:289)
+       Succès   : Desktop - 3 (15:272) · iPhone 16 - 3 (5:229)
+     Voir design/figma-map.md -->
+
+<!-- ===== ÉTAT LANDING ===== -->
+@if (state() === 'landing') {
+  <section class="landing" aria-labelledby="landing-title" data-testid="upload-landing">
+    <p class="landing__cta" id="landing-title">Tu veux partager un fichier&nbsp;?</p>
+
+    <div class="landing__icon-wrap" aria-hidden="true">
+      <div class="landing__icon-ring">
+        <svg
+          class="landing__icon-svg"
+          viewBox="0 0 48 48"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M15.9999 32L23.9999 24L31.9999 32M23.9999 24V42
+               M40.78 36.78C42.73 35.72 44.27 34.03 45.16 32
+               C46.05 29.96 46.23 27.69 45.68 25.53
+               C45.14 23.38 43.89 21.47 42.13 20.11
+               C40.38 18.74 38.22 18 36 18H33.48
+               C32.87 15.66 31.75 13.48 30.18 11.64
+               C28.61 9.8 26.65 8.34 24.44 7.36
+               C22.22 6.39 19.82 5.93 17.4 6.02
+               C14.98 6.1 12.62 6.74 10.48 7.88
+               C8.35 9.01 6.5 10.61 5.07 12.57
+               C3.64 14.52 2.68 16.77 2.25 19.15
+               C1.81 21.53 1.93 23.98 2.58 26.31
+               C3.23 28.64 4.4 30.79 6 32.6"
+            stroke="#FFEEEC"
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <label
+      class="btn btn--primary landing__choose-btn"
+      for="file-input-landing"
+      data-testid="upload-landing-choose"
+    >
+      Choisir un fichier
+      <input
+        id="file-input-landing"
+        class="visually-hidden"
+        type="file"
+        aria-label="Sélectionner un fichier à partager"
+        data-testid="upload-file-input-landing"
+        (change)="onFileChange($event); startUpload()"
+      />
+    </label>
+  </section>
+}
+
+<!-- ===== ÉTAT FORMULAIRE ===== -->
+@if (state() === 'form') {
+  <section class="card" aria-labelledby="upload-form-title" data-testid="upload-form">
+    <h1 class="card__title" id="upload-form-title">Ajouter un fichier</h1>
+
+    <!-- Fichier sélectionné -->
+    <div class="file-row" [class.file-row--error]="fileTooLarge()" data-testid="upload-file-row">
+      <div class="file-info">
+        <svg
+          class="file-info__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M14 3v6h6"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M8 12h8M8 16h4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <div class="file-info__meta">
+          <span class="file-info__name" data-testid="upload-file-name">{{
+            selectedFile()?.name
+          }}</span>
+          <span
+            class="file-info__size"
+            [class.file-info__size--error]="fileTooLarge()"
+            data-testid="upload-file-size"
+            >{{ fileSizeLabel() }}</span
+          >
+        </div>
+      </div>
+
+      <label class="btn btn--change" for="file-input-form" data-testid="upload-change-btn">
+        Changer
+        <input
+          id="file-input-form"
+          class="visually-hidden"
+          type="file"
+          aria-label="Changer le fichier sélectionné"
+          data-testid="upload-file-input-form"
+          (change)="onFileChange($event)"
+        />
+      </label>
+    </div>
+
+    @if (fileTooLarge()) {
+      <p class="error-msg" role="alert" data-testid="upload-size-error">
+        La taille des fichiers est limitée à 1 Go
+      </p>
+    }
+
+    <!-- Options -->
+    <form
+      class="form"
+      data-testid="upload-options-form"
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      novalidate
+    >
+      <div class="form__fields">
+        <!-- Mot de passe optionnel -->
+        <div class="field">
+          <label class="field__label" for="upload-password">Mot de passe</label>
+          <input
+            class="field__input"
+            id="upload-password"
+            formControlName="password"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Optionnel"
+            aria-describedby="upload-password-hint"
+            data-testid="upload-password-input"
+          />
+          <span id="upload-password-hint" class="field__hint"
+            >Laissez vide pour un lien public</span
+          >
+        </div>
+
+        <!-- Expiration -->
+        <div class="field">
+          <label class="field__label" for="upload-expiration">Expiration</label>
+          <div class="select-wrap">
+            <select
+              class="field__select"
+              id="upload-expiration"
+              formControlName="expiration"
+              aria-describedby="upload-expiration-error"
+              data-testid="upload-expiration-select"
+            >
+              @for (opt of expirationOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+            <svg
+              class="select-wrap__chevron"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 6l4 4 4-4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          <app-field-error
+            [control]="form.controls.expiration"
+            id="upload-expiration-error"
+            data-testid="upload-expiration-error"
+          />
+        </div>
+      </div>
+
+      <button
+        class="btn btn--primary btn--upload"
+        type="submit"
+        [disabled]="fileTooLarge() || submitting()"
+        data-testid="upload-submit"
+        aria-live="polite"
+      >
+        <svg
+          class="btn__icon"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M5.33 10.67L8 8l2.67 2.67M8 8v6
+               M13.59 12.26C14.49 11.74 15.18 10.93 15.55 9.97
+               C15.92 9 15.96 7.93 15.66 6.93
+               C15.36 5.94 14.73 5.07 13.87 4.49
+               C13.01 3.91 11.98 3.63 10.93 3.67H9.83
+               C9.57 2.72 9.09 1.85 8.43 1.13
+               C7.76 0.41 6.93 -0.14 6 -0.44
+               C5.07 -0.74 4.07 -0.77 3.12 -0.43
+               C2.17 -0.09 1.33 0.53 0.69 1.35
+               C0.06 2.17 -0.33 3.14 -0.46 4.16
+               C-0.59 5.19 -0.44 6.24 0 7.19
+               C0.44 8.14 1.15 8.94 2 9.53"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Téléverser
+      </button>
+    </form>
+  </section>
+}
+
+<!-- ===== ÉTAT SUCCÈS ===== -->
+@if (state() === 'success') {
+  <section
+    class="card card--success"
+    aria-labelledby="upload-success-title"
+    data-testid="upload-success"
+  >
+    <h1 class="card__title" id="upload-success-title">Ajouter un fichier</h1>
+
+    <!-- Fichier -->
+    <div class="file-row" data-testid="upload-success-file-row">
+      <div class="file-info">
+        <svg
+          class="file-info__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M14 3v6h6"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <div class="file-info__meta">
+          <span class="file-info__name">{{ selectedFile()?.name }}</span>
+          <span class="file-info__size">{{ fileSizeLabel() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message + lien -->
+    <div class="success-block" data-testid="upload-success-block">
+      <p class="success-block__msg">
+        Félicitations, ton fichier sera conservé chez nous pendant une semaine&nbsp;!
+      </p>
+      <a
+        class="success-block__url"
+        [href]="shareUrl()"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-testid="upload-share-url"
+        >{{ shareUrl() }}</a
+      >
+    </div>
+
+    <!-- Actions -->
+    <div class="form__actions">
+      <button
+        class="btn btn--primary btn--upload"
+        type="button"
+        (click)="copyLink()"
+        data-testid="upload-copy-btn"
+        [attr.aria-pressed]="copied()"
+      >
+        <svg
+          class="btn__icon"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <rect
+            x="5.33"
+            y="5.33"
+            width="9.33"
+            height="9.33"
+            rx="1.33"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <path
+            d="M10.67 5.33V2.67A1.33 1.33 0 0 0 9.33 1.33H2.67A1.33 1.33 0 0 0 1.33 2.67v6.67a1.33 1.33 0 0 0 1.34 1.33H5.33"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+        </svg>
+        {{ copied() ? 'Lien copié !' : 'Copier le lien' }}
+      </button>
+
+      <button
+        class="btn btn--tertiary"
+        type="button"
+        (click)="uploadAnother()"
+        data-testid="upload-another-btn"
+      >
+        Téléverser un autre fichier
+      </button>
+    </div>
+  </section>
+}

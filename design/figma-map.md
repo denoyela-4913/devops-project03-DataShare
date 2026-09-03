@@ -28,6 +28,6 @@ Statuts : ☐ à faire · ◐ généré, à réviser · ☑ validé (voir DoD da
 |---|---|---|---|---|---|
 | _inscription_ (Desktop - 7, iPhone 16 - 10) | 55:419 / 56:491 | `/register` | US03 | `POST /api/auth/register` | ◐ |
 | _connexion_ (Desktop - 6, iPhone 16 - 9) | 55:400 / 55:343 | `/login` | US04 | `POST /api/auth/login` | ◐ |
-| _upload_ | — | `/upload` | US01/US07 | `POST /api/files` | ☐ |
+| Téléversement 32:515 (Desktop - 2/1/3, iPhone 16 - 1/2/4/3) | 32:515 | `/upload` | US01/US07 | `POST /api/files` | ◐ |
 | _téléchargement_ | — | `/d/:token` | US02 | `GET /api/d/{token}` | ☐ |
 | _historique_ | — | `/history` | US05/US06 | `GET /api/files` | ☐ |

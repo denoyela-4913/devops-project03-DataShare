@@ -1,16 +1,15 @@
 // @figma-owned — échelle typographique (familles, tailles, hauteurs de ligne, graisses)
 // synchronisée depuis Figma via Cursor. Voir design/figma-map.md.
 // -
-// Mappe les 4 styles de texte Figma de la maquette Login (préfixe "Ag" = aperçu de
-// style Figma) vers des custom properties réutilisables par tous les écrans :
+// Mappe les styles de texte Figma vers des custom properties réutilisables :
 // -
-//   Ag XLarge -> --type-xlarge-*  (logo "DataShare")
-//   Ag H1     -> --type-h1-*      (titres de carte : "Connexion", "Créer un compte")
-//   Ag Normal -> --type-normal-*  (libellés de champ, footer)
+//   Ag XLarge -> --type-xlarge-*  (logo "DataShare", CTA landing upload)
+//   Ag H1     -> --type-h1-*      (titres de carte)
+//   Ag Normal -> --type-normal-*  (libellés de champ, footer, messages)
 //   Ag Input  -> --type-input-*   (texte saisi/placeholder, liens, boutons)
+//   Ag Small  -> --type-small-*   (taille fichier : 14px DM Sans — iPhone 16-2 56:399)
 // -
-// Tailles/graisses confirmées par Cursor via le pont Figma MCP (polices réelles :
-// DM Sans pour l'affichage, Inter pour le corps de texte).
+// Tailles/graisses confirmées par Cursor via le pont Figma MCP.
 
 :root {
   --type-xlarge-font: var(--font-display);
@@ -32,4 +31,11 @@
   --type-input-size: 16px;
   --type-input-line: 16px;
   --type-input-weight: 400;
+
+  // Ag Small — taille/poids fichier (14px, DM Sans Regular, line 16px)
+  // Figma iPhone 16-2 : node 56:399 "2,6 Mo" / node 5:299 "3,1 Go" (rouge)
+  --type-small-font: var(--font-display);
+  --type-small-size: 14px;
+  --type-small-line: 16px;
+  --type-small-weight: 400;
 }

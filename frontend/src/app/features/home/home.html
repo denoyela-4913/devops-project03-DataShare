@@ -1,0 +1,11 @@
+<!-- @figma-owned — écran "espace personnel" (placeholder avant l'historique US05).
+     À PRÉSERVER : les data-testid, le contrôle @if, (click)="logout()".
+     Frame: à créer · voir design/figma-map.md -->
+<section class="home" data-testid="home-view">
+  @if (user(); as u) {
+    <p class="home__greeting" data-testid="home-email">Connecté : {{ u.email }}</p>
+  }
+  <button type="button" class="home__logout" (click)="logout()" data-testid="home-logout">
+    Se déconnecter
+  </button>
+</section>

@@ -169,15 +169,74 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - working-directory: frontend
         run: npm ci
-      - name: Integration tests (Vitest + TestBed)
+      - name: Tests (Vitest, all projects) + coverage gate 70%
         working-directory: frontend
-        run: npm run test:integ
+        run: npm run test:cov
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          if-no-files-found: ignore
 
   frontend-e2e:
     name: frontend-e2e
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: datashare
+          POSTGRES_USER: datashare
+          POSTGRES_PASSWORD: datashare
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U datashare"
+          --health-interval 5s --health-timeout 5s --health-retries 15
     steps:
-      - run: 'echo "placeholder: Cypress against a built stack, wired with the auth feature (US03/US04)"'
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+      - name: Build backend
+        working-directory: backend
+        run: ./mvnw -B -ntp -q package -DskipTests
+      - name: Start backend (profil dev)
+        working-directory: backend
+        run: |
+          nohup java -jar target/datashare-backend-*.jar --spring.profiles.active=dev > backend.log 2>&1 &
+          for _ in $(seq 1 60); do
+            if curl -sf http://localhost:8080/actuator/health; then
+              echo "backend up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "backend did not start in time"
+          cat backend.log
+          exit 1
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+      - name: Cypress (contre ng serve + backend)
+        working-directory: frontend
+        run: npx start-server-and-test 'npm start' http://localhost:4200 'npm run e2e'
+      - name: Backend log on failure
+        if: failure()
+        run: cat backend/backend.log || true
 
   assert-prod-bundle:
     name: assert-prod-bundle
@@ -227,4 +286,15 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: npm audit (frontend)
         working-directory: frontend
-        run: npm audit --audit-level=high
+        run: |
+          set +e
+          out=$(npm audit --audit-level=high 2>&1)
+          code=$?
+          echo "$out"
+          if [ "$code" -ne 0 ]; then
+            if echo "$out" | grep -qiE 'Service Unavailable|endpoint returned an error|ENOTFOUND|ETIMEDOUT|ECONNRESET'; then
+              echo "::warning::npm audit could not reach the advisory endpoint — traité comme non bloquant"
+              exit 0
+            fi
+            exit "$code"
+          fi
