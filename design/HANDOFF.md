@@ -30,7 +30,11 @@ Cursor **ne doit jamais casser**, dans les `.html` :
 - le contrôle de flux `@if` / `@for` / `@switch`
 - les liaisons `[attr]="…"`, `(event)="…"`, `{{ interpolation }}`
 - les rôles et libellés ARIA (`role`, `aria-*`), le `<router-outlet/>`, `<ng-content/>`
-- les composants référencés (`<app-error-toast/>`, etc.)
+- les composants référencés (`<app-error-toast/>`, `<app-field-error/>`, etc.)
+- **la gestion d'erreur de formulaire ajoutée par Claude Code** : `<app-field-error>` après
+  chaque champ, `[class.field--invalid]` sur `.field`, `aria-describedby` sur l'`<input>`,
+  `[disabled]="submitting()"` sur le bouton. Cursor peut restyler la carte, pas retirer ces
+  éléments.
 
 Dans les `.scss` : utiliser **exclusivement les tokens** de `_tokens.scss` (règle Stylelint
 `color-no-hex` — aucune couleur en dur hors `_tokens.scss`).

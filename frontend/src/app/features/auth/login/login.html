@@ -1,6 +1,7 @@
 <!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
      À PRÉSERVER : les data-testid, [formGroup]/formControlName, (ngSubmit), les
-     libellés for/id, aria-labelledby, routerLink vers /register.
+     libellés for/id, aria-labelledby, aria-describedby, [class.field--invalid],
+     <app-field-error>, [disabled], routerLink vers /register.
      Frame: DataShare_local · Desktop - 6 (55:400) Connexion · iPhone 16 - 9 (55:343)
      · voir design/figma-map.md -->
 <section class="card" aria-labelledby="login-title" data-testid="login-view">
@@ -8,7 +9,10 @@
 
   <form class="form" data-testid="login-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="form__fields">
-      <div class="field">
+      <div
+        class="field"
+        [class.field--invalid]="form.controls.email.invalid && form.controls.email.touched"
+      >
         <label class="field__label" for="login-email">Email</label>
         <input
           class="field__input"
@@ -17,11 +21,20 @@
           type="email"
           autocomplete="email"
           placeholder="Saisissez votre email..."
+          aria-describedby="login-email-error"
           data-testid="login-email-input"
+        />
+        <app-field-error
+          [control]="form.controls.email"
+          id="login-email-error"
+          data-testid="login-email-error"
         />
       </div>
 
-      <div class="field">
+      <div
+        class="field"
+        [class.field--invalid]="form.controls.password.invalid && form.controls.password.touched"
+      >
         <label class="field__label" for="login-password">Mot de passe</label>
         <input
           class="field__input"
@@ -30,7 +43,13 @@
           type="password"
           autocomplete="current-password"
           placeholder="Saisissez votre mot de passe..."
+          aria-describedby="login-password-error"
           data-testid="login-password-input"
+        />
+        <app-field-error
+          [control]="form.controls.password"
+          id="login-password-error"
+          data-testid="login-password-error"
         />
       </div>
     </div>
@@ -39,7 +58,14 @@
       <a class="btn btn--tertiary" routerLink="/register" data-testid="login-goto-register"
         >Créer un compte</a
       >
-      <button class="btn btn--primary" type="submit" data-testid="login-submit">Connexion</button>
+      <button
+        class="btn btn--primary"
+        type="submit"
+        [disabled]="submitting()"
+        data-testid="login-submit"
+      >
+        Connexion
+      </button>
     </div>
   </form>
 </section>

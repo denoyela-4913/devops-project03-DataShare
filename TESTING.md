@@ -28,10 +28,10 @@ Règle de placement :
 
 | US | Unitaire | Intégration | Fonctionnel / e2e | Statut |
 |---|---|---|---|---|
-| US01 — upload (compte) | validation taille/type/mdp/expiration/tags ; génération token | `POST /api/files` (201, lien, autorisation) ; stockage MinIO | e2e upload→download | ☐ |
+| US01 — upload (compte) | `upload.integ.spec` : état landing/form/success, taille > 1 Go, format Mo/Go | `POST /api/files` (201, lien, autorisation) ; stockage MinIO | e2e upload→download | ◐ écran front, soumission ☐ |
 | US02 — téléchargement via lien | vérif expiration + mot de passe | `GET /api/d/{token}` (métadonnées, flux, 404/410, 401 mdp) | e2e upload→download | ☐ |
-| US03 — création de compte | `AuthServiceTest` (unicité, hash, normalisation email, contrainte `UNIQUE` → 409), `JwtServiceTest` | `AuthControllerIT` : 201, 409 `EMAIL_ALREADY_USED`, 400 `VALIDATION` (email, mdp < 8) | e2e inscription→connexion (PR #0007) | ◐ back ☑ |
-| US04 — connexion | `AuthServiceTest` (match/no-match/inconnu → 401) | `AuthControllerIT` : 200 + token, 401 `INVALID_CREDENTIALS` (mdp faux, email inconnu) ; `MeControllerIT` : `/api/me` 401 sans token / 200 avec / 401 compte supprimé | e2e inscription→connexion (PR #0007) | ◐ back ☑ |
+| US03 — création de compte | back : `AuthServiceTest`, `JwtServiceTest` · front : `register.integ.spec` (validation, mdp différents, submit → `AuthService.register` → navigation), `field-error.spec` | `AuthControllerIT` : 201, 409 `EMAIL_ALREADY_USED`, 400 `VALIDATION` · front : `auth.service.integ.spec` (POST + stockage token) | **`cypress/e2e/auth.cy.ts`** : inscription → espace perso ; email déjà pris → erreur | ☑ |
+| US04 — connexion | back : `AuthServiceTest` · front : `login.integ.spec` (submit, `?redirect=`, erreur serveur), `token-store.spec`, `auth.guard.spec`, `jwt.interceptor.integ.spec` | `AuthControllerIT` : 200 + token, 401 `INVALID_CREDENTIALS` ; `MeControllerIT` : `/api/me` 401 sans token / 200 avec / 401 compte supprimé | `auth.cy.ts` : déconnexion → reconnexion ; page protégée sans session → `/login` | ☑ |
 | US05 — historique | tri/état du lien | `GET /api/files` (liste du propriétaire uniquement) | e2e historique→suppression | ☐ |
 | US06 — suppression | suppression physique + métadonnées, propriété | `DELETE /api/files/{id}` (204, 403 non-propriétaire) | e2e historique→suppression | ☐ |
 | US07 — upload anonyme | règles US01 sans `owner` | `POST /api/files` sans JWT | — | ☐ |
@@ -44,14 +44,18 @@ Règle de placement :
 
 Câblés avec la première feature offrant un parcours complet (US03/US04).
 
-1. **Inscription → connexion** — créer un compte, se connecter, atterrir sur l'espace
-   personnel ; email déjà utilisé → message d'erreur explicite.
-2. **Upload → téléchargement** — déposer un fichier, récupérer le lien, l'ouvrir dans
+1. **Inscription → connexion** ☑ (`cypress/e2e/auth.cy.ts`) — créer un compte, atterrir
+   sur l'espace personnel, se déconnecter, se reconnecter ; email déjà utilisé → message
+   d'erreur explicite ; page protégée sans session → redirection vers `/login`.
+2. **Upload → téléchargement** ☐ — déposer un fichier, récupérer le lien, l'ouvrir dans
    un contexte non authentifié, voir les métadonnées, télécharger.
-3. **Historique → suppression** — l'utilisateur voit ses fichiers, en supprime un
+3. **Historique → suppression** ☐ — l'utilisateur voit ses fichiers, en supprime un
    après confirmation, il disparaît ; il ne voit pas les fichiers d'un autre.
-4. **Modes debug/prod** — provoquer une erreur 409 : en build dev, l'info-bulle de
+4. **Modes debug/prod** ☐ — provoquer une erreur 409 : en build dev, l'info-bulle de
    détail technique est présente ; en build prod, seule la mention générique.
+
+Job CI **`frontend-e2e`** : PostgreSQL (service) + backend (`java -jar`, profil `dev`) +
+`ng serve` (proxy `/api`) + `cypress run`.
 
 ## 4. Critères d'acceptation
 
@@ -106,7 +110,9 @@ cd ../frontend && npm run e2e                         # Cypress
   `jacoco:check` **BUNDLE LINE ≥ 0.70** au `verify` (donc dans le job `backend-integ`).
   Exclusions : `config/**`, `*Application`, `**/dto/**`, `*Properties`. Couverture
   actuelle : **~93 %** (lignes).
-- **Front : rapport seul** — porte activée en PR #0007 (câblage auth) via config Vitest.
+- **Front : porte bloquante active** (PR #0007). `ng test` (projets unit + integ) +
+  `--coverage` + `tools/check-coverage.mjs` (lignes ≥ 70 %) dans le job `frontend-integ`.
+  `frontend-unit` reste rapide (projet unit seul). Couverture actuelle : **~92 %** (lignes).
 - Capture du rapport : `docs/screenshots/coverage-backend.png` (JaCoCo) — voir
   [`docs/screenshots/README.md`](docs/screenshots/README.md). Rapport local :
   `backend/target/site/jacoco-merged/index.html`.

@@ -7,10 +7,10 @@ Vue produit / architecture. Le **processus** de passation Figma ⇄ code est dan
 
 | US | Route Angular | Composants | Endpoint API | DTO | Statut |
 |---|---|---|---|---|---|
-| US03 — création de compte | `/register` | `features/auth/register` | `POST /api/auth/register` | `RegisterRequest` → `TokenResponse` | back ☑ · front ◐ (câblage PR #0007) |
-| US04 — connexion | `/login` | `features/auth/login` | `POST /api/auth/login` | `LoginRequest` → `TokenResponse` | back ☑ · front ◐ |
-| — profil courant | (garde de route) | — | `GET /api/me` | `MeResponse` | back ☑ |
-| US01 / US07 — upload | `/upload` | `features/upload` + `password-field`, `tag-chip` | `POST /api/files` (JWT optionnel) | `multipart` → `UploadResponse` | ☐ |
+| US03 — création de compte | `/register` | `features/auth/register` + `field-error` | `POST /api/auth/register` | `RegisterRequest` → `TokenResponse` | ☑ (front + back, e2e) |
+| US04 — connexion | `/login` | `features/auth/login` + `field-error` | `POST /api/auth/login` | `LoginRequest` → `TokenResponse` | ☑ |
+| — espace personnel | `/` (garde `authGuard`) | `features/home` | `GET /api/me` | `MeResponse` | ☑ (placeholder avant US05) |
+| US01 / US07 — upload | `/upload` | `features/upload` (landing/form/succès) + `field-error` | `POST /api/files` (JWT optionnel) | `multipart` → `UploadResponse` | ◐ écran front (soumission ☐) |
 | US02 — téléchargement | `/d/:token` | `features/download` + `password-field` | `GET`/`POST /api/d/{token}` | `FileMetadata` | ☐ |
 | US05 — historique | `/history` | `features/history` + `file-card`, pipes `expiryStatus`/`fileSize` | `GET /api/files` | `FileSummary[]` | ☐ |
 | US06 — suppression | `/history` | `file-card` + `confirm-dialog` | `DELETE /api/files/{id}` | — | ☐ |
@@ -37,6 +37,7 @@ autorisées que dans `_tokens.scss` (règle Stylelint `color-no-hex`, vérifiée
 |---|---|---|
 | `ui-button` | bouton (variants primary / secondary / danger) | ☑ (logique + stub style) |
 | `error-toast` | bandeau d'erreur global, détail technique en mode debug | ☑ |
+| `field-error` | message d'erreur d'un contrôle de formulaire (a11y `role="alert"`, `aria-describedby`) | ☑ |
 | `ui-text-field` | champ de formulaire + libellé + erreur | ☐ |
 | `password-field` | saisie de mot de passe accessible | ☐ |
 | `tag-chip` | étiquette de tag (US08) | ☐ |

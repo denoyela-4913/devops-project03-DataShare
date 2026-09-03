@@ -1,0 +1,359 @@
+/* @figma-owned — styles de l'écran de téléversement, maintenus depuis Figma via Cursor.
+   Utiliser exclusivement les tokens de src/styles/_tokens.scss et _typography.scss,
+   jamais de valeurs en dur (règle Stylelint color-no-hex).
+   Frames: DataShare_local · Téléversement 32:515
+     Desktop - 2 (10:217) · Desktop - 1 (10:122) · Desktop - 3 (15:272)
+     iPhone 16 - 1 (1:2) · iPhone 16 - 2 (2:42) · iPhone 16 - 4 (5:289) · iPhone 16 - 3 (5:229)
+   Voir design/figma-map.md */
+
+// ── Utilitaire a11y ──────────────────────────────────────────────────────────
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ── Landing ──────────────────────────────────────────────────────────────────
+// Figma : Desktop - 2 (10:217) · iPhone 16 - 1 (1:2)
+// CTA "Tu veux partager un fichier ?" centré + icône upload cloud dans anneaux
+
+.landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+
+.landing__cta {
+  margin: 0;
+  font-family: var(--type-xlarge-font);
+  font-size: var(--type-xlarge-size);
+  font-weight: var(--type-xlarge-weight);
+  line-height: var(--type-xlarge-line);
+  color: var(--color-black);
+}
+
+// Anneaux concentriques : outer = #2f190d / inner = #100218 / r=240 (cercle)
+.landing__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing__icon-ring {
+  width: 144px;
+  height: 144px;
+  border-radius: 50%;
+  background: var(--color-icon-ring-outer);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing__icon-ring::before {
+  content: '';
+  display: none; // contenu remplacé par le SVG inline via padding
+}
+
+// Anneau interne via la boîte du SVG
+.landing__icon-svg {
+  display: block;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--color-icon-ring-inner);
+  padding: 24px;
+}
+
+// ── Carte partagée (form + succès) ───────────────────────────────────────────
+// Figma Desktop - 1 : 412×414, r=16, shadow 0 0 12 / 25 %, pad 24 32
+
+.card {
+  width: var(--card-width);
+  max-width: 100%;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.card__title {
+  margin: 0;
+  font-family: var(--type-h1-font);
+  font-size: var(--type-h1-size);
+  font-weight: var(--type-h1-weight);
+  line-height: var(--type-h1-line);
+  color: var(--color-black);
+}
+
+// ── Ligne fichier ─────────────────────────────────────────────────────────────
+// Figma Frame 13 / Frame 11 : icône + nom + taille + bouton Changer
+
+.file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.file-info__icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: var(--color-black);
+}
+
+.file-info__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.file-info__name {
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 20ch;
+}
+
+.file-info__size {
+  font-family: var(--type-small-font);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--color-black);
+}
+
+.file-info__size--error {
+  color: var(--color-file-size-error);
+}
+
+// ── Message erreur taille ─────────────────────────────────────────────────────
+// Figma iPhone 16 - 4 : Frame 15 / texte rouge #f14343
+
+.error-msg {
+  margin: 0;
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-file-size-error);
+}
+
+// ── Formulaire ────────────────────────────────────────────────────────────────
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field__label {
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  font-weight: var(--type-normal-weight);
+  line-height: var(--type-normal-line);
+  color: var(--color-label);
+}
+
+.field__input {
+  width: 100%;
+  height: 40px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  font-family: var(--type-input-font);
+  font-size: var(--type-input-size);
+  font-weight: var(--type-input-weight);
+  line-height: var(--type-input-line);
+  color: var(--color-label);
+}
+
+.field__input::placeholder {
+  color: var(--color-placeholder);
+}
+
+.field__hint {
+  font-family: var(--type-small-font);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--color-placeholder);
+}
+
+// Select + chevron SVG inline
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field__select {
+  appearance: none;
+  width: 100%;
+  height: 40px;
+  padding: 12px 40px 12px 16px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  font-family: var(--type-input-font);
+  font-size: var(--type-input-size);
+  color: var(--color-label);
+  cursor: pointer;
+}
+
+.select-wrap__chevron {
+  position: absolute;
+  right: 12px;
+  width: 16px;
+  height: 16px;
+  color: var(--color-label);
+  pointer-events: none;
+}
+
+// ── Boutons ──────────────────────────────────────────────────────────────────
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: var(--type-input-font);
+  font-size: var(--type-input-size);
+  font-weight: var(--type-input-weight);
+  line-height: var(--type-input-line);
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+// Bouton Changer — Figma : fill transparent, stroke #ffa569, texte #e27f29, 87×32
+.btn--change {
+  height: 32px;
+  min-height: 32px;
+  padding: 8px 12px;
+  border-color: var(--color-btn-change-stroke);
+  color: var(--color-btn-tertiary-text);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+// Bouton Téléverser principal — Figma : fill #ff812d 13 %, stroke #cd5e14 50 %, texte #ba681f
+.btn--primary {
+  width: 100%;
+  color: var(--color-btn-primary-text);
+  background: var(--color-btn-primary-fill);
+  border-color: var(--color-btn-primary-stroke);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-btn-primary-fill-hover);
+}
+
+.btn--upload {
+  // Variante avec icône — même style que primary
+}
+
+.btn__icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+// Lien secondaire / tertiary
+.btn--tertiary {
+  width: 100%;
+  color: var(--color-btn-tertiary-text);
+  background: transparent;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.landing__choose-btn {
+  // label jouant le rôle de bouton pour l'input file caché
+  cursor: pointer;
+}
+
+.form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+// ── Bloc succès ───────────────────────────────────────────────────────────────
+// Figma iPhone 16 - 3 / Desktop - 3 : message + URL dans rectangle orange
+
+.success-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.success-block__msg {
+  margin: 0;
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-black);
+}
+
+// Figma Frame 19 sur iPhone-3 : fill #ff5e00, stroke #d7630b, texte #d8640b
+.success-block__url {
+  display: block;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-link-url-stroke);
+  background: var(--color-link-url-bg);
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-link-url-text);
+  word-break: break-all;
+  text-decoration: none;
+}
+
+.success-block__url:hover {
+  text-decoration: underline;
+}

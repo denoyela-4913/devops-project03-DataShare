@@ -2,10 +2,11 @@
 // synchronisées depuis les variables Figma via Cursor. Voir design/figma-map.md.
 // SEUL fichier autorisé à contenir des couleurs hexadécimales (règle Stylelint color-no-hex).
 // -
-// Source : DataShare_local — Login 55:333 / Desktop - 6 (55:400) Connexion /
-// Desktop - 7 (55:419) Créer un compte / iPhone 16 - 9 (55:343) / iPhone 16 - 10 (56:491).
-// Valeurs extraites par Cursor (paints Background/Header/Button/Input) puis migrées ici
-// par Claude Code (voir design/HANDOFF.md — passation ponctuelle, écran login/register).
+// Source : DataShare_local
+//   Login 55:333 / Desktop - 6 (55:400) / Desktop - 7 (55:419) / iPhone 16 - 9 (55:343) / iPhone 16 - 10 (56:491)
+//   Téléversement 32:515 / Desktop - 1 (10:122) / Desktop - 2 (10:217) / Desktop - 3 (15:272)
+//                          iPhone 16 - 1 (1:2) / iPhone 16 - 2 (2:42) / iPhone 16 - 3 (5:229) / iPhone 16 - 4 (5:289)
+// Valeurs extraites par Cursor (paints) puis migrées par Claude Code (voir design/HANDOFF.md).
 
 :root {
   // Couleurs
@@ -29,6 +30,27 @@
   --color-gradient-end: #de6262;
 
   --color-focus: #ba681f;
+
+  // Erreur de formulaire (message + bordure de champ). Ajouté PR #0007 ; à confirmer
+  // par Cursor lors d'une prochaine synchro Figma si un jeton dédié existe.
+  --color-error: #c92a2a;
+
+  // ── Téléversement (Figma 32:515) ─────────────────────────────────────────
+  // Taille de fichier en erreur : texte #f14343 (iPhone 16-4 / 5:299 + 5:341)
+  --color-file-size-error: #f14343;
+
+  // Bouton Changer : stroke #ffa569 (Figma 56:400 / 10:179)
+  --color-btn-change-stroke: #ffa569;
+
+  // Anneaux icône upload landing : outer #2f190d / inner #100218 (Figma 1:30 / 1:28)
+  --color-icon-ring-outer: #2f190d;
+  --color-icon-ring-inner: #100218;
+
+  // Bloc URL partagée (succès) : fond #ff5e00, stroke #d7630b, texte #d8640b
+  // Figma iPhone 16-3 Frame 19 (15:387) · Desktop-3 Frame 19 (15:340 fond grisé #a49993)
+  --color-link-url-bg: #ff5e00;
+  --color-link-url-stroke: #d7630b;
+  --color-link-url-text: #d8640b;
 
   // Polices (familles uniquement — l'échelle est dans _typography.scss)
   --font-display: 'DM Sans', sans-serif;

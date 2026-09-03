@@ -1,41 +1,70 @@
 import { TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
+import { of, throwError } from 'rxjs';
+import { AuthService } from '../../../core/auth/auth.service';
 import { Register } from './register';
 
-describe('Register', () => {
-  beforeEach(() =>
+describe('Register (integ)', () => {
+  function setup() {
+    const auth = { register: vi.fn().mockReturnValue(of(undefined)) };
     TestBed.configureTestingModule({
-      imports: [Register, ReactiveFormsModule],
-      providers: [provideRouter([])],
-    }),
-  );
-
-  it('se crée avec un formulaire invalide par défaut', () => {
-    const fixture = TestBed.createComponent(Register);
-    fixture.detectChanges();
-    expect(fixture.componentInstance.form.invalid).toBe(true);
-  });
-
-  it('rend les 3 champs et le bouton de soumission', () => {
-    const fixture = TestBed.createComponent(Register);
-    fixture.detectChanges();
-    const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('[data-testid="register-email-input"]')).not.toBeNull();
-    expect(el.querySelector('[data-testid="register-password-input"]')).not.toBeNull();
-    expect(el.querySelector('[data-testid="register-password-confirm-input"]')).not.toBeNull();
-    expect(el.querySelector('[data-testid="register-submit"]')).not.toBeNull();
-  });
-
-  it('signale une erreur si les mots de passe ne correspondent pas', () => {
-    const fixture = TestBed.createComponent(Register);
-    fixture.detectChanges();
-    const { form } = fixture.componentInstance;
-    form.setValue({
-      email: 'a@example.com',
-      password: 'password123',
-      passwordConfirm: 'different123',
+      imports: [Register],
+      providers: [provideRouter([]), { provide: AuthService, useValue: auth }],
     });
-    expect(form.errors?.['passwordMismatch']).toBe(true);
+    const fixture = TestBed.createComponent(Register);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    fixture.detectChanges();
+    return { fixture, auth, navigate };
+  }
+
+  function fill(
+    fixture: ReturnType<typeof setup>['fixture'],
+    email: string,
+    pw: string,
+    confirm: string,
+  ) {
+    const el = fixture.nativeElement as HTMLElement;
+    for (const [testId, value] of [
+      ['register-email-input', email],
+      ['register-password-input', pw],
+      ['register-password-confirm-input', confirm],
+    ] as const) {
+      const input = el.querySelector<HTMLInputElement>(`[data-testid="${testId}"]`)!;
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+    }
+    fixture.detectChanges();
+  }
+
+  it('mots de passe différents : erreur passwordMismatch sur la confirmation', () => {
+    const { fixture } = setup();
+    const { form } = fixture.componentInstance;
+    form.patchValue({ email: 'a@b.com', password: 'password123', passwordConfirm: 'password999' });
+    form.controls.passwordConfirm.updateValueAndValidity();
+    form.controls.passwordConfirm.markAsTouched();
+    fixture.detectChanges();
+
+    expect(form.controls.passwordConfirm.errors?.['passwordMismatch']).toBe(true);
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="register-password-confirm-error"] .field-error',
+      )?.textContent,
+    ).toContain('correspondent');
+  });
+
+  it('formulaire valide : appelle register puis navigue vers /', () => {
+    const { fixture, auth, navigate } = setup();
+    fill(fixture, 'a@b.com', 'password123', 'password123');
+    fixture.componentInstance.submit();
+    expect(auth.register).toHaveBeenCalledWith('a@b.com', 'password123');
+    expect(navigate).toHaveBeenCalledWith('/');
+  });
+
+  it('erreur serveur (409) : réactive le bouton', () => {
+    const { fixture, auth } = setup();
+    auth.register.mockReturnValue(throwError(() => new Error('409')));
+    fill(fixture, 'a@b.com', 'password123', 'password123');
+    fixture.componentInstance.submit();
+    expect(fixture.componentInstance.submitting()).toBe(false);
   });
 });
