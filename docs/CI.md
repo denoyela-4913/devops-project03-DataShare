@@ -107,7 +107,9 @@ mode verbeux.
 ## `security`
 
 - **gitleaks** — secrets commités
-- **`npm audit --audit-level=high`** — CVE des dépendances frontend
+- **`npm audit --audit-level=high`** — CVE des dépendances frontend. Une vraie
+  vulnérabilité fait échouer le job ; une indisponibilité de l'endpoint d'avis npm
+  (503, timeout) est traitée comme non bloquante (message `::warning::`).
 
 À venir (PR dédiée) : OWASP dependency-check (Maven), CodeQL (Java + TS), SpotBugs
 (*patterns* de bugs Java, ex. `NullPointerException` probable sur un chemin d'exécution).

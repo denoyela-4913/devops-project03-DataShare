@@ -218,10 +218,16 @@ jobs:
         working-directory: backend
         run: |
           nohup java -jar target/datashare-backend-*.jar --spring.profiles.active=dev > backend.log 2>&1 &
-          for i in $(seq 1 60); do
-            curl -sf http://localhost:8080/actuator/health && break || sleep 2
+          for _ in $(seq 1 60); do
+            if curl -sf http://localhost:8080/actuator/health; then
+              echo "backend up"
+              exit 0
+            fi
+            sleep 2
           done
-          curl -sf http://localhost:8080/actuator/health
+          echo "backend did not start in time"
+          cat backend.log
+          exit 1
       - name: Install frontend deps
         working-directory: frontend
         run: npm ci
@@ -280,4 +286,15 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: npm audit (frontend)
         working-directory: frontend
-        run: npm audit --audit-level=high
+        run: |
+          set +e
+          out=$(npm audit --audit-level=high 2>&1)
+          code=$?
+          echo "$out"
+          if [ "$code" -ne 0 ]; then
+            if echo "$out" | grep -qiE 'Service Unavailable|endpoint returned an error|ENOTFOUND|ETIMEDOUT|ECONNRESET'; then
+              echo "::warning::npm audit could not reach the advisory endpoint — traité comme non bloquant"
+              exit 0
+            fi
+            exit "$code"
+          fi
