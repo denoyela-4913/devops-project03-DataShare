@@ -28,9 +28,14 @@ réellement utilisés. Le `docker-compose` de dev fournit déjà MinIO.
 
 ## Couverture de tests
 
-La porte à 70 % (JaCoCo `check` côté back, seuil Vitest côté front) est **désactivée**
-tant qu'il n'y a pas de code métier. À activer dès la première PR de feature (US01),
-avec exclusions (`config/**`, `*Application`, DTO, `*.routes.ts`, `environments/**`).
+- **Back : porte à 70 % active** (PR #0006) — `jacoco:merge` + `jacoco:check` au `verify`.
+- **Front : porte à 70 % à activer en PR #0007** (câblage auth), via config Vitest,
+  exclusions `*.routes.ts`, `environments/**`, `main.ts`.
+
+## Rotation / refresh token JWT
+
+Pas de refresh token dans le MVP (re-login à l'expiration, 1 h). Un refresh token
+(rotation, révocation, stockage httpOnly) est un ajout naturel post-MVP.
 
 ## Scans de sécurité à câbler
 

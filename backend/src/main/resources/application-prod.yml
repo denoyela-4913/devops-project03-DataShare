@@ -11,6 +11,10 @@ spring:
 datashare:
   error:
     verbose: false
+  jwt:
+    secret: ${DATASHARE_JWT_SECRET}
+    issuer: datashare
+    access-ttl: 1h
 
 server:
   error:

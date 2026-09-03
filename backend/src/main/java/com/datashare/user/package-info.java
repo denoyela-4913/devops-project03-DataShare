@@ -1,6 +1,2 @@
-/**
- * Compte utilisateur, endpoint /api/me.
- *
- * <p>Squelette — implémenté dans une PR ultérieure.
- */
+/** Compte utilisateur : entité, dépôt, et endpoint {@code GET /api/me} (profil courant). */
 package com.datashare.user;

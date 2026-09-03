@@ -1,6 +1,5 @@
 /**
- * US03/US04 — inscription, connexion, émission du JWT.
- *
- * <p>Squelette — implémenté dans une PR ultérieure.
+ * US03 (inscription) et US04 (connexion) : endpoints {@code /api/auth/*}, hachage BCrypt,
+ * émission des access tokens JWT (HS256).
  */
 package com.datashare.auth;

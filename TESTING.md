@@ -30,8 +30,8 @@ Règle de placement :
 |---|---|---|---|---|
 | US01 — upload (compte) | validation taille/type/mdp/expiration/tags ; génération token | `POST /api/files` (201, lien, autorisation) ; stockage MinIO | e2e upload→download | ☐ |
 | US02 — téléchargement via lien | vérif expiration + mot de passe | `GET /api/d/{token}` (métadonnées, flux, 404/410, 401 mdp) | e2e upload→download | ☐ |
-| US03 — création de compte | unicité email, hash BCrypt, règles mdp ≥ 8 | `POST /api/auth/register` (201, 409 email pris) | e2e inscription→connexion | ☐ |
-| US04 — connexion | correspondance hash, émission JWT | `POST /api/auth/login` (200 + token, 401) | e2e inscription→connexion | ☐ |
+| US03 — création de compte | `AuthServiceTest` (unicité, hash, normalisation email, contrainte `UNIQUE` → 409), `JwtServiceTest` | `AuthControllerIT` : 201, 409 `EMAIL_ALREADY_USED`, 400 `VALIDATION` (email, mdp < 8) | e2e inscription→connexion (PR #0007) | ◐ back ☑ |
+| US04 — connexion | `AuthServiceTest` (match/no-match/inconnu → 401) | `AuthControllerIT` : 200 + token, 401 `INVALID_CREDENTIALS` (mdp faux, email inconnu) ; `MeControllerIT` : `/api/me` 401 sans token / 200 avec / 401 compte supprimé | e2e inscription→connexion (PR #0007) | ◐ back ☑ |
 | US05 — historique | tri/état du lien | `GET /api/files` (liste du propriétaire uniquement) | e2e historique→suppression | ☐ |
 | US06 — suppression | suppression physique + métadonnées, propriété | `DELETE /api/files/{id}` (204, 403 non-propriétaire) | e2e historique→suppression | ☐ |
 | US07 — upload anonyme | règles US01 sans `owner` | `POST /api/files` sans JWT | — | ☐ |
@@ -100,13 +100,16 @@ cd ../frontend && npm run e2e                         # Cypress
 
 ## 6. Couverture — seuil
 
-- **Objectif indicatif : 70 %** (lignes), conformément au cahier des charges.
+- **Objectif : 70 %** de lignes, conformément au cahier des charges.
 - Outils : **JaCoCo** (back), **Vitest + coverage-v8** (front).
-- **État actuel : rapport seul, pas de porte bloquante** — il n'y a pas encore de
-  code métier. La porte (`jacoco:check` / seuil Vitest) est **activée en PR US01**,
-  avec exclusions : `config/**`, `*Application`, DTO, fichiers de routes, `environments/**`.
-- Capture du rapport : à déposer dans `docs/screenshots/` — voir
-  [`docs/screenshots/README.md`](docs/screenshots/README.md). ⏳ PR US01.
+- **Back : porte bloquante active** (PR #0006). `jacoco:merge` (unit + integ) puis
+  `jacoco:check` **BUNDLE LINE ≥ 0.70** au `verify` (donc dans le job `backend-integ`).
+  Exclusions : `config/**`, `*Application`, `**/dto/**`, `*Properties`. Couverture
+  actuelle : **~93 %** (lignes).
+- **Front : rapport seul** — porte activée en PR #0007 (câblage auth) via config Vitest.
+- Capture du rapport : `docs/screenshots/coverage-backend.png` (JaCoCo) — voir
+  [`docs/screenshots/README.md`](docs/screenshots/README.md). Rapport local :
+  `backend/target/site/jacoco-merged/index.html`.
 
 ## 7. Traçabilité
 

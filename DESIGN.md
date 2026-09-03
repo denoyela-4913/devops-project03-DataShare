@@ -5,18 +5,17 @@ Vue produit / architecture. Le **processus** de passation Figma ⇄ code est dan
 
 ## 1. Carte fonctionnelle
 
-| US | Route Angular | Composants | Endpoint API | DTO principal |
-|---|---|---|---|---|
-| US03 — création de compte | `/register` | `features/auth/register` + `ui-text-field`, `ui-button` | `POST /api/auth/register` | `RegisterRequest` → `TokenResponse` |
-| US04 — connexion | `/login` | `features/auth/login` | `POST /api/auth/login` | `LoginRequest` → `TokenResponse` |
-| US01 / US07 — upload | `/upload` | `features/upload` + `password-field`, `tag-chip`, `ui-button` | `POST /api/files` (JWT optionnel) | `multipart` → `UploadResponse` |
-| US02 — téléchargement | `/d/:token` | `features/download` + `password-field` | `GET /api/d/{token}`, `POST /api/d/{token}` | `FileMetadata` |
-| US05 — historique | `/history` | `features/history` + `file-card`, `expiryStatus` pipe, `fileSize` pipe | `GET /api/files` | `FileSummary[]` |
-| US06 — suppression | `/history` | `file-card` + `confirm-dialog` | `DELETE /api/files/{id}` | — |
-| US08 — tags | `/history`, `/upload` | `tag-chip`, filtrage | endpoints tags (`V2`) | `Tag[]` |
-| Transverse | toutes | `app` (coquille), `error-toast` | — | `ErrorResponse` |
-
-Statut : socle transverse ☑ ; toutes les routes de features ☐ (PR US0x).
+| US | Route Angular | Composants | Endpoint API | DTO | Statut |
+|---|---|---|---|---|---|
+| US03 — création de compte | `/register` | `features/auth/register` | `POST /api/auth/register` | `RegisterRequest` → `TokenResponse` | back ☑ · front ◐ (câblage PR #0007) |
+| US04 — connexion | `/login` | `features/auth/login` | `POST /api/auth/login` | `LoginRequest` → `TokenResponse` | back ☑ · front ◐ |
+| — profil courant | (garde de route) | — | `GET /api/me` | `MeResponse` | back ☑ |
+| US01 / US07 — upload | `/upload` | `features/upload` + `password-field`, `tag-chip` | `POST /api/files` (JWT optionnel) | `multipart` → `UploadResponse` | ☐ |
+| US02 — téléchargement | `/d/:token` | `features/download` + `password-field` | `GET`/`POST /api/d/{token}` | `FileMetadata` | ☐ |
+| US05 — historique | `/history` | `features/history` + `file-card`, pipes `expiryStatus`/`fileSize` | `GET /api/files` | `FileSummary[]` | ☐ |
+| US06 — suppression | `/history` | `file-card` + `confirm-dialog` | `DELETE /api/files/{id}` | — | ☐ |
+| US08 — tags | `/history`, `/upload` | `tag-chip`, filtrage | endpoints tags (`V2`) | `Tag[]` | ☐ |
+| Transverse | toutes | `app` (coquille), `error-toast` | — | `ErrorResponse` | ☑ |
 
 ## 2. Système visuel (design system)
 

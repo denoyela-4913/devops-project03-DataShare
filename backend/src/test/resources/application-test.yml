@@ -10,3 +10,7 @@ spring:
 datashare:
   error:
     verbose: false
+  jwt:
+    secret: test-only-jwt-secret-0123456789-0123456789
+    issuer: datashare
+    access-ttl: 1h

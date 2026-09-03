@@ -3,6 +3,11 @@
 datashare:
   error:
     verbose: true
+  jwt:
+    # Secret de développement — NON secret, à ne jamais utiliser ailleurs.
+    secret: dev-insecure-jwt-secret-please-change-0123456789
+    issuer: datashare
+    access-ttl: 1h
 
 spring:
   jpa:

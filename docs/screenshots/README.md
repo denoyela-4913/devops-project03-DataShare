@@ -5,8 +5,8 @@ de features (pas maintenant : il n'y a rien à mesurer).
 
 | Fichier | Contenu | Quand | Doc |
 |---|---|---|---|
-| `coverage-backend.png` | rapport JaCoCo (`backend/target/site/jacoco/index.html`) montrant ≥ 70 % | PR US01 (activation de la porte) | `TESTING.md` |
-| `coverage-frontend.png` | rapport Vitest (`frontend/coverage/index.html`) | PR US01 | `TESTING.md` |
+| `coverage-backend.png` | rapport JaCoCo (`backend/target/site/jacoco-merged/index.html`) montrant ≥ 70 % (actuellement ~93 %) | **maintenant** (porte active depuis PR #0006) | `TESTING.md` |
+| `coverage-frontend.png` | rapport Vitest (`frontend/coverage/index.html`) | PR #0007 (activation de la porte front) | `TESTING.md` |
 | `k6-upload.png` | synthèse d'un run k6 sur `POST /api/files` | PR US01 | `PERF.md` |
 | `k6-download.png` | synthèse d'un run k6 sur `GET /api/d/{token}` | PR US02 | `PERF.md` |
 | `lighthouse-home.png` | rapport Lighthouse de la page d'accueil | PR features front | `PERF.md` |

@@ -21,6 +21,11 @@ spring:
 datashare:
   error:
     verbose: false
+  jwt:
+    # Clé HMAC HS256 — >= 32 octets. Fournie par l'environnement en prod (aucun défaut ici).
+    secret: ${DATASHARE_JWT_SECRET:}
+    issuer: datashare
+    access-ttl: 1h
 
 server:
   error:
