@@ -19,10 +19,14 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 
 | Décision | Motif | Statut |
 |---|---|---|
-| Mot de passe compte haché **BCrypt** (coût par défaut Spring), min 8 caractères | standard, résistant au bruteforce hors-ligne | ☑ (règle codée, endpoint ⏳) |
+| Mot de passe compte haché **BCrypt** (coût par défaut), min 8 caractères | standard, résistant au bruteforce hors-ligne | ☑ (US03, `AuthService`) |
 | Mot de passe fichier **haché** (BCrypt), non récupérable | le cahier des charges l'exige ; pas de mécanisme de reset | ☐ US09 |
 | Token de téléchargement = `SecureRandom` 128 bits, colonne `UNIQUE` | non prédictible (US02) | ☑ (schéma), ☐ génération |
-| JWT via **`spring-security-oauth2-resource-server` + `oauth2-jose`**, clé **HMAC** | valider/émettre sans code de sécurité maison ; adapté à un monolithe | ☑ (dépendance), ☐ câblage US03/US04 |
+| JWT **HS256**, `oauth2-resource-server` (validation) + `oauth2-jose` / `NimbusJwtEncoder` (émission), clé HMAC ≥ 32 octets depuis l'environnement en prod | valider/émettre sans code de sécurité maison ; adapté à un monolithe | ☑ (US03/US04) |
+| Access token **1 h**, **pas de refresh token** (re-login) | simplicité MVP | ☑ ; refresh → [`docs/BACKLOG.md`](docs/BACKLOG.md) |
+| Message d'erreur de connexion **identique** pour email inconnu et mdp faux (401 `INVALID_CREDENTIALS`) ; cause réelle uniquement dans le champ `debug` (mode verbeux) | pas d'énumération de comptes | ☑ |
+| `GET /api/me` **relit le compte en base** (pas seulement les claims) | un token valide dont le compte a été supprimé est rejeté (401) | ☑ |
+| Endpoints protégés : 401 rendu au format `ErrorResponse` (`RestAuthenticationEntryPoint`) | cohérence de l'API | ☑ |
 | **Pas** de rotation automatique de la clé JWT dans le MVP | complexité (jeu de clés à validité recouvrante) disproportionnée ; à discuter | ☐ voir [`docs/BACKLOG.md`](docs/BACKLOG.md) |
 | Profil **prod** durci (erreurs, Swagger, Actuator) | limiter la reconnaissance et la fuite d'info | ☑ |
 | `owner_id` **nullable** (upload anonyme) + FK `ON DELETE CASCADE` | US07 ; suppression de compte propre | ☑ (schéma) |

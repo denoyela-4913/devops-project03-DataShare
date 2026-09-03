@@ -178,11 +178,20 @@
 				</executions>
 			</plugin>
 
-			<!-- Coverage: report only for now (no check goal — threshold turned on with feature code). -->
+			<!-- Coverage. Unit (jacoco.exec) + integration (jacoco-it.exec) are merged, then a
+			     70% line-coverage gate runs at `verify` (i.e. in the backend-integ job only). -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>${jacoco.version}</version>
+				<configuration>
+					<excludes>
+						<exclude>com/datashare/DataShareApplication.class</exclude>
+						<exclude>com/datashare/config/**</exclude>
+						<exclude>com/datashare/**/dto/**</exclude>
+						<exclude>com/datashare/**/*Properties.class</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
@@ -201,6 +210,53 @@
 						<id>report-integration</id>
 						<phase>post-integration-test</phase>
 						<goals><goal>report-integration</goal></goals>
+					</execution>
+					<execution>
+						<id>merge</id>
+						<phase>post-integration-test</phase>
+						<goals><goal>merge</goal></goals>
+						<configuration>
+							<fileSets>
+								<fileSet>
+									<directory>${project.build.directory}</directory>
+									<includes>
+										<include>jacoco.exec</include>
+										<include>jacoco-it.exec</include>
+									</includes>
+								</fileSet>
+							</fileSets>
+							<destFile>${project.build.directory}/jacoco-merged.exec</destFile>
+						</configuration>
+					</execution>
+					<execution>
+						<id>report-merged</id>
+						<phase>verify</phase>
+						<goals><goal>report</goal></goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+							<outputDirectory>${project.build.directory}/site/jacoco-merged</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>check</id>
+						<phase>verify</phase>
+						<goals><goal>check</goal></goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+							<haltOnFailure>true</haltOnFailure>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.70</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

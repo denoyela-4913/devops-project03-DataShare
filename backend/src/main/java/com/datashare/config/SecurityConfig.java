@@ -3,16 +3,17 @@ package com.datashare.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Configuration de sécurité — squelette.
+ * Configuration de sécurité — stateless, JWT resource-server.
  *
- * <p>Stateless, endpoints publics explicites, tout le reste authentifié. Le câblage JWT
- * (resource-server + {@code JwtDecoder}/{@code JwtEncoder}) arrive avec la feature auth (US03/US04).
+ * <p>Endpoints publics : ping, health, Swagger (GET) et {@code POST /api/auth/register|login}.
+ * Tout le reste exige un access token valide (voir {@link SecurityBeans}).
  */
 @Configuration
 public class SecurityConfig {
@@ -22,15 +23,21 @@ public class SecurityConfig {
     };
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, RestAuthenticationEntryPoint entryPoint)
+            throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET, PUBLIC_GET)
                         .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login")
+                        .permitAll()
                         .anyRequest()
-                        .authenticated());
+                        .authenticated())
+                .oauth2ResourceServer(
+                        oauth2 -> oauth2.jwt(Customizer.withDefaults()).authenticationEntryPoint(entryPoint))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint));
         return http.build();
     }
 }

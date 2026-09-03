@@ -121,9 +121,9 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
-      - name: Integration tests (Failsafe + Testcontainers)
+      - name: Integration tests + coverage gate (Failsafe + Testcontainers + JaCoCo 70%)
         working-directory: backend
-        run: ./mvnw -B -ntp verify -Dsurefire.skip=true
+        run: ./mvnw -B -ntp verify
       - uses: actions/upload-artifact@v4
         if: always()
         with:
