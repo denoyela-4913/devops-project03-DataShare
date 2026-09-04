@@ -33,6 +33,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<springdoc.version>3.1.0</springdoc.version>
+		<!-- 8.5.x : okhttp 4.x (résolution Maven propre) ; 9.x tire okhttp 5.x multiplateforme
+		     qui ne se résout pas sans métadonnées Gradle. -->
+		<minio.version>8.5.17</minio.version>
 
 		<spotless.version>3.10.1</spotless.version>
 		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
@@ -91,6 +94,14 @@
 			<version>${springdoc.version}</version>
 		</dependency>
 
+		<!-- Stockage objet — SDK MinIO (protocole S3 ; migration vers AWS SDK v2 = réécrire
+		     seulement S3StorageService, l'interface StorageService reste générique). -->
+		<dependency>
+			<groupId>io.minio</groupId>
+			<artifactId>minio</artifactId>
+			<version>${minio.version}</version>
+		</dependency>
+
 		<!-- test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -135,6 +146,11 @@
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-minio</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

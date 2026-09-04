@@ -12,6 +12,9 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED),
     FORBIDDEN(HttpStatus.FORBIDDEN),
+    FILE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE),
+    FORBIDDEN_FILE_TYPE(HttpStatus.BAD_REQUEST),
+    INVALID_EXPIRATION(HttpStatus.BAD_REQUEST),
     INTERNAL(HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final HttpStatus status;

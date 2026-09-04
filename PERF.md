@@ -9,7 +9,7 @@ Méthodologie, budgets et résultats. Recoupé par [`docs/CI.md`](docs/CI.md).
 
 | Endpoint | Pourquoi | Test de charge |
 |---|---|---|
-| `POST /api/files` | chemin le plus lourd : réception + écriture stockage d'un fichier jusqu'à 1 Go | ⏳ PR US01 |
+| `POST /api/files` | chemin le plus lourd : réception + écriture stockage | `perf/k6/upload.js` (nécessite un token) |
 | `GET /api/d/{token}` | le plus sollicité : chaque destinataire d'un lien | ⏳ PR US02 |
 | `GET /api/ping` | référence (surcoût framework à vide) | ☑ `perf/k6/ping-smoke.js` |
 

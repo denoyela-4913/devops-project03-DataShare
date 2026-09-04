@@ -8,8 +8,11 @@ import java.time.Instant;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 /**
  * Traduit les exceptions en {@link ErrorResponse}. Le champ {@code debug} n'est rempli que si {@link
@@ -37,6 +40,27 @@ public class GlobalExceptionHandler {
                 .reduce((a, b) -> a + "; " + b)
                 .orElse(null);
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION.name(), "Requête invalide", debug, request);
+    }
+
+    @ExceptionHandler({MissingServletRequestPartException.class, MissingServletRequestParameterException.class})
+    public ResponseEntity<ErrorResponse> handleMissingPart(Exception ex, HttpServletRequest request) {
+        return build(
+                HttpStatus.BAD_REQUEST,
+                ErrorCode.VALIDATION.name(),
+                "Paramètre requis manquant",
+                ex.getMessage(),
+                request);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleUploadTooLarge(
+            MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        return build(
+                ErrorCode.FILE_TOO_LARGE.status(),
+                ErrorCode.FILE_TOO_LARGE.name(),
+                "Le fichier dépasse la taille maximale autorisée (1 Go)",
+                ex.getMessage(),
+                request);
     }
 
     @ExceptionHandler(Exception.class)

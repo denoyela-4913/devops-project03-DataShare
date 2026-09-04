@@ -10,7 +10,7 @@ Vue produit / architecture. Le **processus** de passation Figma ⇄ code est dan
 | US03 — création de compte | `/register` | `features/auth/register` + `field-error` | `POST /api/auth/register` | `RegisterRequest` → `TokenResponse` | ☑ (front + back, e2e) |
 | US04 — connexion | `/login` | `features/auth/login` + `field-error` | `POST /api/auth/login` | `LoginRequest` → `TokenResponse` | ☑ |
 | — espace personnel | `/` (garde `authGuard`) | `features/home` | `GET /api/me` | `MeResponse` | ☑ (placeholder avant US05) |
-| US01 / US07 — upload | `/upload` | `features/upload` (landing/form/succès) + `field-error` | `POST /api/files` (JWT optionnel) | `multipart` → `UploadResponse` | ◐ écran front (soumission ☐) |
+| US01 — upload (compte) | `/upload` (garde `authGuard`) | `features/upload` (landing/form/succès) + `field-error` | `POST /api/files` (multipart, JWT requis) | `file` + `password?` + `expirationDays` → `UploadResponse` | ☑ (front + back ; US07 anonyme relâchera la garde) |
 | US02 — téléchargement | `/d/:token` | `features/download` + `password-field` | `GET`/`POST /api/d/{token}` | `FileMetadata` | ☐ |
 | US05 — historique | `/history` | `features/history` + `file-card`, pipes `expiryStatus`/`fileSize` | `GET /api/files` | `FileSummary[]` | ☐ |
 | US06 — suppression | `/history` | `file-card` + `confirm-dialog` | `DELETE /api/files/{id}` | — | ☐ |

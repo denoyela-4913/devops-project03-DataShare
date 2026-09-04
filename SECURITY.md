@@ -20,8 +20,11 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 | Décision | Motif | Statut |
 |---|---|---|
 | Mot de passe compte haché **BCrypt** (coût par défaut), min 8 caractères | standard, résistant au bruteforce hors-ligne | ☑ (US03, `AuthService`) |
-| Mot de passe fichier **haché** (BCrypt), non récupérable | le cahier des charges l'exige ; pas de mécanisme de reset | ☐ US09 |
-| Token de téléchargement = `SecureRandom` 128 bits, colonne `UNIQUE` | non prédictible (US02) | ☑ (schéma), ☐ génération |
+| Mot de passe fichier **haché** BCrypt (≥ 6 car.), non récupérable | le cahier des charges l'exige ; pas de mécanisme de reset | ☑ (US01, validé serveur ; contrôle client inline → backlog) |
+| Token de téléchargement = `SecureRandom` **192 bits** → base64url 32 car., colonne `UNIQUE` | non prédictible (US02) | ☑ (`DownloadTokens`) |
+| **Liste noire d'extensions** (`exe, bat, sh, jar…`, configurable) + nom de fichier assaini (composants de chemin retirés) | politique de sécurité US01 ; magic-bytes / antivirus → backlog | ☑ |
+| `owner_id` du fichier = **sujet du JWT** (jamais fourni par le client) | pas d'usurpation de propriétaire | ☑ |
+| Stockage objet : **SDK MinIO** (protocole S3). Interface `StorageService` générique | migration vers AWS SDK v2 = réécrire seulement `S3StorageService` | ☑ ; voir [`docs/BACKLOG.md`](docs/BACKLOG.md) |
 | JWT **HS256**, `oauth2-resource-server` (validation) + `oauth2-jose` / `NimbusJwtEncoder` (émission), clé HMAC ≥ 32 octets depuis l'environnement en prod | valider/émettre sans code de sécurité maison ; adapté à un monolithe | ☑ (US03/US04) |
 | Access token **1 h**, **pas de refresh token** (re-login) | simplicité MVP | ☑ ; refresh → [`docs/BACKLOG.md`](docs/BACKLOG.md) |
 | Message d'erreur de connexion **identique** pour email inconnu et mdp faux (401 `INVALID_CREDENTIALS`) ; cause réelle uniquement dans le champ `debug` (mode verbeux) | pas d'énumération de comptes | ☑ |
@@ -30,7 +33,7 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 | **Pas** de rotation automatique de la clé JWT dans le MVP | complexité (jeu de clés à validité recouvrante) disproportionnée ; à discuter | ☐ voir [`docs/BACKLOG.md`](docs/BACKLOG.md) |
 | Profil **prod** durci (erreurs, Swagger, Actuator) | limiter la reconnaissance et la fuite d'info | ☑ |
 | `owner_id` **nullable** (upload anonyme) + FK `ON DELETE CASCADE` | US07 ; suppression de compte propre | ☑ (schéma) |
-| Uploads **streamés vers le disque** (`file-size-threshold`), jamais chargés en mémoire | éviter l'OOM sur fichier 1 Go | ☑ (config multipart), ☐ implémentation |
+| Uploads **streamés** (`file-size-threshold: 2MB` → disque temp) puis vers le stockage sans bufferisation intégrale | éviter l'OOM sur fichier 1 Go | ☑ |
 
 ## 3. Scan de dépendances et d'analyse statique
 

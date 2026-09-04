@@ -1,6 +1,2 @@
-/**
- * US01/US05/US06 — dépôt d'un fichier, historique, suppression.
- *
- * <p>Squelette — implémenté dans une PR ultérieure.
- */
+/** US01/US05/US06 — dépôt d'un fichier, historique, suppression. Métadonnées en base, octets dans le stockage. */
 package com.datashare.file;

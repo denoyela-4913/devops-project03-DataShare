@@ -1,6 +1,2 @@
-/**
- * Abstraction de stockage des octets ; implémentation MinIO/S3.
- *
- * <p>Squelette — implémenté dans une PR ultérieure.
- */
+/** Stockage des octets des fichiers : interface générique {@code StorageService} + implémentation MinIO/S3. */
 package com.datashare.storage;
