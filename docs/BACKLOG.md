@@ -20,17 +20,25 @@ implémentation. Points à instruire :
 - Pour un MVP évalué, un secret stable bien géré suffit généralement ; la rotation est
   un sujet d'exploitation qui peut être **documenté dans `MAINTENANCE.md`** sans code.
 
-## Stockage — module `storage`
+## Upload de fichiers (US01) — améliorations différées
 
-Interface `StorageService` + implémentation MinIO/S3 (AWS SDK v2) + test d'intégration
-Testcontainers MinIO : reportés à la **PR US01** (upload de fichier), là où ils sont
-réellement utilisés. Le `docker-compose` de dev fournit déjà MinIO.
+- **Détection de type par magic-bytes** (Apache Tika ou équivalent) : aujourd'hui, contrôle
+  par extension + `Content-Type` déclaré uniquement. Un `.exe` renommé `.pdf` passe.
+- **Antivirus** (ClamAV en side-car) : hors périmètre MVP.
+- **Multipart upload S3** géré explicitement pour les très gros fichiers (le SDK MinIO le
+  fait déjà en interne pour `putObject` avec taille connue ; à valider sur du 1 Go réel).
+- **SDK stockage** : SDK MinIO 8.5.x retenu (okhttp 4.x, résolution Maven propre). MinIO 9.x
+  tire okhttp 5.x multiplateforme qui ne se résout pas sans métadonnées Gradle. Migration
+  vers AWS SDK v2 possible = réécrire seulement `S3StorageService`.
+- **Message d'erreur inline** pour le mot de passe du fichier trop court (aujourd'hui :
+  validé serveur, affiché via `ErrorToast`).
+- **Compte supprimé** : un upload avec un token valide dont le compte a disparu échoue en
+  500 (violation de clé étrangère `owner_id`) — pourrait être un 401 explicite.
 
 ## Couverture de tests
 
 - **Back : porte à 70 % active** (PR #0006) — `jacoco:merge` + `jacoco:check` au `verify`.
-- **Front : porte à 70 % à activer en PR #0007** (câblage auth), via config Vitest,
-  exclusions `*.routes.ts`, `environments/**`, `main.ts`.
+- **Front : porte à 70 % active** (PR #0007) — `tools/check-coverage.mjs` dans `frontend-integ`.
 
 ## Rotation / refresh token JWT
 

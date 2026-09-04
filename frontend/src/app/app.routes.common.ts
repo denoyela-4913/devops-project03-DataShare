@@ -5,7 +5,11 @@ import { authGuard } from './core/auth/auth.guard';
 export const commonRoutes: Routes = [
   { path: 'login', loadChildren: () => import('./features/auth/login/login.routes') },
   { path: 'register', loadChildren: () => import('./features/auth/register/register.routes') },
-  { path: 'upload', loadChildren: () => import('./features/upload/upload.routes') },
+  {
+    path: 'upload',
+    loadChildren: () => import('./features/upload/upload.routes'),
+    canActivate: [authGuard],
+  },
   {
     path: '',
     loadChildren: () => import('./features/home/home.routes'),

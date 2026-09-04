@@ -28,7 +28,7 @@ k6 run -e BASE_URL=http://localhost:8080 k6/ping-smoke.js
 | Script | Cible | État |
 |---|---|---|
 | `k6/ping-smoke.js` | `GET /api/ping` — étalon | disponible |
-| `k6/upload.js` | `POST /api/files` | à créer (PR US01) |
+| `k6/upload.js` | `POST /api/files` (auth) | disponible — voir en-tête du script pour le token |
 | `k6/download.js` | `GET /api/d/{token}` | à créer (PR US02) |
 
 Les tests de charge **ne tournent pas en CI** (bruit sur *runner* partagé) : ils sont

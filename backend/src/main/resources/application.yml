@@ -26,6 +26,17 @@ datashare:
     secret: ${DATASHARE_JWT_SECRET:}
     issuer: datashare
     access-ttl: 1h
+  storage:
+    endpoint: ${DATASHARE_STORAGE_ENDPOINT:http://localhost:9000}
+    bucket: ${DATASHARE_STORAGE_BUCKET:datashare-files}
+    access-key: ${DATASHARE_STORAGE_ACCESS_KEY:datashare}
+    secret-key: ${DATASHARE_STORAGE_SECRET_KEY:datashare-secret}
+  files:
+    max-size-bytes: 1073741824
+    default-expiration-days: 7
+    max-expiration-days: 7
+    blocked-extensions: exe,bat,cmd,com,scr,msi,sh,ps1,vbs,vbe,js,jse,jar,dll,app,deb,rpm
+    base-download-url: ${DATASHARE_DOWNLOAD_BASE_URL:http://localhost:8080/d}
 
 server:
   error:

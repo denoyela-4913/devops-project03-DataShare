@@ -15,6 +15,13 @@ datashare:
     secret: ${DATASHARE_JWT_SECRET}
     issuer: datashare
     access-ttl: 1h
+  storage:
+    endpoint: ${DATASHARE_STORAGE_ENDPOINT}
+    bucket: ${DATASHARE_STORAGE_BUCKET}
+    access-key: ${DATASHARE_STORAGE_ACCESS_KEY}
+    secret-key: ${DATASHARE_STORAGE_SECRET_KEY}
+  files:
+    base-download-url: ${DATASHARE_DOWNLOAD_BASE_URL}
 
 server:
   error:
