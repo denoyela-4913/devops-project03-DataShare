@@ -1,0 +1,20 @@
+<!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
+     À PRÉSERVER : <label for>, projection du <select class="ui-field__control">,
+     app-field-error côté écran consommateur.
+     Frame: DataShare_local · Select Component 9:237 · voir design/figma-map.md -->
+<div class="ui-field">
+  @if (label()) {
+    <label class="ui-field__label" [attr.for]="inputId()">{{ label() }}</label>
+  }
+  <div class="ui-select">
+    <ng-content />
+    <img
+      class="ui-select__chevron"
+      src="assets/icons/icon-chevron-down.svg"
+      width="16"
+      height="16"
+      alt=""
+      aria-hidden="true"
+    />
+  </div>
+</div>

@@ -2,6 +2,9 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FileService } from '../../core/file/file.service';
 import { FieldError } from '../../shared/components/field-error/field-error';
+import { UiButton } from '../../shared/components/ui-button/ui-button';
+import { UiInput } from '../../shared/components/ui-input/ui-input';
+import { UiSelect } from '../../shared/components/ui-select/ui-select';
 
 /** Bytes — limite Figma iPhone 16-4 : la taille affichée en rouge est > 1 Go. */
 const MAX_FILE_BYTES = 1_073_741_824; // 1 Go
@@ -21,7 +24,7 @@ export type UploadState = 'landing' | 'form' | 'success';
  */
 @Component({
   selector: 'app-upload',
-  imports: [ReactiveFormsModule, FieldError],
+  imports: [ReactiveFormsModule, FieldError, UiButton, UiInput, UiSelect],
   templateUrl: './upload.html',
   styleUrl: './upload.scss',
 })

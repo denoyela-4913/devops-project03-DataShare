@@ -5,7 +5,8 @@
     "scss/dollar-variable-pattern": null,
     "selector-class-pattern": null,
     "custom-property-empty-line-before": null,
-    "media-feature-range-notation": "prefix"
+    "media-feature-range-notation": "prefix",
+    "selector-pseudo-element-no-unknown": [true, { "ignorePseudoElements": ["ng-deep"] }]
   },
   "overrides": [
     {

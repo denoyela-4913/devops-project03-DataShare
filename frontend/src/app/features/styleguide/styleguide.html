@@ -1,10 +1,52 @@
-<!-- @figma-owned — catalogue visuel confronté à la maquette, maintenu via Cursor. -->
+<!-- @figma-owned — catalogue visuel confronté à la maquette, maintenu via Cursor.
+     Frame: DataShare_local · Composants UI 9:113 · voir design/figma-map.md -->
 <h1>Design system — styleguide</h1>
+
+<section>
+  <h2>Header</h2>
+  <app-ui-header>
+    <a uiHeaderLogo href="#">DataShare</a>
+    <a uiHeaderAction href="#">Se connecter</a>
+  </app-ui-header>
+</section>
 
 <section>
   <h2>UiButton</h2>
   <app-ui-button variant="primary">Primary</app-ui-button>
   <app-ui-button variant="secondary">Secondary</app-ui-button>
+  <app-ui-button variant="tertiary">Tertiary</app-ui-button>
+  <app-ui-button variant="dark">Dark</app-ui-button>
   <app-ui-button variant="danger">Danger</app-ui-button>
+  <app-ui-button variant="primary" size="small">Small</app-ui-button>
   <app-ui-button [disabled]="true">Disabled</app-ui-button>
+</section>
+
+<section>
+  <h2>Input</h2>
+  <app-ui-input label="Mot de passe" inputId="sg-password">
+    <input class="ui-field__control" id="sg-password" type="password" placeholder="Optionnel" />
+  </app-ui-input>
+</section>
+
+<section>
+  <h2>Select</h2>
+  <app-ui-select label="Expiration" inputId="sg-expiration">
+    <select class="ui-field__control" id="sg-expiration">
+      <option>Une journée</option>
+      <option>3 jours</option>
+      <option>Une semaine</option>
+    </select>
+  </app-ui-select>
+</section>
+
+<section>
+  <h2>Switch</h2>
+  <app-ui-switch selected="all" />
+</section>
+
+<section>
+  <h2>Callout</h2>
+  <app-ui-callout type="info">Label</app-ui-callout>
+  <app-ui-callout type="alert">Label</app-ui-callout>
+  <app-ui-callout type="error">Label</app-ui-callout>
 </section>

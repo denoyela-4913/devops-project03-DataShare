@@ -31,4 +31,30 @@ describe('UiButton', () => {
     fixture.detectChanges();
     expect(el.disabled).toBe(true);
   });
+
+  it("reflète l'état désactivé sur l'hôte (data-testid côté écran consommateur)", () => {
+    const { fixture } = createButton();
+    fixture.componentRef.setInput('disabled', true);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).hasAttribute('disabled')).toBe(true);
+  });
+
+  it('applique la classe de taille', () => {
+    const { fixture, el } = createButton();
+    fixture.componentRef.setInput('size', 'small');
+    fixture.detectChanges();
+    expect(el.className).toContain('ui-button--small');
+  });
+
+  it('ne pose pas aria-pressed par défaut', () => {
+    const { el } = createButton();
+    expect(el.hasAttribute('aria-pressed')).toBe(false);
+  });
+
+  it('reflète aria-pressed quand fourni', () => {
+    const { fixture, el } = createButton();
+    fixture.componentRef.setInput('ariaPressed', true);
+    fixture.detectChanges();
+    expect(el.getAttribute('aria-pressed')).toBe('true');
+  });
 });

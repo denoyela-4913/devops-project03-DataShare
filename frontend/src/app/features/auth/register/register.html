@@ -1,7 +1,8 @@
 <!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
      À PRÉSERVER : les data-testid, [formGroup]/formControlName, (ngSubmit), les
-     libellés for/id, aria-labelledby, aria-describedby, [class.field--invalid],
-     <app-field-error>, [disabled], routerLink vers /login.
+     libellés for/id, aria-labelledby, aria-describedby, [invalid], <app-field-error>,
+     [disabled], routerLink vers /login. Champs et bouton consomment les composants
+     partagés `app-ui-input` / `app-ui-button` (shared/components).
      Frame: DataShare_local · Desktop - 7 (55:419) Créer un compte ·
      iPhone 16 - 10 (56:491) · voir design/figma-map.md -->
 <section class="card" aria-labelledby="register-title" data-testid="register-view">
@@ -15,13 +16,13 @@
     novalidate
   >
     <div class="form__fields">
-      <div
-        class="field"
-        [class.field--invalid]="form.controls.email.invalid && form.controls.email.touched"
+      <app-ui-input
+        label="Email"
+        inputId="register-email"
+        [invalid]="form.controls.email.invalid && form.controls.email.touched"
       >
-        <label class="field__label" for="register-email">Email</label>
         <input
-          class="field__input"
+          class="ui-field__control"
           id="register-email"
           formControlName="email"
           type="email"
@@ -35,15 +36,15 @@
           id="register-email-error"
           data-testid="register-email-error"
         />
-      </div>
+      </app-ui-input>
 
-      <div
-        class="field"
-        [class.field--invalid]="form.controls.password.invalid && form.controls.password.touched"
+      <app-ui-input
+        label="Mot de passe"
+        inputId="register-password"
+        [invalid]="form.controls.password.invalid && form.controls.password.touched"
       >
-        <label class="field__label" for="register-password">Mot de passe</label>
         <input
-          class="field__input"
+          class="ui-field__control"
           id="register-password"
           formControlName="password"
           type="password"
@@ -57,19 +58,15 @@
           id="register-password-error"
           data-testid="register-password-error"
         />
-      </div>
+      </app-ui-input>
 
-      <div
-        class="field"
-        [class.field--invalid]="
-          form.controls.passwordConfirm.invalid && form.controls.passwordConfirm.touched
-        "
+      <app-ui-input
+        label="Vérification du mot de passe"
+        inputId="register-password-confirm"
+        [invalid]="form.controls.passwordConfirm.invalid && form.controls.passwordConfirm.touched"
       >
-        <label class="field__label" for="register-password-confirm"
-          >Vérification du mot de passe</label
-        >
         <input
-          class="field__input"
+          class="ui-field__control"
           id="register-password-confirm"
           formControlName="passwordConfirm"
           type="password"
@@ -83,21 +80,16 @@
           id="register-password-confirm-error"
           data-testid="register-password-confirm-error"
         />
-      </div>
+      </app-ui-input>
     </div>
 
     <div class="form__actions">
       <a class="btn btn--tertiary" routerLink="/login" data-testid="register-goto-login"
         >J'ai déjà un compte</a
       >
-      <button
-        class="btn btn--primary"
-        type="submit"
-        [disabled]="submitting()"
-        data-testid="register-submit"
-      >
+      <app-ui-button type="submit" [disabled]="submitting()" data-testid="register-submit">
         Créer mon compte
-      </button>
+      </app-ui-button>
     </div>
   </form>
 </section>

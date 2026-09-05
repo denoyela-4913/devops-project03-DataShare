@@ -3,6 +3,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { FieldError } from '../../../shared/components/field-error/field-error';
+import { UiButton } from '../../../shared/components/ui-button/ui-button';
+import { UiInput } from '../../../shared/components/ui-input/ui-input';
 
 /**
  * Écran de connexion (US04). Frame Figma : Desktop - 6 (55:400) · iPhone 16 - 9 (55:343).
@@ -10,7 +12,7 @@ import { FieldError } from '../../../shared/components/field-error/field-error';
  */
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, FieldError],
+  imports: [ReactiveFormsModule, RouterLink, FieldError, UiButton, UiInput],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })

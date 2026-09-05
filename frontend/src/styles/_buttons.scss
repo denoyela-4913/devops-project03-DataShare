@@ -1,0 +1,47 @@
+// Mixins partagés pour les éléments qui ne sont pas des <button> mais doivent
+// avoir l'apparence d'un bouton (lien routerLink, <label> de sélection de
+// fichier). Les vrais <button> utilisent le composant partagé `app-ui-button`
+// (shared/components/ui-button) ; ce fichier ne couvre que ce qui ne peut pas
+// passer par le composant. Maintenu côté logique (Claude Code) — valeurs
+// alignées sur ui-button.scss, toute divergence doit être volontaire.
+
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: var(--type-input-font);
+  font-size: var(--type-input-size);
+  font-weight: var(--type-input-weight);
+  line-height: var(--type-input-line);
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+@mixin btn-primary {
+  width: 100%;
+  color: var(--color-btn-primary-text);
+  background: var(--color-btn-primary-fill);
+  border-color: var(--color-btn-primary-stroke);
+
+  &:hover:not(:disabled) {
+    background: var(--color-btn-primary-fill-hover);
+  }
+}
+
+@mixin btn-tertiary {
+  width: 100%;
+  color: var(--color-btn-tertiary-text);
+  background: transparent;
+}
+
+@mixin btn-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

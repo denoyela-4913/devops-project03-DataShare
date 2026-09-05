@@ -1,7 +1,8 @@
 <!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
      À PRÉSERVER : les data-testid, [formGroup]/formControlName, (ngSubmit), les
-     libellés for/id, aria-labelledby, aria-describedby, [class.field--invalid],
-     <app-field-error>, [disabled], routerLink vers /register.
+     libellés for/id, aria-labelledby, aria-describedby, [invalid], <app-field-error>,
+     [disabled], routerLink vers /register. Champs et bouton consomment les
+     composants partagés `app-ui-input` / `app-ui-button` (shared/components).
      Frame: DataShare_local · Desktop - 6 (55:400) Connexion · iPhone 16 - 9 (55:343)
      · voir design/figma-map.md -->
 <section class="card" aria-labelledby="login-title" data-testid="login-view">
@@ -9,13 +10,13 @@
 
   <form class="form" data-testid="login-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="form__fields">
-      <div
-        class="field"
-        [class.field--invalid]="form.controls.email.invalid && form.controls.email.touched"
+      <app-ui-input
+        label="Email"
+        inputId="login-email"
+        [invalid]="form.controls.email.invalid && form.controls.email.touched"
       >
-        <label class="field__label" for="login-email">Email</label>
         <input
-          class="field__input"
+          class="ui-field__control"
           id="login-email"
           formControlName="email"
           type="email"
@@ -29,15 +30,15 @@
           id="login-email-error"
           data-testid="login-email-error"
         />
-      </div>
+      </app-ui-input>
 
-      <div
-        class="field"
-        [class.field--invalid]="form.controls.password.invalid && form.controls.password.touched"
+      <app-ui-input
+        label="Mot de passe"
+        inputId="login-password"
+        [invalid]="form.controls.password.invalid && form.controls.password.touched"
       >
-        <label class="field__label" for="login-password">Mot de passe</label>
         <input
-          class="field__input"
+          class="ui-field__control"
           id="login-password"
           formControlName="password"
           type="password"
@@ -51,21 +52,16 @@
           id="login-password-error"
           data-testid="login-password-error"
         />
-      </div>
+      </app-ui-input>
     </div>
 
     <div class="form__actions">
       <a class="btn btn--tertiary" routerLink="/register" data-testid="login-goto-register"
         >Créer un compte</a
       >
-      <button
-        class="btn btn--primary"
-        type="submit"
-        [disabled]="submitting()"
-        data-testid="login-submit"
-      >
+      <app-ui-button type="submit" [disabled]="submitting()" data-testid="login-submit">
         Connexion
-      </button>
+      </app-ui-button>
     </div>
   </form>
 </section>
