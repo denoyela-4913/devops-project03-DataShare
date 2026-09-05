@@ -214,6 +214,22 @@ jobs:
       - name: Build backend
         working-directory: backend
         run: ./mvnw -B -ntp -q package -DskipTests
+      - name: Start MinIO (stockage objet, requis par l'upload/download)
+        run: |
+          docker run -d --name minio -p 9000:9000 \
+            -e MINIO_ROOT_USER=datashare \
+            -e MINIO_ROOT_PASSWORD=datashare-secret \
+            minio/minio:latest server /data
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:9000/minio/health/live; then
+              echo "minio up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "minio did not start in time"
+          docker logs minio
+          exit 1
       - name: Start backend (profil dev)
         working-directory: backend
         run: |
@@ -237,6 +253,9 @@ jobs:
       - name: Backend log on failure
         if: failure()
         run: cat backend/backend.log || true
+      - name: MinIO log on failure
+        if: failure()
+        run: docker logs minio || true
 
   assert-prod-bundle:
     name: assert-prod-bundle

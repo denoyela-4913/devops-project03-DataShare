@@ -35,6 +35,23 @@ implémentation. Points à instruire :
 - **Compte supprimé** : un upload avec un token valide dont le compte a disparu échoue en
   500 (violation de clé étrangère `owner_id`) — pourrait être un 401 explicite.
 
+## Téléchargement de fichiers (US02) — améliorations différées
+
+- **Chargement en mémoire navigateur** : le front récupère le fichier en `Blob` (fetch)
+  avant de déclencher l'enregistrement. Pour un fichier proche de 1 Go sur un appareil
+  contraint, c'est risqué. Alternative : POST → « ticket » court à usage unique, puis
+  navigation native vers un `GET` streamé (`Content-Disposition`), le navigateur écrit
+  directement sur disque. Écarté du MVP pour rester aligné sur le contrat documenté
+  (`GET`/`POST /api/d/{token}`) et le niveau de l'upload (déjà bufferisé).
+- **Requêtes Range / reprise de téléchargement** : non supporté (téléchargement complet
+  uniquement). À ajouter si lecture de médias volumineux en flux.
+- **Écran Figma** : la série « téléchargement » n'est pas encore exportée depuis Figma.
+  `features/download` est un placeholder fonctionnel (composants `app-ui-*`) à reskin.
+- **Composant `password-field`** dédié (afficher/masquer) : aujourd'hui un simple
+  `app-ui-input` + `type="password"`.
+- **Lien à usage unique / compteur de téléchargements** : le lien reste valide jusqu'à
+  expiration (téléchargements multiples), comme un lien WeTransfer.
+
 ## Couverture de tests
 
 - **Back : porte à 70 % active** (PR #0006) — `jacoco:merge` + `jacoco:check` au `verify`.

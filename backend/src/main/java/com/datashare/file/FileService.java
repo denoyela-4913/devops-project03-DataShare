@@ -2,10 +2,14 @@ package com.datashare.file;
 
 import com.datashare.common.error.ApiException;
 import com.datashare.common.error.ErrorCode;
+import com.datashare.common.error.ResourceNotFoundException;
+import com.datashare.file.dto.FileMetadataResponse;
 import com.datashare.file.dto.UploadResponse;
+import com.datashare.file.exception.ExpiredFileException;
 import com.datashare.file.exception.FileTooLargeException;
 import com.datashare.file.exception.ForbiddenFileTypeException;
 import com.datashare.file.exception.InvalidExpirationException;
+import com.datashare.file.exception.InvalidFilePasswordException;
 import com.datashare.storage.StorageException;
 import com.datashare.storage.StorageService;
 import java.io.IOException;
@@ -85,6 +89,39 @@ public class FileService {
                 stored.getOriginalName(),
                 stored.getSizeBytes(),
                 stored.getExpiresAt());
+    }
+
+    /** US02 — infos affichables d'un lien de partage, sans exiger le mot de passe. */
+    @Transactional(readOnly = true)
+    public FileMetadataResponse metadata(String token) {
+        StoredFile file = findDownloadable(token);
+        return new FileMetadataResponse(
+                file.getOriginalName(), file.getSizeBytes(), file.getExpiresAt(), file.isPasswordProtected());
+    }
+
+    /** US02 — ouvre le flux d'octets d'un lien de partage après contrôle du mot de passe éventuel. */
+    @Transactional(readOnly = true)
+    public DownloadPayload download(String token, String password) {
+        StoredFile file = findDownloadable(token);
+        if (file.isPasswordProtected() && !passwordEncoder.matches(nullToEmpty(password), file.getPasswordHash())) {
+            throw new InvalidFilePasswordException();
+        }
+        InputStream content = storage.retrieve(file.getStorageKey());
+        return new DownloadPayload(content, file.getOriginalName(), file.getContentType(), file.getSizeBytes());
+    }
+
+    private StoredFile findDownloadable(String token) {
+        StoredFile file = files.findByDownloadToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Lien de téléchargement introuvable", "token inconnu : " + token));
+        if (file.isExpired()) {
+            throw new ExpiredFileException(token);
+        }
+        return file;
+    }
+
+    private static String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 
     private String hashPasswordIfPresent(String password) {

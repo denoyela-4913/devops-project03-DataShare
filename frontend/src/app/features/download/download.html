@@ -1,0 +1,69 @@
+<!-- @figma-owned — écran de téléchargement d'un lien de partage (US02). Placeholder
+     fonctionnel : composants partagés (app-ui-input / app-ui-button / app-ui-callout)
+     en attendant l'export Figma de la série « téléchargement ».
+     À PRÉSERVER : data-testid, @switch/@if, [formGroup]/formControlName, (ngSubmit),
+     [invalid], <app-field-error>, [disabled], aria-*.
+     Frame: à créer · voir design/figma-map.md -->
+@switch (state()) {
+  @case ('loading') {
+    <section class="card" data-testid="download-loading" aria-busy="true">
+      <p class="card__text">Chargement…</p>
+    </section>
+  }
+  @case ('not-found') {
+    <section class="card" data-testid="download-not-found">
+      <app-ui-callout type="error">Ce lien de téléchargement n'existe pas.</app-ui-callout>
+    </section>
+  }
+  @case ('expired') {
+    <section class="card" data-testid="download-expired">
+      <app-ui-callout type="error">Ce lien de téléchargement a expiré.</app-ui-callout>
+    </section>
+  }
+  @case ('ready') {
+    <section class="card" aria-labelledby="download-title" data-testid="download-view">
+      <h1 class="card__title" id="download-title">Télécharger un fichier</h1>
+
+      <div class="file-row" data-testid="download-file">
+        <span class="file-row__name" data-testid="download-file-name">{{ metadata()?.name }}</span>
+        <span class="file-row__size" data-testid="download-file-size">{{ sizeLabel() }}</span>
+      </div>
+
+      <form
+        class="form"
+        data-testid="download-form"
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        novalidate
+      >
+        @if (metadata()?.passwordProtected) {
+          <app-ui-input
+            label="Mot de passe"
+            inputId="download-password"
+            [invalid]="form.controls.password.invalid && form.controls.password.touched"
+          >
+            <input
+              class="ui-field__control"
+              id="download-password"
+              formControlName="password"
+              type="password"
+              autocomplete="off"
+              placeholder="Mot de passe du fichier"
+              aria-describedby="download-password-error"
+              data-testid="download-password-input"
+            />
+            <app-field-error
+              [control]="form.controls.password"
+              id="download-password-error"
+              data-testid="download-password-error"
+            />
+          </app-ui-input>
+        }
+
+        <app-ui-button type="submit" [disabled]="downloading()" data-testid="download-submit">
+          {{ downloading() ? 'Téléchargement…' : 'Télécharger' }}
+        </app-ui-button>
+      </form>
+    </section>
+  }
+}

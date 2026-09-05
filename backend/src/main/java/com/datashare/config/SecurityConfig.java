@@ -12,8 +12,9 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Configuration de sécurité — stateless, JWT resource-server.
  *
- * <p>Endpoints publics : ping, health, Swagger (GET) et {@code POST /api/auth/register|login}.
- * Tout le reste exige un access token valide (voir {@link SecurityBeans}).
+ * <p>Endpoints publics : ping, health, Swagger (GET), {@code POST /api/auth/register|login} et
+ * {@code GET|POST /api/d/**} (liens de partage, US02). Tout le reste exige un access token
+ * valide (voir {@link SecurityBeans}).
  */
 @Configuration
 public class SecurityConfig {
@@ -32,6 +33,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET, PUBLIC_GET)
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/d/*")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/d/*")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
