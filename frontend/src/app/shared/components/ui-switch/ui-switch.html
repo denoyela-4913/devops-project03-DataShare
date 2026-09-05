@@ -1,0 +1,19 @@
+<!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
+     À PRÉSERVER : role="tablist" / tab, [attr.aria-selected], (click), data-testid.
+     Frame: DataShare_local · Switch Component 35:301
+     Selected=All | True | False (Tous / Actifs / Expiré) · voir design/figma-map.md -->
+<div class="ui-switch" role="tablist" aria-label="Filtrer les fichiers">
+  @for (opt of options; track opt.value) {
+    <button
+      type="button"
+      role="tab"
+      class="ui-switch__option"
+      [class.ui-switch__option--active]="selected() === opt.value"
+      [attr.aria-selected]="selected() === opt.value"
+      [attr.data-testid]="'ui-switch-' + opt.value"
+      (click)="select(opt.value)"
+    >
+      {{ opt.label }}
+    </button>
+  }
+</div>

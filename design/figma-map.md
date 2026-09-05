@@ -8,10 +8,14 @@ Statuts : ☐ à faire · ◐ généré, à réviser · ☑ validé (voir DoD da
 
 | Frame Figma | node-id | Cible | Fichiers | Statut |
 |---|---|---|---|---|
-| _à renseigner_ | — | `shared/components/ui-button` | `ui-button.html`, `ui-button.scss` | ☐ |
-| _à renseigner_ | — | `shared/components/error-toast` | `error-toast.html`, `error-toast.scss` | ☐ |
+| Button Component | 20:598 | `shared/components/ui-button` | `ui-button.html`, `ui-button.scss` | ☑ |
+| Input Component | 9:121 | `shared/components/ui-input` | `ui-input.html`, `ui-input.scss` | ☑ |
+| Select Component | 9:237 | `shared/components/ui-select` | `ui-select.html`, `ui-select.scss` | ☑ |
+| Header | 24:440 | `shared/components/ui-header` | `ui-header.html`, `ui-header.scss` | ◐ (testé, pas encore consommé — coquille appli à revoir) |
+| Switch Component | 35:301 | `shared/components/ui-switch` | `ui-switch.html`, `ui-switch.scss` | ◐ (testé, pas encore consommé — réservé au filtre `/history`) |
+| Callout Component | 56:1078 | `shared/components/ui-callout` | `ui-callout.html`, `ui-callout.scss` | ◐ (testé, pas encore consommé) |
 | DataShare_local · Login 55:333 | 55:333 | coquille appli | `app/app.html`, `app/app.scss` | ◐ |
-| _à renseigner_ | — | `features/styleguide` | `styleguide.html`, `styleguide.scss` | ☐ |
+| Composants UI 9:113 | 9:113 | `features/styleguide` | `styleguide.html`, `styleguide.scss` | ◐ |
 
 ## Tokens
 

@@ -25,6 +25,28 @@
   --color-btn-primary-fill-hover: rgb(255 129 45 / 20%);
   --color-btn-primary-text: #ba681f;
   --color-btn-primary-stroke: rgb(205 94 20 / 50%);
+  --color-btn-secondary-stroke: #ffa569;
+  --color-btn-disabled-fill: rgb(183 167 156 / 20%);
+  --color-btn-disabled-stroke: rgb(183 167 156 / 20%);
+  --color-btn-disabled-text: #aea49b;
+  --color-btn-dark-disabled-fill: #f4eee9;
+
+  // Kit Composants UI 9:113 — Switch (35:301)
+  --color-switch-track: #ffc191;
+  --color-switch-track-stroke: #d7630b;
+  --color-switch-thumb: #e77a6e;
+  --radius-switch: 24px;
+
+  // Kit Composants UI 9:113 — Callout (56:1078)
+  --color-callout-info-bg: #e2ecff;
+  --color-callout-info-stroke: #b1c9f5;
+  --color-callout-info-text: #2a3f72;
+  --color-callout-alert-bg: #fff5ed;
+  --color-callout-alert-stroke: #e6cbb5;
+  --color-callout-alert-text: #aa642b;
+  --color-callout-error-bg: #ffe2e2;
+  --color-callout-error-stroke: #e8a6a6;
+  --color-callout-error-text: #9c3333;
 
   --color-gradient-start: #ffb88c;
   --color-gradient-end: #de6262;

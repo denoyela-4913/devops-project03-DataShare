@@ -1,0 +1,17 @@
+<!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
+     À PRÉSERVER : role="status", [attr.data-testid], projection du texte.
+     Frame: DataShare_local · Callout Component 56:1078
+     Type=Info | Alert | Error · voir design/figma-map.md -->
+<div [class]="'ui-callout ui-callout--' + type()" role="status">
+  <img
+    class="ui-callout__icon"
+    [src]="iconSrc()"
+    width="16"
+    height="16"
+    alt=""
+    aria-hidden="true"
+  />
+  <p class="ui-callout__label">
+    <ng-content />
+  </p>
+</div>

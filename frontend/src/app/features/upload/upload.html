@@ -1,6 +1,9 @@
 <!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
      À PRÉSERVER : les data-testid, (change)="onFileChange($event)", (ngSubmit),
-     [class.field--error], [disabled], aria-*, routerLink.
+     [class.field--error], [disabled], aria-*, routerLink. Champs et boutons
+     consomment les composants partagés `app-ui-input` / `app-ui-select` /
+     `app-ui-button` (shared/components) — hors <label> de sélection de fichier,
+     qui restent des liens stylés « bouton » (mixins frontend/src/styles/_buttons.scss).
      Frames: DataShare_local · Téléversement 32:515
        Landing  : Desktop - 2 (10:217) · iPhone 16 - 1 (1:2)
        Formulaire : Desktop - 1 (10:122) · iPhone 16 - 2 (2:42)
@@ -142,10 +145,9 @@
     >
       <div class="form__fields">
         <!-- Mot de passe optionnel -->
-        <div class="field">
-          <label class="field__label" for="upload-password">Mot de passe</label>
+        <app-ui-input label="Mot de passe" inputId="upload-password">
           <input
-            class="field__input"
+            class="ui-field__control"
             id="upload-password"
             formControlName="password"
             type="password"
@@ -157,49 +159,34 @@
           <span id="upload-password-hint" class="field__hint"
             >Laissez vide pour un lien public</span
           >
-        </div>
+        </app-ui-input>
 
         <!-- Expiration -->
-        <div class="field">
-          <label class="field__label" for="upload-expiration">Expiration</label>
-          <div class="select-wrap">
-            <select
-              class="field__select"
-              id="upload-expiration"
-              formControlName="expiration"
-              aria-describedby="upload-expiration-error"
-              data-testid="upload-expiration-select"
-            >
-              @for (opt of expirationOptions; track opt.value) {
-                <option [value]="opt.value">{{ opt.label }}</option>
-              }
-            </select>
-            <svg
-              class="select-wrap__chevron"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                d="M4 6l4 4 4-4"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </div>
+        <app-ui-select
+          label="Expiration"
+          inputId="upload-expiration"
+          [invalid]="form.controls.expiration.invalid && form.controls.expiration.touched"
+        >
+          <select
+            class="ui-field__control"
+            id="upload-expiration"
+            formControlName="expiration"
+            aria-describedby="upload-expiration-error"
+            data-testid="upload-expiration-select"
+          >
+            @for (opt of expirationOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
           <app-field-error
             [control]="form.controls.expiration"
             id="upload-expiration-error"
             data-testid="upload-expiration-error"
           />
-        </div>
+        </app-ui-select>
       </div>
 
-      <button
-        class="btn btn--primary btn--upload"
+      <app-ui-button
         type="submit"
         [disabled]="fileTooLarge() || submitting()"
         data-testid="upload-submit"
@@ -232,7 +219,7 @@
           />
         </svg>
         Téléverser
-      </button>
+      </app-ui-button>
     </form>
   </section>
 }
@@ -295,12 +282,11 @@
 
     <!-- Actions -->
     <div class="form__actions">
-      <button
-        class="btn btn--primary btn--upload"
+      <app-ui-button
         type="button"
-        (click)="copyLink()"
+        (pressed)="copyLink()"
         data-testid="upload-copy-btn"
-        [attr.aria-pressed]="copied()"
+        [ariaPressed]="copied()"
       >
         <svg
           class="btn__icon"
@@ -325,16 +311,16 @@
           />
         </svg>
         {{ copied() ? 'Lien copié !' : 'Copier le lien' }}
-      </button>
+      </app-ui-button>
 
-      <button
-        class="btn btn--tertiary"
+      <app-ui-button
         type="button"
-        (click)="uploadAnother()"
+        variant="tertiary"
+        (pressed)="uploadAnother()"
         data-testid="upload-another-btn"
       >
         Téléverser un autre fichier
-      </button>
+      </app-ui-button>
     </div>
   </section>
 }

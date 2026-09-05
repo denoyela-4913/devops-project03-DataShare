@@ -1,0 +1,52 @@
+/* @figma-owned — style maintenu depuis Figma via Cursor. Utiliser les tokens de
+   src/styles/_tokens.scss, jamais de valeurs en dur.
+   Frame: DataShare_local · Header 24:440
+   Hauteur 72 · inner max 1280 · pad 16 · logo 32 Bold · action = bouton Dark Medium
+   · voir design/figma-map.md */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ui-header__inner {
+  width: min(var(--content-width), calc(100% - (var(--page-gutter) * 2)));
+  margin: 0 auto;
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px;
+}
+
+:host ::ng-deep [uiHeaderLogo] {
+  font-family: var(--type-xlarge-font);
+  font-weight: var(--type-xlarge-weight);
+  font-size: var(--type-xlarge-size);
+  line-height: var(--type-xlarge-line);
+  color: var(--color-black);
+  text-decoration: none;
+}
+
+:host ::ng-deep [uiHeaderAction] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-header-btn);
+  color: var(--color-header-btn-text);
+  font-family: var(--type-input-font);
+  font-size: var(--type-input-size);
+  line-height: var(--type-input-line);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 833px) {
+  .ui-header__inner {
+    width: 100%;
+  }
+}

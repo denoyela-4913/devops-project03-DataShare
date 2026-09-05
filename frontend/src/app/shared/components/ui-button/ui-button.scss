@@ -1,3 +1,101 @@
 /* @figma-owned — style maintenu depuis Figma via Cursor. Utiliser les tokens de
-   src/styles/_tokens.scss, jamais de valeurs en dur. Frame: <à renseigner>
-   stub — variantes (primary / secondary / danger) définies depuis la maquette. */
+   src/styles/_tokens.scss, jamais de valeurs en dur.
+   Frame: DataShare_local · Button Component 20:598
+   Size Small 32px pad 8/12 · Medium 40px pad 12 · radius 8 · gap 8
+   Variants Primary / Secondary / Tertiary / Dark × Default / Disabled
+   · voir design/figma-map.md */
+
+:host {
+  display: inline-flex;
+}
+
+// width: 100% — l'hôte peut être étiré par un parent flex (ex. .form__actions),
+// et data-testid/aria-* posés par l'écran consommateur ciblent l'hôte : le
+// <button> doit remplir sa boîte pour rester cliquable sur toute sa surface.
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: var(--type-input-font);
+  font-size: var(--type-input-size);
+  font-weight: var(--type-input-weight);
+  line-height: var(--type-input-line);
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+.ui-button--small {
+  min-height: 32px;
+  padding: 8px 12px;
+}
+
+.ui-button--medium {
+  min-height: 40px;
+  padding: 12px;
+}
+
+.ui-button--primary {
+  color: var(--color-btn-primary-text);
+  background: var(--color-btn-primary-fill);
+  border-color: var(--color-btn-primary-stroke);
+}
+
+.ui-button--primary:hover:not(:disabled) {
+  background: var(--color-btn-primary-fill-hover);
+}
+
+.ui-button--secondary {
+  color: var(--color-btn-tertiary-text);
+  background: transparent;
+  border-color: var(--color-btn-secondary-stroke);
+}
+
+.ui-button--tertiary {
+  color: var(--color-btn-tertiary-text);
+  background: transparent;
+}
+
+.ui-button--dark {
+  color: var(--color-header-btn-text);
+  background: var(--color-header-btn);
+}
+
+.ui-button--danger {
+  color: var(--color-callout-error-text);
+  background: var(--color-callout-error-bg);
+  border-color: var(--color-callout-error-stroke);
+}
+
+.ui-button:disabled {
+  cursor: not-allowed;
+}
+
+.ui-button--primary:disabled {
+  color: var(--color-btn-disabled-text);
+  background: var(--color-btn-disabled-fill);
+  border-color: var(--color-btn-disabled-stroke);
+}
+
+.ui-button--secondary:disabled {
+  color: var(--color-btn-disabled-text);
+  background: transparent;
+  border-color: var(--color-btn-disabled-text);
+}
+
+.ui-button--tertiary:disabled,
+.ui-button--danger:disabled {
+  color: var(--color-btn-disabled-text);
+  background: transparent;
+  border-color: transparent;
+}
+
+.ui-button--dark:disabled {
+  color: var(--color-btn-disabled-text);
+  background: var(--color-btn-dark-disabled-fill);
+}

@@ -14,7 +14,7 @@ dans **VS Code / Claude Code**. Même arbre git, séparation par fichier + par b
 | `frontend/src/assets/icons/*`, `frontend/src/assets/images/*` | **Figma** | Cursor |
 | `design/tokens.reference.json`, `design/screens/*` | **Figma** | Cursor |
 | `frontend/src/**/*.ts`, `*.spec.ts`, `*.integ.spec.ts` | **Logique** | Claude Code |
-| `frontend/src/styles/_a11y.scss`, `theme.scss`, `styles.scss` | **Logique** | Claude Code |
+| `frontend/src/styles/_a11y.scss`, `_buttons.scss`, `theme.scss`, `styles.scss` | **Logique** | Claude Code |
 | `backend/**`, `.github/**`, `deploy/**`, `*.md` | **Infra / doc** | Claude Code |
 
 Tout fichier « Figma » porte un en-tête `@figma-owned` (vérifié par le job CI `lint-repo`).
@@ -32,9 +32,14 @@ Cursor **ne doit jamais casser**, dans les `.html` :
 - les rôles et libellés ARIA (`role`, `aria-*`), le `<router-outlet/>`, `<ng-content/>`
 - les composants référencés (`<app-error-toast/>`, `<app-field-error/>`, etc.)
 - **la gestion d'erreur de formulaire ajoutée par Claude Code** : `<app-field-error>` après
-  chaque champ, `[class.field--invalid]` sur `.field`, `aria-describedby` sur l'`<input>`,
-  `[disabled]="submitting()"` sur le bouton. Cursor peut restyler la carte, pas retirer ces
-  éléments.
+  chaque champ, `[invalid]`/`[class.field--invalid]`, `aria-describedby` sur l'`<input>`,
+  `[disabled]="submitting()"` sur le bouton, `[ariaPressed]`/`[attr.aria-pressed]` sur les
+  boutons à bascule (ex. « Copier le lien »). Cursor peut restyler la carte, pas retirer
+  ces éléments.
+- **la consommation des composants partagés** : les écrans (`login`, `register`, `upload`,
+  …) posent leurs champs/boutons via `<app-ui-input>`, `<app-ui-select>`, `<app-ui-button>`
+  plutôt que des `.field`/`.btn` locaux dupliqués. Un `<label>`/`<a routerLink>` stylé
+  « bouton » (pas un vrai `<button>`) reste local, via les mixins de `_buttons.scss`.
 
 Dans les `.scss` : utiliser **exclusivement les tokens** de `_tokens.scss` (règle Stylelint
 `color-no-hex` — aucune couleur en dur hors `_tokens.scss`).

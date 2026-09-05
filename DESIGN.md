@@ -35,11 +35,15 @@ autorisées que dans `_tokens.scss` (règle Stylelint `color-no-hex`, vérifiée
 
 | Composant | Rôle | Statut |
 |---|---|---|
-| `ui-button` | bouton (variants primary / secondary / danger) | ☑ (logique + stub style) |
+| `ui-button` | bouton (variants primary / secondary / tertiary / dark / danger) | ☑ (consommé dans login/register/upload) |
 | `error-toast` | bandeau d'erreur global, détail technique en mode debug | ☑ |
 | `field-error` | message d'erreur d'un contrôle de formulaire (a11y `role="alert"`, `aria-describedby`) | ☑ |
-| `ui-text-field` | champ de formulaire + libellé + erreur | ☐ |
-| `password-field` | saisie de mot de passe accessible | ☐ |
+| `ui-input` | champ de formulaire + libellé (remplace `ui-text-field`) | ☑ (consommé dans login/register/upload) |
+| `ui-select` | liste déroulante + libellé + chevron | ☑ (consommé dans upload) |
+| `ui-header` | en-tête appli (logo + action) | ◐ (testé, pas encore consommé) |
+| `ui-switch` | filtre segmenté Tous / Actifs / Expiré | ◐ (testé, réservé au filtre `/history`) |
+| `ui-callout` | bandeau inline Info / Alert / Error | ◐ (testé, pas encore consommé) |
+| `password-field` | saisie de mot de passe accessible (afficher/masquer) | ☐ |
 | `tag-chip` | étiquette de tag (US08) | ☐ |
 | `file-card` | ligne d'historique (nom, taille, expiration, état) | ☐ |
 | `confirm-dialog` | confirmation d'action destructive (US06) | ☐ |

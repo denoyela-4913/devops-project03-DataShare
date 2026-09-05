@@ -1,0 +1,10 @@
+<!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
+     À PRÉSERVER : <label for>, projection de l'<input class="ui-field__control">,
+     app-field-error, aria-describedby côté écran consommateur.
+     Frame: DataShare_local · Input Component 9:121 · voir design/figma-map.md -->
+<div class="ui-field">
+  @if (label()) {
+    <label class="ui-field__label" [attr.for]="inputId()">{{ label() }}</label>
+  }
+  <ng-content />
+</div>

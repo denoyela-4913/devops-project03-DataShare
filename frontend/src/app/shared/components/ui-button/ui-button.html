@@ -1,10 +1,12 @@
 <!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
-     À PRÉSERVER : les liaisons [type]/[disabled], (click), <ng-content/>, et la
-     classe de variante. Frame: <à renseigner> · voir design/figma-map.md -->
+     À PRÉSERVER : les liaisons [type]/[disabled], (click), <ng-content/>, et les
+     classes de variante/taille. Frame: DataShare_local · Button Component 20:598
+     · voir design/figma-map.md -->
 <button
   [type]="type()"
   [disabled]="disabled()"
-  [class]="'ui-button ui-button--' + variant()"
+  [class]="'ui-button ui-button--' + variant() + ' ui-button--' + size()"
+  [attr.aria-pressed]="ariaPressed()"
   (click)="pressed.emit()"
 >
   <ng-content />

@@ -1,0 +1,11 @@
+<!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
+     À PRÉSERVER : projections [uiHeaderLogo] et [uiHeaderAction], data-testid
+     posés par l'écran consommateur.
+     Frame: DataShare_local · Header 24:440
+     Width Desktop/Mobile × Login Anonymous/Logged · voir design/figma-map.md -->
+<header class="ui-header">
+  <div class="ui-header__inner">
+    <ng-content select="[uiHeaderLogo]" />
+    <ng-content select="[uiHeaderAction]" />
+  </div>
+</header>

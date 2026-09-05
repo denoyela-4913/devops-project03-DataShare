@@ -1,1 +1,29 @@
-/* @figma-owned — mise en forme du styleguide, maintenue via Cursor. */
+/* @figma-owned — mise en forme du styleguide, maintenue via Cursor.
+   Frame: DataShare_local · Composants UI 9:113 */
+
+:host {
+  display: block;
+  padding: 24px;
+  background: var(--color-white);
+  color: var(--color-black);
+}
+
+h1 {
+  font-family: var(--type-h1-font);
+  font-size: var(--type-h1-size);
+  line-height: var(--type-h1-line);
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-block: 24px;
+}
+
+h2 {
+  margin: 0;
+  font-family: var(--type-h1-font);
+  font-size: var(--type-h1-size);
+}

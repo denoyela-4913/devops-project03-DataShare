@@ -10,6 +10,8 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { FieldError } from '../../../shared/components/field-error/field-error';
+import { UiButton } from '../../../shared/components/ui-button/ui-button';
+import { UiInput } from '../../../shared/components/ui-input/ui-input';
 
 /** Validateur croisé posé sur `passwordConfirm` : compare à la valeur de `password`. */
 function matchPassword(control: AbstractControl): ValidationErrors | null {
@@ -26,7 +28,7 @@ function matchPassword(control: AbstractControl): ValidationErrors | null {
  */
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, FieldError],
+  imports: [ReactiveFormsModule, RouterLink, FieldError, UiButton, UiInput],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })

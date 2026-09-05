@@ -1,0 +1,51 @@
+/* @figma-owned — style maintenu depuis Figma via Cursor. Utiliser les tokens de
+   src/styles/_tokens.scss, jamais de valeurs en dur.
+   Frame: DataShare_local · Callout Component 56:1078
+   Hauteur 32 · pad 8 · gap 8 · radius 8 · Small 14
+   · voir design/figma-map.md */
+
+:host {
+  display: block;
+}
+
+.ui-callout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+}
+
+.ui-callout__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.ui-callout__label {
+  margin: 0;
+  font-family: var(--type-small-font);
+  font-size: var(--type-small-size);
+  font-weight: var(--type-small-weight);
+  line-height: var(--type-small-line);
+}
+
+.ui-callout--info {
+  background: var(--color-callout-info-bg);
+  border-color: var(--color-callout-info-stroke);
+  color: var(--color-callout-info-text);
+}
+
+.ui-callout--alert {
+  background: var(--color-callout-alert-bg);
+  border-color: var(--color-callout-alert-stroke);
+  color: var(--color-callout-alert-text);
+}
+
+.ui-callout--error {
+  background: var(--color-callout-error-bg);
+  border-color: var(--color-callout-error-stroke);
+  color: var(--color-callout-error-text);
+}

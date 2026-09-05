@@ -1,0 +1,36 @@
+/* @figma-owned — style maintenu depuis Figma via Cursor. Utiliser les tokens de
+   src/styles/_tokens.scss, jamais de valeurs en dur.
+   Frame: DataShare_local · Switch Component 35:301
+   Track #ffc191 stroke #d7630b radius 24 · onglet actif #e77a6e texte blanc
+   pad option 8/16 · voir design/figma-map.md */
+
+:host {
+  display: inline-flex;
+}
+
+.ui-switch {
+  display: inline-flex;
+  align-items: stretch;
+  overflow: hidden;
+  background: var(--color-switch-track);
+  border: 1px solid var(--color-switch-track-stroke);
+  border-radius: var(--radius-switch);
+}
+
+.ui-switch__option {
+  margin: 0;
+  padding: 8px 16px;
+  border: 0;
+  background: transparent;
+  font-family: var(--type-input-font);
+  font-size: var(--type-input-size);
+  font-weight: var(--type-input-weight);
+  line-height: var(--type-input-line);
+  color: var(--color-black);
+  cursor: pointer;
+}
+
+.ui-switch__option--active {
+  background: var(--color-switch-thumb);
+  color: var(--color-white);
+}
