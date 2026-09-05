@@ -9,11 +9,15 @@
   display: inline-flex;
 }
 
+// width: 100% — l'hôte peut être étiré par un parent flex (ex. .form__actions),
+// et data-testid/aria-* posés par l'écran consommateur ciblent l'hôte : le
+// <button> doit remplir sa boîte pour rester cliquable sur toute sa surface.
 .ui-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  width: 100%;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   font-family: var(--type-input-font);
