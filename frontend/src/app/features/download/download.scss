@@ -1,0 +1,67 @@
+/* @figma-owned — écran de téléchargement (US02). Placeholder fonctionnel en attendant
+   l'export Figma. Tokens uniquement (règle Stylelint color-no-hex). Frame: à créer.
+   Voir design/figma-map.md */
+
+.card {
+  width: var(--card-width);
+  max-width: 100%;
+  margin: 0 auto;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.card__title {
+  margin: 0;
+  font-family: var(--type-h1-font);
+  font-size: var(--type-h1-size);
+  font-weight: var(--type-h1-weight);
+  line-height: var(--type-h1-line);
+  text-align: center;
+  color: var(--color-black);
+}
+
+.card__text {
+  margin: 0;
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-label);
+  text-align: center;
+}
+
+.file-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px;
+}
+
+.file-row__name {
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-row__size {
+  flex-shrink: 0;
+  font-family: var(--type-small-font);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--color-label);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
