@@ -14,7 +14,7 @@ Vue produit / architecture. Le **processus** de passation Figma ⇄ code est dan
 | US05 — historique | `/history` (garde `authGuard`, `/` y redirige) | `features/history` + `file-card` + `ui-switch`, pipes `expiryStatus`/`fileSize` | `GET /api/files` (+ `GET /api/me` pour l'email) | `FileSummary[]` | ☑ (front + back, e2e ; visuel Figma à venir) |
 | US06 — suppression | `/history` | `file-card` + `confirm-dialog` (`<dialog>` natif) | `DELETE /api/files/{id}` → `204` | — | ☑ (front + back, e2e) |
 | US08 — tags | `/history`, `/upload` | `tag-chip`, filtrage | endpoints tags (`V2`) | `Tag[]` | ☐ |
-| Transverse | toutes | `app` (coquille), `error-toast` | — | `ErrorResponse` | ☑ |
+| Transverse — erreurs | toutes | `form-error` (dans la carte), `form-notice` (succès), `error-toast` (filet réseau) | — | `ErrorResponse` | ☑ |
 
 ## 2. Système visuel (design system)
 
@@ -35,8 +35,10 @@ autorisées que dans `_tokens.scss` (règle Stylelint `color-no-hex`, vérifiée
 | Composant | Rôle | Statut |
 |---|---|---|
 | `ui-button` | bouton (variants primary / secondary / tertiary / dark / danger) | ☑ (consommé dans login/register/upload) |
-| `error-toast` | bandeau d'erreur global, détail technique en mode debug | ☑ |
 | `field-error` | message d'erreur d'un contrôle de formulaire (a11y `role="alert"`, `aria-describedby`) | ☑ |
+| `form-error` | erreur **serveur** en tête de formulaire (dans la carte), `role="alert"`, détail technique dépliable en mode debug | ☑ (login/register/upload/download/history) |
+| `form-notice` | confirmation d'action réussie en tête d'écran (bleu, `role="status"`, auto-disparition 3 s) | ☑ (suppression `/history`) |
+| `error-toast` | filet global : panne réseau et erreurs non prises en charge par un écran ; flottant en bas, auto-fermeture | ☑ |
 | `ui-input` | champ de formulaire + libellé (remplace `ui-text-field`) | ☑ (consommé dans login/register/upload) |
 | `ui-select` | liste déroulante + libellé + chevron | ☑ (consommé dans upload) |
 | `ui-header` | en-tête appli (logo + action) | ◐ (testé, pas encore consommé) |

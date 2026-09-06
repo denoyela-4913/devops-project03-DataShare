@@ -2,7 +2,8 @@
      Remplace l'ancien placeholder features/home. Composants partagés en attendant
      l'export Figma de la série « Mon espace ».
      À PRÉSERVER : data-testid, @switch/@for, (pressed), (selectedChange),
-     (confirm)/(cancel), aria-*.
+     (confirm)/(dismissed), <app-form-error> / <app-form-notice> (retours suppression),
+     aria-*.
      Frame: à créer · voir design/figma-map.md -->
 <section class="history" data-testid="history-view">
   <header class="history__head">
@@ -21,6 +22,9 @@
       Se déconnecter
     </app-ui-button>
   </header>
+
+  <app-form-error [error]="serverError()" />
+  <app-form-notice [notice]="notice()" />
 
   @switch (state()) {
     @case ('loading') {

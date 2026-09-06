@@ -18,12 +18,12 @@ export class DownloadService {
     });
   }
 
-  /** Octets du fichier. Un mauvais mot de passe (403) remonte via le toast global. */
+  /** Octets du fichier. Un mauvais mot de passe (403) est affiché par l'écran, dans la carte. */
   download(token: string, password?: string): Observable<Blob> {
     return this.http.post(
       `${this.config.apiUrl}/d/${encodeURIComponent(token)}`,
       { password: password ?? null },
-      { responseType: 'blob' },
+      { responseType: 'blob', context: skipErrorNotification() },
     );
   }
 }

@@ -68,6 +68,17 @@ implémentation. Points à instruire :
 - **Filtre Tous/Actifs/Expiré côté client** : appliqué sur la liste déjà chargée, pas de
   paramètre serveur. Cohérent avec l'absence de pagination.
 
+## Affichage des erreurs / notifications — différé
+
+- **Token de succès (vert)** : `form-notice` utilise pour l'instant les tokens Callout
+  Info (bleu), faute de token vert au dépôt. À demander à Cursor si le design veut un
+  vrai « succès ».
+- **Retour « lien copié »** : le bouton « Copier le lien » de `file-card` (`/history`)
+  n'a aucun retour visuel. Pourrait réutiliser `<app-form-notice>` (« Lien copié »).
+- **`error-toast` / détail dev** : le filet global garde l'info-bulle `title` pour le
+  détail technique (rare : surtout des pannes réseau sans `debug`). Un `<details>` comme
+  dans `form-error` serait plus accessible si le besoin apparaît.
+
 ## Couverture de tests
 
 - **Back : porte à 70 % active** (PR #0006) — `jacoco:merge` + `jacoco:check` au `verify`.

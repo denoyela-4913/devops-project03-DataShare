@@ -45,6 +45,7 @@ describe('Historique', () => {
     cy.get('[data-testid="confirm-dialog"]').should('be.visible');
     cy.get('[data-testid="confirm-dialog-confirm"]').click();
 
+    cy.get('[data-testid="form-notice-message"]').should('contain', 'Fichier supprimé');
     cy.get('[data-testid="history-list"] app-file-card').should('have.length', 1);
   });
 

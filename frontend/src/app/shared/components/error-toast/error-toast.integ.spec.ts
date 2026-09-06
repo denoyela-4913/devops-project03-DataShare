@@ -58,4 +58,20 @@ describe('ErrorToast (integ)', () => {
     const { fixture } = render(true);
     expect(query(fixture, 'error-toast')).toBeNull();
   });
+
+  it('se referme seul après quelques secondes', () => {
+    vi.useFakeTimers();
+    try {
+      const { fixture, notifier } = render(false);
+      notifier.notify(CONFLICT);
+      fixture.detectChanges();
+      expect(query(fixture, 'error-toast')).not.toBeNull();
+
+      vi.advanceTimersByTime(6500);
+      fixture.detectChanges();
+      expect(query(fixture, 'error-toast')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

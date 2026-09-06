@@ -38,7 +38,9 @@ describe('Authentification', () => {
     cy.get('[data-testid="register-password-confirm-input"]').type(password);
     cy.get('[data-testid="register-submit"]').click();
 
-    cy.get('[data-testid="error-message"]').should('be.visible').and('contain', 'déjà utilisée');
+    cy.get('[data-testid="form-error-message"]')
+      .should('be.visible')
+      .and('contain', 'déjà utilisée');
     cy.location('pathname').should('eq', '/register');
   });
 

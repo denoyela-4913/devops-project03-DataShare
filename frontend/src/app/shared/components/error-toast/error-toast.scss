@@ -1,3 +1,65 @@
-/* @figma-owned — style maintenu depuis Figma via Cursor. Utiliser les tokens de
-   src/styles/_tokens.scss, jamais de valeurs en dur. Frame: <à renseigner>
-   stub — mise en forme définie depuis la maquette. */
+/* @figma-owned — filet d'erreur global. Habillage repris du composant Callout
+   (tokens `--color-callout-error-*`) : pas de frame dédiée. Utiliser les tokens de
+   src/styles/_tokens.scss, jamais de valeurs en dur. Voir design/figma-map.md */
+
+.error-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: min(420px, calc(100% - 32px));
+  padding: 10px 12px;
+  border: 1px solid var(--color-callout-error-stroke);
+  border-radius: var(--radius-sm);
+  background: var(--color-callout-error-bg);
+  color: var(--color-callout-error-text);
+  box-shadow: var(--shadow-card);
+  font-family: var(--type-small-font);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.error-toast__message {
+  margin: 0;
+  flex: 1;
+}
+
+.error-toast__detail {
+  flex-shrink: 0;
+  cursor: help;
+  opacity: 0.75;
+}
+
+.error-toast__dismiss {
+  flex-shrink: 0;
+  border: 0;
+  padding: 0 2px;
+  background: transparent;
+  color: inherit;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .error-toast {
+    animation: error-toast-in 180ms ease-out;
+  }
+}
+
+@keyframes error-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}

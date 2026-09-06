@@ -2,7 +2,7 @@
      fonctionnel : composants partagés (app-ui-input / app-ui-button / app-ui-callout)
      en attendant l'export Figma de la série « téléchargement ».
      À PRÉSERVER : data-testid, @switch/@if, [formGroup]/formControlName, (ngSubmit),
-     [invalid], <app-field-error>, [disabled], aria-*.
+     [invalid], <app-field-error>, <app-form-error> (erreur serveur), [disabled], aria-*.
      Frame: à créer · voir design/figma-map.md -->
 @switch (state()) {
   @case ('loading') {
@@ -36,6 +36,8 @@
         (ngSubmit)="submit()"
         novalidate
       >
+        <app-form-error [error]="serverError()" />
+
         @if (metadata()?.passwordProtected) {
           <app-ui-input
             label="Mot de passe"

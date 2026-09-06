@@ -1,8 +1,10 @@
+import { HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import type { CurrentUser } from '../../core/auth/auth.model';
 import { AuthService } from '../../core/auth/auth.service';
+import { APP_CONFIG } from '../../core/config/app-config.token';
 import type { FileSummary } from '../../core/file/file.model';
 import { FileService } from '../../core/file/file.service';
 import { History } from './history';
@@ -27,6 +29,7 @@ describe('History (integ)', () => {
     list?: FileSummary[];
     listError?: boolean;
     me?: ReturnType<AuthService['me']>;
+    removeResult?: ReturnType<FileService['remove']>;
   }) {
     const auth = {
       me: vi.fn().mockReturnValue(opts?.me ?? of(USER)),
@@ -38,7 +41,9 @@ describe('History (integ)', () => {
         .mockReturnValue(
           opts?.listError ? throwError(() => new Error('500')) : of(opts?.list ?? []),
         ),
-      remove: vi.fn().mockReturnValue(of(undefined)),
+      remove: vi
+        .fn()
+        .mockReturnValue(opts?.removeResult ?? of(new HttpResponse<void>({ status: 204 }))),
     };
     TestBed.configureTestingModule({
       imports: [History],
@@ -46,6 +51,7 @@ describe('History (integ)', () => {
         provideRouter([]),
         { provide: AuthService, useValue: auth },
         { provide: FileService, useValue: files },
+        { provide: APP_CONFIG, useValue: { production: true, apiUrl: '/api', debugErrors: false } },
       ],
     });
     // Le constructeur de History peut appeler navigateByUrl (me() en erreur) — spy avant création.
@@ -111,15 +117,35 @@ describe('History (integ)', () => {
     expect(fixture.componentInstance.visibleFiles().map((f) => f.id)).toEqual(['a']);
   });
 
-  it('supprime un fichier après confirmation', () => {
+  it('supprime un fichier après confirmation et confirme dans la carte', () => {
     const { fixture, files } = render({ list: [file({ id: 'a' }), file({ id: 'b' })] });
     fixture.componentInstance.askDelete(file({ id: 'a' }));
     expect(fixture.componentInstance.pendingDelete()?.id).toBe('a');
 
     fixture.componentInstance.confirmDelete();
+    fixture.detectChanges();
+
     expect(files.remove).toHaveBeenCalledWith('a');
     expect(fixture.componentInstance.items().map((f) => f.id)).toEqual(['b']);
     expect(fixture.componentInstance.pendingDelete()).toBeNull();
+    expect(testId(fixture, 'form-notice-message')?.textContent).toContain('Fichier supprimé');
+  });
+
+  it('un échec de suppression affiche le bandeau d’erreur', () => {
+    const { fixture } = render({
+      list: [file({ id: 'a' })],
+      removeResult: throwError(() => ({
+        status: 500,
+        code: 'INTERNAL',
+        message: 'Erreur interne.',
+      })),
+    });
+    fixture.componentInstance.askDelete(file({ id: 'a' }));
+    fixture.componentInstance.confirmDelete();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.items().map((f) => f.id)).toEqual(['a']);
+    expect(testId(fixture, 'form-error-message')?.textContent).toContain('Erreur interne');
   });
 
   it('repasse en état vide après suppression du dernier fichier', () => {

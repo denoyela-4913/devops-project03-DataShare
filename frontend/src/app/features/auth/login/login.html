@@ -1,14 +1,16 @@
 <!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
      À PRÉSERVER : les data-testid, [formGroup]/formControlName, (ngSubmit), les
      libellés for/id, aria-labelledby, aria-describedby, [invalid], <app-field-error>,
-     [disabled], routerLink vers /register. Champs et bouton consomment les
-     composants partagés `app-ui-input` / `app-ui-button` (shared/components).
+     <app-form-error> (erreur serveur), [disabled], routerLink vers /register. Champs
+     et bouton consomment les composants partagés `app-ui-input` / `app-ui-button`.
      Frame: DataShare_local · Desktop - 6 (55:400) Connexion · iPhone 16 - 9 (55:343)
      · voir design/figma-map.md -->
 <section class="card" aria-labelledby="login-title" data-testid="login-view">
   <h1 class="card__title" id="login-title">Connexion</h1>
 
   <form class="form" data-testid="login-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <app-form-error [error]="serverError()" />
+
     <div class="form__fields">
       <app-ui-input
         label="Email"

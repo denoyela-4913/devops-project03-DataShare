@@ -61,10 +61,12 @@ describe('FileService (integ)', () => {
     expect(response).toEqual([{ id: 'f1', name: 'a.pdf' }]);
   });
 
-  it('remove(id) fait un DELETE /api/files/{id}', () => {
-    service.remove('f 1/2').subscribe();
+  it('remove(id) fait un DELETE /api/files/{id} et expose le code HTTP', () => {
+    let status: number | undefined;
+    service.remove('f 1/2').subscribe((res) => (status = res.status));
     const req = httpMock.expectOne('/api/files/f%201%2F2');
     expect(req.request.method).toBe('DELETE');
-    req.flush(null);
+    req.flush(null, { status: 204, statusText: 'No Content' });
+    expect(status).toBe(204);
   });
 });

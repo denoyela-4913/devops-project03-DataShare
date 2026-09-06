@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import type { ApiError } from '../../core/http/api-error';
+import { APP_CONFIG } from '../../core/config/app-config.token';
 import { DownloadService } from '../../core/download/download.service';
 import type { FileMetadata } from '../../core/download/download.model';
+import type { ApiError } from '../../core/http/api-error';
 import { Download } from './download';
 
 const META: FileMetadata = {
@@ -30,6 +31,7 @@ describe('Download (integ)', () => {
       providers: [
         provideRouter([]),
         { provide: DownloadService, useValue: downloads },
+        { provide: APP_CONFIG, useValue: { production: true, apiUrl: '/api', debugErrors: false } },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ token: 'tok123' }) } },
@@ -87,10 +89,15 @@ describe('Download (integ)', () => {
     expect(downloads.download).toHaveBeenCalledWith('tok123', 'secret6');
   });
 
-  it('une erreur du téléchargement réactive le bouton', () => {
+  it('un mot de passe faux (403) réactive le bouton et affiche le bandeau dans la carte', () => {
     const { fixture, downloads } = render();
-    downloads.download.mockReturnValue(throwError(() => new Error('403')));
+    downloads.download.mockReturnValue(
+      throwError(() => ({ status: 403, code: 'FORBIDDEN', message: 'Mot de passe incorrect.' })),
+    );
     fixture.componentInstance.submit();
+    fixture.detectChanges();
+
     expect(fixture.componentInstance.downloading()).toBe(false);
+    expect(testId(fixture, 'form-error-message')?.textContent).toContain('Mot de passe incorrect');
   });
 });

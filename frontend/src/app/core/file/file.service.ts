@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { APP_CONFIG } from '../config/app-config.token';
+import { skipErrorNotification } from '../http/http-context';
 import type { FileSummary, UploadOptions, UploadResponse } from './file.model';
 
 /** Fichiers de l'utilisateur : dépôt (US01), historique (US05), suppression (US06). */
@@ -17,16 +18,23 @@ export class FileService {
     if (options.password) {
       form.append('password', options.password);
     }
-    return this.http.post<UploadResponse>(`${this.config.apiUrl}/files`, form);
+    return this.http.post<UploadResponse>(`${this.config.apiUrl}/files`, form, {
+      context: skipErrorNotification(),
+    });
   }
 
   /** US05 — historique des fichiers de l'utilisateur, du plus récent au plus ancien. */
   list(): Observable<FileSummary[]> {
-    return this.http.get<FileSummary[]>(`${this.config.apiUrl}/files`);
+    return this.http.get<FileSummary[]>(`${this.config.apiUrl}/files`, {
+      context: skipErrorNotification(),
+    });
   }
 
-  /** US06 — supprime un fichier de l'utilisateur. */
-  remove(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.config.apiUrl}/files/${encodeURIComponent(id)}`);
+  /** US06 — supprime un fichier de l'utilisateur. Renvoie la réponse pour son code HTTP. */
+  remove(id: string): Observable<HttpResponse<void>> {
+    return this.http.delete<void>(`${this.config.apiUrl}/files/${encodeURIComponent(id)}`, {
+      observe: 'response',
+      context: skipErrorNotification(),
+    });
   }
 }

@@ -9,7 +9,9 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import type { ApiError } from '../../../core/http/api-error';
 import { FieldError } from '../../../shared/components/field-error/field-error';
+import { FormError } from '../../../shared/components/form-error/form-error';
 import { UiButton } from '../../../shared/components/ui-button/ui-button';
 import { UiInput } from '../../../shared/components/ui-input/ui-input';
 
@@ -24,11 +26,11 @@ function matchPassword(control: AbstractControl): ValidationErrors | null {
 
 /**
  * Écran de création de compte (US03). Frame Figma : Desktop - 7 (55:419) · iPhone 16 - 10 (56:491).
- * Le 409 (email déjà pris) est affiché par `ErrorToast` via l'intercepteur d'erreur.
+ * Le 409 (email déjà pris) s'affiche dans la carte via `<app-form-error>`.
  */
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, FieldError, UiButton, UiInput],
+  imports: [ReactiveFormsModule, RouterLink, FieldError, FormError, UiButton, UiInput],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -38,6 +40,7 @@ export class Register {
   private readonly router = inject(Router);
 
   readonly submitting = signal(false);
+  readonly serverError = signal<ApiError | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -57,11 +60,17 @@ export class Register {
       this.form.markAllAsTouched();
       return;
     }
+    this.serverError.set(null);
     this.submitting.set(true);
     const { email, password } = this.form.getRawValue();
     this.auth.register(email, password).subscribe({
       next: () => void this.router.navigateByUrl('/'),
-      error: () => this.submitting.set(false),
+      error: (err: ApiError) => {
+        if (err.status !== 0) {
+          this.serverError.set(err);
+        }
+        this.submitting.set(false);
+      },
     });
   }
 }

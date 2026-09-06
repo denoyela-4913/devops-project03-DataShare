@@ -1,7 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FileService } from '../../core/file/file.service';
+import type { ApiError } from '../../core/http/api-error';
 import { FieldError } from '../../shared/components/field-error/field-error';
+import { FormError } from '../../shared/components/form-error/form-error';
 import { UiButton } from '../../shared/components/ui-button/ui-button';
 import { UiInput } from '../../shared/components/ui-input/ui-input';
 import { UiSelect } from '../../shared/components/ui-select/ui-select';
@@ -19,12 +21,12 @@ export type UploadState = 'landing' | 'form' | 'success';
  *   - Erreur taille : iPhone 16 - 4 (5:289)
  *   - Succès : Desktop - 3 (15:272) · iPhone 16 - 3 (5:229)
  *
- * Le mot de passe du fichier (min. 6, US09) est validé côté serveur — l'erreur 400
- * remonte via `ErrorToast`. Les erreurs 4xx sont affichées par l'intercepteur d'erreur.
+ * Le mot de passe du fichier (min. 6, US09) et les autres refus serveur (type, taille)
+ * s'affichent dans la carte via `<app-form-error>`.
  */
 @Component({
   selector: 'app-upload',
-  imports: [ReactiveFormsModule, FieldError, UiButton, UiInput, UiSelect],
+  imports: [ReactiveFormsModule, FieldError, FormError, UiButton, UiInput, UiSelect],
   templateUrl: './upload.html',
   styleUrl: './upload.scss',
 })
@@ -34,6 +36,7 @@ export class Upload {
 
   readonly state = signal<UploadState>('landing');
   readonly submitting = signal(false);
+  readonly serverError = signal<ApiError | null>(null);
   readonly shareUrl = signal<string | null>(null);
   readonly copied = signal(false);
 
@@ -79,6 +82,7 @@ export class Upload {
       this.form.markAllAsTouched();
       return;
     }
+    this.serverError.set(null);
     this.submitting.set(true);
     const { password, expiration } = this.form.getRawValue();
     this.fileService
@@ -89,7 +93,12 @@ export class Upload {
           this.state.set('success');
           this.submitting.set(false);
         },
-        error: () => this.submitting.set(false),
+        error: (err: ApiError) => {
+          if (err.status !== 0) {
+            this.serverError.set(err);
+          }
+          this.submitting.set(false);
+        },
       });
   }
 

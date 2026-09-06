@@ -1,7 +1,8 @@
 <!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
      À PRÉSERVER : les data-testid, (change)="onFileChange($event)", (ngSubmit),
-     [class.field--error], [disabled], aria-*, routerLink. Champs et boutons
-     consomment les composants partagés `app-ui-input` / `app-ui-select` /
+     [class.field--error], <app-form-error> (erreur serveur), [disabled], aria-*,
+     routerLink. Champs et boutons consomment les composants partagés
+     `app-ui-input` / `app-ui-select` /
      `app-ui-button` (shared/components) — hors <label> de sélection de fichier,
      qui restent des liens stylés « bouton » (mixins frontend/src/styles/_buttons.scss).
      Frames: DataShare_local · Téléversement 32:515
@@ -143,6 +144,8 @@
       (ngSubmit)="submit()"
       novalidate
     >
+      <app-form-error [error]="serverError()" />
+
       <div class="form__fields">
         <!-- Mot de passe optionnel -->
         <app-ui-input label="Mot de passe" inputId="upload-password">

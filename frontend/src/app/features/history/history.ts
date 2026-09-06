@@ -5,8 +5,11 @@ import type { CurrentUser } from '../../core/auth/auth.model';
 import { AuthService } from '../../core/auth/auth.service';
 import type { FileSummary } from '../../core/file/file.model';
 import { FileService } from '../../core/file/file.service';
+import type { ApiError } from '../../core/http/api-error';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { FileCard } from '../../shared/components/file-card/file-card';
+import { FormError } from '../../shared/components/form-error/form-error';
+import { FormNotice, type FormNoticeData } from '../../shared/components/form-notice/form-notice';
 import { UiButton } from '../../shared/components/ui-button/ui-button';
 import { UiCallout } from '../../shared/components/ui-callout/ui-callout';
 import { UiSwitch, type UiSwitchValue } from '../../shared/components/ui-switch/ui-switch';
@@ -22,7 +25,7 @@ export type HistoryState = 'loading' | 'loaded' | 'empty' | 'error';
  */
 @Component({
   selector: 'app-history',
-  imports: [UiButton, UiCallout, UiSwitch, FileCard, ConfirmDialog],
+  imports: [UiButton, UiCallout, UiSwitch, FileCard, ConfirmDialog, FormError, FormNotice],
   templateUrl: './history.html',
   styleUrl: './history.scss',
 })
@@ -38,6 +41,8 @@ export class History {
   readonly filter = signal<UiSwitchValue>('all');
   readonly pendingDelete = signal<FileSummary | null>(null);
   readonly deleting = signal(false);
+  readonly serverError = signal<ApiError | null>(null);
+  readonly notice = signal<FormNoticeData | null>(null);
 
   readonly visibleFiles = computed(() => {
     const scope = this.filter();
@@ -94,19 +99,24 @@ export class History {
     if (!file || this.deleting()) {
       return;
     }
+    this.serverError.set(null);
     this.deleting.set(true);
     this.files.remove(file.id).subscribe({
-      next: () => {
+      next: (response) => {
         this.items.update((list) => list.filter((f) => f.id !== file.id));
         this.pendingDelete.set(null);
         this.deleting.set(false);
+        this.notice.set({ message: 'Fichier supprimé', status: response.status });
         if (this.items().length === 0) {
           this.state.set('empty');
         }
       },
-      error: () => {
+      error: (err: ApiError) => {
         this.pendingDelete.set(null);
         this.deleting.set(false);
+        if (err.status !== 0) {
+          this.serverError.set(err);
+        }
       },
     });
   }

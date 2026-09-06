@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { APP_CONFIG } from '../../core/config/app-config.token';
 import { FileService } from '../../core/file/file.service';
 import { Upload } from './upload';
 
@@ -25,7 +26,11 @@ describe('Upload (integ)', () => {
     };
     TestBed.configureTestingModule({
       imports: [Upload],
-      providers: [provideRouter([]), { provide: FileService, useValue: fileService }],
+      providers: [
+        provideRouter([]),
+        { provide: FileService, useValue: fileService },
+        { provide: APP_CONFIG, useValue: { production: true, apiUrl: '/api', debugErrors: false } },
+      ],
     });
     const fixture = TestBed.createComponent(Upload);
     fixture.detectChanges();
@@ -84,12 +89,21 @@ describe('Upload (integ)', () => {
     expect(testId(fixture, 'upload-share-url')).not.toBeNull();
   });
 
-  it('une erreur serveur réactive le bouton', () => {
+  it('une erreur serveur réactive le bouton et affiche le bandeau', () => {
     const { fixture, fileService } = render();
-    fileService.upload.mockReturnValue(throwError(() => new Error('400')));
+    fileService.upload.mockReturnValue(
+      throwError(() => ({
+        status: 400,
+        code: 'FORBIDDEN_FILE_TYPE',
+        message: "Ce type de fichier n'est pas autorisé.",
+      })),
+    );
     fixture.componentInstance.selectedFile.set(fileOfSize(10 * 1_048_576));
     fixture.componentInstance.startUpload();
     fixture.componentInstance.submit();
+    fixture.detectChanges();
+
     expect(fixture.componentInstance.submitting()).toBe(false);
+    expect(testId(fixture, 'form-error-message')?.textContent).toContain('pas autorisé');
   });
 });

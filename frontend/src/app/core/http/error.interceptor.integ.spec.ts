@@ -82,4 +82,33 @@ describe('errorInterceptor (integ)', () => {
     expect(caught?.code).toBe('NETWORK');
     expect(caught?.status).toBe(0);
   });
+
+  it('relit un corps d’erreur reçu en Blob (responseType blob) et en extrait le message', async () => {
+    let caught: ApiError | undefined;
+    http
+      .post('/api/d/tok', {}, { responseType: 'blob' })
+      .subscribe({ next: () => undefined, error: (e: ApiError) => (caught = e) });
+
+    const body = new Blob(
+      [JSON.stringify({ status: 403, code: 'FORBIDDEN', message: 'Mot de passe incorrect' })],
+      { type: 'application/json' },
+    );
+    httpMock.expectOne('/api/d/tok').flush(body, { status: 403, statusText: 'Forbidden' });
+    await new Promise((r) => setTimeout(r));
+
+    expect(caught?.code).toBe('FORBIDDEN');
+    expect(caught?.message).toBe('Mot de passe incorrect');
+  });
+
+  it('pousse quand même une panne réseau dans le notifier, malgré SKIP_ERROR_NOTIFICATION', () => {
+    http
+      .get('/api/net', { context: skipErrorNotification() })
+      .subscribe({ next: () => undefined, error: () => undefined });
+
+    httpMock
+      .expectOne('/api/net')
+      .error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
+
+    expect(notifier.error()?.code).toBe('NETWORK');
+  });
 });
