@@ -12,8 +12,9 @@ export const commonRoutes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: '',
-    loadChildren: () => import('./features/home/home.routes'),
+    path: 'history',
+    loadChildren: () => import('./features/history/history.routes'),
     canActivate: [authGuard],
   },
+  { path: '', pathMatch: 'full', redirectTo: 'history' },
 ];

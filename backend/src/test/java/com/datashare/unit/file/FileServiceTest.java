@@ -210,4 +210,53 @@ class FileServiceTest {
         when(files.findByDownloadToken("tok")).thenReturn(Optional.of(storedFile(null, yesterday())));
         assertThatThrownBy(() -> service.download("tok", null)).isInstanceOf(ExpiredFileException.class);
     }
+
+    // ── US05 / US06 : historique et suppression ──────────────────────────────
+
+    @Test
+    void list_maps_name_size_and_share_link() {
+        when(files.findByOwnerIdOrderByCreatedAtDesc(OWNER)).thenReturn(List.of(storedFile("hash", inOneDay())));
+
+        var history = service.list(OWNER);
+
+        assertThat(history).hasSize(1);
+        assertThat(history.get(0).name()).isEqualTo("rapport.pdf");
+        assertThat(history.get(0).sizeBytes()).isEqualTo(11L);
+        assertThat(history.get(0).passwordProtected()).isTrue();
+        assertThat(history.get(0).downloadUrl()).isEqualTo("http://localhost:8080/d/tok");
+    }
+
+    @Test
+    void delete_removes_the_row_and_the_stored_object() {
+        StoredFile file = storedFile(null, inOneDay());
+        UUID id = UUID.randomUUID();
+        when(files.findByIdAndOwnerId(id, OWNER)).thenReturn(Optional.of(file));
+
+        service.delete(id, OWNER);
+
+        verify(files).delete(file);
+        verify(storage).delete("storage-key");
+    }
+
+    @Test
+    void delete_of_an_unknown_or_foreign_file_is_a_404() {
+        UUID id = UUID.randomUUID();
+        when(files.findByIdAndOwnerId(id, OWNER)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.delete(id, OWNER)).isInstanceOf(ResourceNotFoundException.class);
+        verify(files, never()).delete(any());
+        verify(storage, never()).delete(anyString());
+    }
+
+    @Test
+    void delete_still_succeeds_when_the_storage_deletion_fails() {
+        StoredFile file = storedFile(null, inOneDay());
+        UUID id = UUID.randomUUID();
+        when(files.findByIdAndOwnerId(id, OWNER)).thenReturn(Optional.of(file));
+        Mockito.doThrow(new RuntimeException("stockage HS")).when(storage).delete("storage-key");
+
+        service.delete(id, OWNER);
+
+        verify(files).delete(file);
+    }
 }

@@ -10,4 +10,6 @@ public interface StoredFileRepository extends JpaRepository<StoredFile, UUID> {
     Optional<StoredFile> findByDownloadToken(String downloadToken);
 
     List<StoredFile> findByOwnerIdOrderByCreatedAtDesc(UUID ownerId);
+
+    Optional<StoredFile> findByIdAndOwnerId(UUID id, UUID ownerId);
 }

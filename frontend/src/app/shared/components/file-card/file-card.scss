@@ -1,0 +1,62 @@
+/* @figma-owned — carte de fichier (historique US05/US06). Placeholder fonctionnel
+   en attendant l'export Figma. Tokens uniquement (règle Stylelint color-no-hex).
+   Frame: à créer. Voir design/figma-map.md */
+
+.file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+}
+
+.file-card--expired {
+  opacity: 0.6;
+}
+
+.file-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.file-card__name {
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--type-small-font);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--color-label);
+}
+
+.file-card__badge {
+  padding: 2px 8px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+}
+
+.file-card__badge--expired {
+  color: var(--color-file-size-error);
+  border-color: var(--color-file-size-error);
+}
+
+.file-card__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}

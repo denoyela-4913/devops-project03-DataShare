@@ -1,0 +1,54 @@
+/* @figma-owned — écran « Mes fichiers » (US05/US06). Placeholder fonctionnel en
+   attendant l'export Figma. Tokens uniquement (règle Stylelint color-no-hex).
+   Frame: à créer. Voir design/figma-map.md */
+
+.history {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.history__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.history__title {
+  margin: 0;
+  font-family: var(--type-h1-font);
+  font-size: var(--type-h1-size);
+  font-weight: var(--type-h1-weight);
+  line-height: var(--type-h1-line);
+  color: var(--color-black);
+}
+
+.history__user {
+  margin: 4px 0 0;
+  font-family: var(--type-small-font);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--color-label);
+}
+
+.history__hint {
+  margin: 0;
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-label);
+  text-align: center;
+}
+
+.history__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

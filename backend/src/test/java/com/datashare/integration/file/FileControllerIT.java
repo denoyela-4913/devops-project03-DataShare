@@ -1,6 +1,8 @@
 package com.datashare.integration.file;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -102,5 +104,83 @@ class FileControllerIT extends AbstractStorageIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, bearer))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION"));
+    }
+
+    // ── US05 / US06 : historique et suppression ──────────────────────────────
+
+    private String uploadAndGetToken(String name) throws Exception {
+        String json = mockMvc.perform(
+                        upload(name, ("contenu de " + name).getBytes()).header(HttpHeaders.AUTHORIZATION, bearer))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        return JsonPath.read(json, "$.token");
+    }
+
+    @Test
+    void list_returns_the_users_files_newest_first() throws Exception {
+        uploadAndGetToken("premier.pdf");
+        uploadAndGetToken("second.pdf");
+
+        mockMvc.perform(get("/api/files").header(HttpHeaders.AUTHORIZATION, bearer))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].name").value("second.pdf"))
+                .andExpect(jsonPath("$[1].name").value("premier.pdf"))
+                .andExpect(jsonPath("$[0].downloadUrl").value(org.hamcrest.Matchers.containsString("/d/")));
+    }
+
+    @Test
+    void list_is_isolated_between_users() throws Exception {
+        uploadAndGetToken("prive.pdf");
+        User other = users.saveAndFlush(new User("other@example.com", "hash"));
+        String otherBearer = "Bearer " + jwtService.generateToken(other.getId(), other.getEmail());
+
+        mockMvc.perform(get("/api/files").header(HttpHeaders.AUTHORIZATION, otherBearer))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void list_without_a_token_returns_401() throws Exception {
+        mockMvc.perform(get("/api/files")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void delete_removes_the_file_and_returns_204() throws Exception {
+        String token = uploadAndGetToken("a-supprimer.pdf");
+        StoredFile stored = files.findByDownloadToken(token).orElseThrow();
+
+        mockMvc.perform(delete("/api/files/{id}", stored.getId()).header(HttpHeaders.AUTHORIZATION, bearer))
+                .andExpect(status().isNoContent());
+
+        assertThat(files.findByDownloadToken(token)).isEmpty();
+        assertThat(storage.exists(stored.getStorageKey())).isFalse();
+    }
+
+    @Test
+    void delete_of_another_users_file_returns_404_and_keeps_it() throws Exception {
+        String token = uploadAndGetToken("pas-a-toi.pdf");
+        StoredFile stored = files.findByDownloadToken(token).orElseThrow();
+        User other = users.saveAndFlush(new User("thief@example.com", "hash"));
+        String otherBearer = "Bearer " + jwtService.generateToken(other.getId(), other.getEmail());
+
+        mockMvc.perform(delete("/api/files/{id}", stored.getId()).header(HttpHeaders.AUTHORIZATION, otherBearer))
+                .andExpect(status().isNotFound());
+
+        assertThat(files.findByDownloadToken(token)).isPresent();
+    }
+
+    @Test
+    void delete_of_an_unknown_id_returns_404() throws Exception {
+        mockMvc.perform(delete("/api/files/{id}", java.util.UUID.randomUUID())
+                        .header(HttpHeaders.AUTHORIZATION, bearer))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void delete_without_a_token_returns_401() throws Exception {
+        mockMvc.perform(delete("/api/files/{id}", java.util.UUID.randomUUID())).andExpect(status().isUnauthorized());
     }
 }

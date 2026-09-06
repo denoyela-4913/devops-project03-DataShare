@@ -12,8 +12,10 @@ Statuts : ☐ à faire · ◐ généré, à réviser · ☑ validé (voir DoD da
 | Input Component | 9:121 | `shared/components/ui-input` | `ui-input.html`, `ui-input.scss` | ☑ |
 | Select Component | 9:237 | `shared/components/ui-select` | `ui-select.html`, `ui-select.scss` | ☑ |
 | Header | 24:440 | `shared/components/ui-header` | `ui-header.html`, `ui-header.scss` | ◐ (testé, pas encore consommé — coquille appli à revoir) |
-| Switch Component | 35:301 | `shared/components/ui-switch` | `ui-switch.html`, `ui-switch.scss` | ◐ (testé, pas encore consommé — réservé au filtre `/history`) |
-| Callout Component | 56:1078 | `shared/components/ui-callout` | `ui-callout.html`, `ui-callout.scss` | ◐ (testé, pas encore consommé) |
+| Switch Component | 35:301 | `shared/components/ui-switch` | `ui-switch.html`, `ui-switch.scss` | ☑ (filtre de `/history`) |
+| Callout Component | 56:1078 | `shared/components/ui-callout` | `ui-callout.html`, `ui-callout.scss` | ☑ (`/download`, `/history`) |
+| _à créer_ | — | `shared/components/file-card` | `file-card.html`, `file-card.scss` | ◐ (placeholder fonctionnel) |
+| _à créer_ | — | `shared/components/confirm-dialog` | `confirm-dialog.html`, `confirm-dialog.scss` | ◐ (placeholder fonctionnel) |
 | DataShare_local · Login 55:333 | 55:333 | coquille appli | `app/app.html`, `app/app.scss` | ◐ |
 | Composants UI 9:113 | 9:113 | `features/styleguide` | `styleguide.html`, `styleguide.scss` | ◐ |
 
@@ -34,4 +36,4 @@ Statuts : ☐ à faire · ◐ généré, à réviser · ☑ validé (voir DoD da
 | _connexion_ (Desktop - 6, iPhone 16 - 9) | 55:400 / 55:343 | `/login` | US04 | `POST /api/auth/login` | ◐ |
 | Téléversement 32:515 (Desktop - 2/1/3, iPhone 16 - 1/2/4/3) | 32:515 | `/upload` | US01/US07 | `POST /api/files` | ◐ |
 | _téléchargement_ (à exporter) | — | `/d/:token` | US02 | `GET`/`POST /api/d/{token}` | ◐ (logique + placeholder fonctionnel, visuel Figma à venir) |
-| _historique_ | — | `/history` | US05/US06 | `GET /api/files` | ☐ |
+| _Mon espace_ (à exporter) | — | `/history` | US05/US06 | `GET`/`DELETE /api/files` | ◐ (logique + placeholder fonctionnel, visuel Figma à venir) |
