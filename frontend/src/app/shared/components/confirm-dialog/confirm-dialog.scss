@@ -1,0 +1,41 @@
+/* @figma-owned — boîte de confirmation (US06). Placeholder fonctionnel en attendant
+   l'export Figma. Tokens uniquement (règle Stylelint color-no-hex). Frame: à créer.
+   Voir design/figma-map.md */
+
+.confirm-dialog {
+  width: calc(100% - 32px);
+  max-width: 400px;
+  padding: 24px;
+  border: none;
+  border-radius: var(--radius-card);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+  color: var(--color-black);
+}
+
+.confirm-dialog::backdrop {
+  background: rgb(0 0 0 / 40%);
+}
+
+.confirm-dialog__title {
+  margin: 0 0 8px;
+  font-family: var(--type-h1-font);
+  font-size: var(--type-normal-size);
+  font-weight: var(--type-h1-weight);
+  line-height: var(--type-normal-line);
+  color: var(--color-black);
+}
+
+.confirm-dialog__message {
+  margin: 0 0 24px;
+  font-family: var(--type-normal-font);
+  font-size: var(--type-normal-size);
+  line-height: var(--type-normal-line);
+  color: var(--color-label);
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}

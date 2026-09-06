@@ -4,6 +4,7 @@ import com.datashare.common.error.ApiException;
 import com.datashare.common.error.ErrorCode;
 import com.datashare.common.error.ResourceNotFoundException;
 import com.datashare.file.dto.FileMetadataResponse;
+import com.datashare.file.dto.FileSummaryResponse;
 import com.datashare.file.dto.UploadResponse;
 import com.datashare.file.exception.ExpiredFileException;
 import com.datashare.file.exception.FileTooLargeException;
@@ -16,14 +17,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-/** Dépôt d'un fichier (US01) : contrôles de saisie, stockage des octets, persistance des métadonnées. */
+/** Cycle de vie d'un fichier : dépôt (US01), consultation/téléchargement (US02), historique et suppression (US05/US06). */
+@Slf4j
 @Service
 public class FileService {
 
@@ -108,6 +112,44 @@ public class FileService {
         }
         InputStream content = storage.retrieve(file.getStorageKey());
         return new DownloadPayload(content, file.getOriginalName(), file.getContentType(), file.getSizeBytes());
+    }
+
+    /** US05 — historique des fichiers de l'utilisateur, du plus récent au plus ancien. */
+    @Transactional(readOnly = true)
+    public List<FileSummaryResponse> list(UUID ownerId) {
+        return files.findByOwnerIdOrderByCreatedAtDesc(ownerId).stream()
+                .map(this::toSummary)
+                .toList();
+    }
+
+    /**
+     * US06 — supprime un fichier de l'utilisateur (404 si inconnu ou appartenant à un autre).
+     *
+     * <p>La ligne est retirée ; la suppression des octets est best-effort — un échec du
+     * stockage laisse un objet orphelin inoffensif (plus aucun lien n'y mène) et n'empêche
+     * pas la suppression du point de vue de l'utilisateur.
+     */
+    @Transactional
+    public void delete(UUID id, UUID ownerId) {
+        StoredFile file = files.findByIdAndOwnerId(id, ownerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Fichier introuvable", "id inconnu : " + id));
+        files.delete(file);
+        try {
+            storage.delete(file.getStorageKey());
+        } catch (RuntimeException e) {
+            log.warn("Objet {} non supprimé du stockage après retrait du fichier {}", file.getStorageKey(), id, e);
+        }
+    }
+
+    private FileSummaryResponse toSummary(StoredFile file) {
+        return new FileSummaryResponse(
+                file.getId(),
+                file.getOriginalName(),
+                file.getSizeBytes(),
+                file.getCreatedAt(),
+                file.getExpiresAt(),
+                file.isPasswordProtected(),
+                properties.baseDownloadUrl() + "/" + file.getDownloadToken());
     }
 
     private StoredFile findDownloadable(String token) {

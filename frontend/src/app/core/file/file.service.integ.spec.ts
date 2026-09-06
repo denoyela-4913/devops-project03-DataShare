@@ -51,4 +51,20 @@ describe('FileService (integ)', () => {
     const body = httpMock.expectOne('/api/files').request.body as FormData;
     expect(body.has('password')).toBe(false);
   });
+
+  it('list() fait un GET /api/files', () => {
+    let response: unknown;
+    service.list().subscribe((r) => (response = r));
+    const req = httpMock.expectOne('/api/files');
+    expect(req.request.method).toBe('GET');
+    req.flush([{ id: 'f1', name: 'a.pdf' }]);
+    expect(response).toEqual([{ id: 'f1', name: 'a.pdf' }]);
+  });
+
+  it('remove(id) fait un DELETE /api/files/{id}', () => {
+    service.remove('f 1/2').subscribe();
+    const req = httpMock.expectOne('/api/files/f%201%2F2');
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
+  });
 });

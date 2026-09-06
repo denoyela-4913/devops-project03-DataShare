@@ -1,0 +1,23 @@
+<!-- @figma-owned — boîte de confirmation d'action destructive (US06). Placeholder
+     fonctionnel (<dialog> natif) en attendant l'export Figma.
+     À PRÉSERVER : #dialog, data-testid, l'event natif (cancel), aria-labelledby,
+     les <app-ui-button> et leurs (pressed).
+     Frame: à créer · voir design/figma-map.md -->
+<dialog
+  #dialog
+  class="confirm-dialog"
+  aria-labelledby="confirm-dialog-title"
+  data-testid="confirm-dialog"
+  (cancel)="onCancel($event)"
+>
+  <h2 class="confirm-dialog__title" id="confirm-dialog-title">{{ heading() }}</h2>
+  <p class="confirm-dialog__message" data-testid="confirm-dialog-message">{{ message() }}</p>
+  <div class="confirm-dialog__actions">
+    <app-ui-button variant="tertiary" (pressed)="onCancel()" data-testid="confirm-dialog-cancel">
+      {{ cancelLabel() }}
+    </app-ui-button>
+    <app-ui-button variant="danger" (pressed)="onConfirm()" data-testid="confirm-dialog-confirm">
+      {{ confirmLabel() }}
+    </app-ui-button>
+  </div>
+</dialog>

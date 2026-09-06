@@ -1,0 +1,76 @@
+<!-- @figma-owned — écran « Mes fichiers » (historique US05 + suppression US06).
+     Remplace l'ancien placeholder features/home. Composants partagés en attendant
+     l'export Figma de la série « Mon espace ».
+     À PRÉSERVER : data-testid, @switch/@for, (pressed), (selectedChange),
+     (confirm)/(cancel), aria-*.
+     Frame: à créer · voir design/figma-map.md -->
+<section class="history" data-testid="history-view">
+  <header class="history__head">
+    <div>
+      <h1 class="history__title">Mes fichiers</h1>
+      @if (user(); as u) {
+        <p class="history__user" data-testid="history-email">{{ u.email }}</p>
+      }
+    </div>
+    <app-ui-button
+      variant="tertiary"
+      size="small"
+      (pressed)="logout()"
+      data-testid="history-logout"
+    >
+      Se déconnecter
+    </app-ui-button>
+  </header>
+
+  @switch (state()) {
+    @case ('loading') {
+      <p class="history__hint" data-testid="history-loading" aria-busy="true">Chargement…</p>
+    }
+    @case ('error') {
+      <app-ui-callout type="error" data-testid="history-error">
+        Impossible de charger vos fichiers.
+      </app-ui-callout>
+    }
+    @case ('empty') {
+      <app-ui-callout type="info" data-testid="history-empty">
+        Vous n'avez encore partagé aucun fichier.
+      </app-ui-callout>
+    }
+    @case ('loaded') {
+      <app-ui-switch
+        [selected]="filter()"
+        (selectedChange)="filter.set($event)"
+        data-testid="history-filter"
+      />
+
+      @if (visibleFiles().length === 0) {
+        <p class="history__hint" data-testid="history-filter-empty">
+          Aucun fichier pour ce filtre.
+        </p>
+      } @else {
+        <ul class="history__list" data-testid="history-list">
+          @for (file of visibleFiles(); track file.id) {
+            <li>
+              <app-file-card
+                [file]="file"
+                (copyRequested)="copyLink(file)"
+                (remove)="askDelete(file)"
+              />
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+
+  <app-confirm-dialog
+    [open]="pendingDelete() !== null"
+    heading="Supprimer ce fichier ?"
+    [message]="deleteMessage()"
+    confirmLabel="Supprimer"
+    cancelLabel="Annuler"
+    (confirm)="confirmDelete()"
+    (dismissed)="cancelDelete()"
+    data-testid="history-confirm"
+  />
+</section>

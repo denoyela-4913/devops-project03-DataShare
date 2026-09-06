@@ -15,17 +15,17 @@ describe('Authentification', () => {
     cy.get('[data-testid="register-password-confirm-input"]').type(password);
     cy.get('[data-testid="register-submit"]').click();
 
-    cy.location('pathname').should('eq', '/');
-    cy.get('[data-testid="home-email"]').should('contain', email);
+    cy.location('pathname').should('eq', '/history');
+    cy.get('[data-testid="history-email"]').should('contain', email);
 
-    cy.get('[data-testid="home-logout"]').click();
+    cy.get('[data-testid="history-logout"]').click();
     cy.location('pathname').should('eq', '/login');
 
     cy.get('[data-testid="login-email-input"]').type(email);
     cy.get('[data-testid="login-password-input"]').type(password);
     cy.get('[data-testid="login-submit"]').click();
-    cy.location('pathname').should('eq', '/');
-    cy.get('[data-testid="home-email"]').should('contain', email);
+    cy.location('pathname').should('eq', '/history');
+    cy.get('[data-testid="history-email"]').should('contain', email);
   });
 
   it("inscription avec un email déjà utilisé → message d'erreur, reste sur /register", () => {

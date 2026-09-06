@@ -1,0 +1,44 @@
+<!-- @figma-owned — carte d'un fichier dans l'historique (US05/US06). Placeholder
+     fonctionnel en attendant l'export Figma de la série "Mon espace".
+     À PRÉSERVER : data-testid, les <app-ui-button> + (pressed), les pipes fileSize
+     et expiryStatus.
+     Frame: à créer · voir design/figma-map.md -->
+@let expired = (file().expiresAt | expiryStatus) === 'expired';
+<article class="file-card" [class.file-card--expired]="expired" data-testid="file-card">
+  <div class="file-card__info">
+    <span class="file-card__name" data-testid="file-card-name" [title]="file().name">
+      {{ file().name }}
+    </span>
+    <span class="file-card__meta">
+      <span data-testid="file-card-size">{{ file().sizeBytes | fileSize }}</span>
+      <span
+        class="file-card__badge"
+        [class.file-card__badge--expired]="expired"
+        data-testid="file-card-status"
+      >
+        {{ expired ? 'Expiré' : 'Actif' }}
+      </span>
+      @if (file().passwordProtected) {
+        <span class="file-card__badge" data-testid="file-card-locked">Protégé</span>
+      }
+    </span>
+  </div>
+  <div class="file-card__actions">
+    <app-ui-button
+      variant="tertiary"
+      size="small"
+      (pressed)="copyRequested.emit()"
+      data-testid="file-card-copy"
+    >
+      Copier le lien
+    </app-ui-button>
+    <app-ui-button
+      variant="danger"
+      size="small"
+      (pressed)="remove.emit()"
+      data-testid="file-card-delete"
+    >
+      Supprimer
+    </app-ui-button>
+  </div>
+</article>

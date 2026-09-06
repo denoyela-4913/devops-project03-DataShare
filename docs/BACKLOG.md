@@ -52,6 +52,22 @@ implémentation. Points à instruire :
 - **Lien à usage unique / compteur de téléchargements** : le lien reste valide jusqu'à
   expiration (téléchargements multiples), comme un lien WeTransfer.
 
+## Historique / suppression de fichiers (US05/US06) — améliorations différées
+
+- **Pagination de `GET /api/files`** : la liste complète est renvoyée. Suffisant tant
+  que le nombre de fichiers par compte reste faible (les fichiers expirent en ≤ 7 j).
+  À paginer (`Pageable`, scroll/pagination front) si ça grandit.
+- **Suppression du stockage best-effort** : `DELETE /api/files/{id}` retire la ligne puis
+  `storage.delete` en `try/catch` (log si échec). Un échec du stockage laisse un objet
+  orphelin inoffensif ; pas de mécanisme de rejeu/compensation. Un audit MinIO ponctuel
+  suffirait à nettoyer.
+- **En-tête de coquille statique** : `app.html` affiche toujours « Se connecter ». La
+  déconnexion vit dans l'écran `/history`. Rendre l'en-tête dynamique (connecté/anonyme)
+  avec le composant `ui-header` — PR « coquille appli » dédiée avec l'export Figma
+  (frame Login 55:333).
+- **Filtre Tous/Actifs/Expiré côté client** : appliqué sur la liste déjà chargée, pas de
+  paramètre serveur. Cohérent avec l'absence de pagination.
+
 ## Couverture de tests
 
 - **Back : porte à 70 % active** (PR #0006) — `jacoco:merge` + `jacoco:check` au `verify`.

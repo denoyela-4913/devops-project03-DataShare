@@ -9,11 +9,10 @@ Vue produit / architecture. Le **processus** de passation Figma ⇄ code est dan
 |---|---|---|---|---|---|
 | US03 — création de compte | `/register` | `features/auth/register` + `field-error` | `POST /api/auth/register` | `RegisterRequest` → `TokenResponse` | ☑ (front + back, e2e) |
 | US04 — connexion | `/login` | `features/auth/login` + `field-error` | `POST /api/auth/login` | `LoginRequest` → `TokenResponse` | ☑ |
-| — espace personnel | `/` (garde `authGuard`) | `features/home` | `GET /api/me` | `MeResponse` | ☑ (placeholder avant US05) |
 | US01 — upload (compte) | `/upload` (garde `authGuard`) | `features/upload` (landing/form/succès) + `field-error` | `POST /api/files` (multipart, JWT requis) | `file` + `password?` + `expirationDays` → `UploadResponse` | ☑ (front + back ; US07 anonyme relâchera la garde) |
 | US02 — téléchargement | `/d/:token` (public) | `features/download` (placeholder fonctionnel) | `GET`/`POST /api/d/{token}` | `FileMetadata` | ☑ (front + back, e2e ; visuel Figma à venir) |
-| US05 — historique | `/history` | `features/history` + `file-card`, pipes `expiryStatus`/`fileSize` | `GET /api/files` | `FileSummary[]` | ☐ |
-| US06 — suppression | `/history` | `file-card` + `confirm-dialog` | `DELETE /api/files/{id}` | — | ☐ |
+| US05 — historique | `/history` (garde `authGuard`, `/` y redirige) | `features/history` + `file-card` + `ui-switch`, pipes `expiryStatus`/`fileSize` | `GET /api/files` (+ `GET /api/me` pour l'email) | `FileSummary[]` | ☑ (front + back, e2e ; visuel Figma à venir) |
+| US06 — suppression | `/history` | `file-card` + `confirm-dialog` (`<dialog>` natif) | `DELETE /api/files/{id}` → `204` | — | ☑ (front + back, e2e) |
 | US08 — tags | `/history`, `/upload` | `tag-chip`, filtrage | endpoints tags (`V2`) | `Tag[]` | ☐ |
 | Transverse | toutes | `app` (coquille), `error-toast` | — | `ErrorResponse` | ☑ |
 
@@ -41,12 +40,12 @@ autorisées que dans `_tokens.scss` (règle Stylelint `color-no-hex`, vérifiée
 | `ui-input` | champ de formulaire + libellé (remplace `ui-text-field`) | ☑ (consommé dans login/register/upload) |
 | `ui-select` | liste déroulante + libellé + chevron | ☑ (consommé dans upload) |
 | `ui-header` | en-tête appli (logo + action) | ◐ (testé, pas encore consommé) |
-| `ui-switch` | filtre segmenté Tous / Actifs / Expiré | ◐ (testé, réservé au filtre `/history`) |
-| `ui-callout` | bandeau inline Info / Alert / Error | ◐ (testé, pas encore consommé) |
+| `ui-switch` | filtre segmenté Tous / Actifs / Expiré | ☑ (consommé dans `/history`) |
+| `ui-callout` | bandeau inline Info / Alert / Error | ☑ (consommé dans `/download`, `/history`) |
+| `file-card` | ligne d'historique (nom, taille, expiration, état) | ☑ (consommé dans `/history`) |
+| `confirm-dialog` | confirmation d'action destructive, `<dialog>` natif (US06) | ☑ (consommé dans `/history`) |
 | `password-field` | saisie de mot de passe accessible (afficher/masquer) | ☐ |
 | `tag-chip` | étiquette de tag (US08) | ☐ |
-| `file-card` | ligne d'historique (nom, taille, expiration, état) | ☐ |
-| `confirm-dialog` | confirmation d'action destructive (US06) | ☐ |
 | `empty-state` / `loading-skeleton` | états vides / de chargement | ☐ |
 
 ## 3. Accessibilité (utilisateurs PSH)
