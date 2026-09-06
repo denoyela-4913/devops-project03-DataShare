@@ -12,7 +12,7 @@ describe('Téléchargement', () => {
     cy.get('[data-testid="register-password-input"]').type(accountPassword);
     cy.get('[data-testid="register-password-confirm-input"]').type(accountPassword);
     cy.get('[data-testid="register-submit"]').click();
-    cy.location('pathname').should('eq', '/');
+    cy.location('pathname').should('eq', '/history');
   }
 
   /** Dépose un fichier via l'UI et renvoie le chemin `/d/<token>` du lien de partage. */
