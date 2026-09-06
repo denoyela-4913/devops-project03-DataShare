@@ -64,7 +64,7 @@ describe('Téléchargement', () => {
       cy.get('[data-testid="download-password-input"]').should('be.visible').type('mauvais');
       cy.get('[data-testid="download-submit"]').click();
       cy.wait('@dl').its('response.statusCode').should('eq', 403);
-      cy.get('[data-testid="error-message"]').should('be.visible');
+      cy.get('[data-testid="form-error-message"]').should('be.visible').and('contain', 'passe');
 
       cy.get('[data-testid="download-password-input"]').clear().type('filepass1');
       cy.get('[data-testid="download-submit"]').click();

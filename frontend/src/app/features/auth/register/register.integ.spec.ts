@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
+import { APP_CONFIG } from '../../../core/config/app-config.token';
 import { Register } from './register';
 
 describe('Register (integ)', () => {
@@ -9,7 +10,11 @@ describe('Register (integ)', () => {
     const auth = { register: vi.fn().mockReturnValue(of(undefined)) };
     TestBed.configureTestingModule({
       imports: [Register],
-      providers: [provideRouter([]), { provide: AuthService, useValue: auth }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: auth },
+        { provide: APP_CONFIG, useValue: { production: true, apiUrl: '/api', debugErrors: false } },
+      ],
     });
     const fixture = TestBed.createComponent(Register);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
@@ -60,11 +65,23 @@ describe('Register (integ)', () => {
     expect(navigate).toHaveBeenCalledWith('/');
   });
 
-  it('erreur serveur (409) : réactive le bouton', () => {
+  it('erreur serveur (409) : réactive le bouton et affiche le bandeau', () => {
     const { fixture, auth } = setup();
-    auth.register.mockReturnValue(throwError(() => new Error('409')));
+    auth.register.mockReturnValue(
+      throwError(() => ({
+        status: 409,
+        code: 'EMAIL_ALREADY_USED',
+        message: 'Cette adresse e-mail est déjà utilisée.',
+      })),
+    );
     fill(fixture, 'a@b.com', 'password123', 'password123');
     fixture.componentInstance.submit();
+    fixture.detectChanges();
+
     expect(fixture.componentInstance.submitting()).toBe(false);
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('[data-testid="form-error-message"]')
+        ?.textContent,
+    ).toContain('déjà utilisée');
   });
 });

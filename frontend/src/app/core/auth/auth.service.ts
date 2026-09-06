@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
 import { map, Observable, tap } from 'rxjs';
 import { APP_CONFIG } from '../config/app-config.token';
+import { skipErrorNotification } from '../http/http-context';
 import type { CurrentUser, TokenResponse } from './auth.model';
 import { TokenStore } from './token-store';
 
@@ -30,8 +31,11 @@ export class AuthService {
     this.tokens.clear();
   }
 
+  /** Échec géré par l'écran appelant (déconnexion + redirection) → pas de bandeau global. */
   me(): Observable<CurrentUser> {
-    return this.http.get<CurrentUser>(`${this.config.apiUrl}/me`);
+    return this.http.get<CurrentUser>(`${this.config.apiUrl}/me`, {
+      context: skipErrorNotification(),
+    });
   }
 
   private authenticate(
@@ -40,7 +44,11 @@ export class AuthService {
     password: string,
   ): Observable<void> {
     return this.http
-      .post<TokenResponse>(`${this.config.apiUrl}/auth/${path}`, { email, password })
+      .post<TokenResponse>(
+        `${this.config.apiUrl}/auth/${path}`,
+        { email, password },
+        { context: skipErrorNotification() },
+      )
       .pipe(
         tap((response) => this.tokens.set(response.accessToken)),
         map(() => undefined),

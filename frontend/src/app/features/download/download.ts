@@ -6,6 +6,7 @@ import type { FileMetadata } from '../../core/download/download.model';
 import { DownloadService } from '../../core/download/download.service';
 import type { ApiError } from '../../core/http/api-error';
 import { FieldError } from '../../shared/components/field-error/field-error';
+import { FormError } from '../../shared/components/form-error/form-error';
 import { UiButton } from '../../shared/components/ui-button/ui-button';
 import { UiCallout } from '../../shared/components/ui-callout/ui-callout';
 import { UiInput } from '../../shared/components/ui-input/ui-input';
@@ -14,12 +15,12 @@ export type DownloadState = 'loading' | 'ready' | 'not-found' | 'expired';
 
 /**
  * Écran de téléchargement d'un lien de partage (US02). Accès anonyme.
- * Le mot de passe éventuel (403) et les autres erreurs du POST remontent via `ErrorToast` ;
- * un lien 404/410 est un état de page (pas de toast — voir `DownloadService`).
+ * Un mot de passe faux (403) ou une autre erreur du POST s'affiche dans la carte via
+ * `<app-form-error>` ; un lien 404/410 est un état de page.
  */
 @Component({
   selector: 'app-download',
-  imports: [ReactiveFormsModule, FieldError, UiButton, UiCallout, UiInput],
+  imports: [ReactiveFormsModule, FieldError, FormError, UiButton, UiCallout, UiInput],
   templateUrl: './download.html',
   styleUrl: './download.scss',
 })
@@ -33,6 +34,7 @@ export class Download {
   readonly state = signal<DownloadState>('loading');
   readonly metadata = signal<FileMetadata | null>(null);
   readonly downloading = signal(false);
+  readonly serverError = signal<ApiError | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     password: ['', Validators.required],
@@ -65,6 +67,7 @@ export class Download {
       this.form.markAllAsTouched();
       return;
     }
+    this.serverError.set(null);
     this.downloading.set(true);
     const password = meta.passwordProtected ? this.form.getRawValue().password : undefined;
     this.downloads.download(this.token, password).subscribe({
@@ -72,7 +75,12 @@ export class Download {
         this.saveBlob(blob, meta.name);
         this.downloading.set(false);
       },
-      error: () => this.downloading.set(false),
+      error: (err: ApiError) => {
+        if (err.status !== 0) {
+          this.serverError.set(err);
+        }
+        this.downloading.set(false);
+      },
     });
   }
 

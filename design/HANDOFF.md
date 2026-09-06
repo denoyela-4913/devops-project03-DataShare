@@ -32,10 +32,14 @@ Cursor **ne doit jamais casser**, dans les `.html` :
 - les rôles et libellés ARIA (`role`, `aria-*`), le `<router-outlet/>`, `<ng-content/>`
 - les composants référencés (`<app-error-toast/>`, `<app-field-error/>`, etc.)
 - **la gestion d'erreur de formulaire ajoutée par Claude Code** : `<app-field-error>` après
-  chaque champ, `[invalid]`/`[class.field--invalid]`, `aria-describedby` sur l'`<input>`,
-  `[disabled]="submitting()"` sur le bouton, `[ariaPressed]`/`[attr.aria-pressed]` sur les
-  boutons à bascule (ex. « Copier le lien »). Cursor peut restyler la carte, pas retirer
-  ces éléments.
+  chaque champ, `<app-form-error>` en tête du `<form>` (erreur serveur), `<app-form-notice>`
+  en tête d'écran (succès), `[invalid]`/`[class.field--invalid]`, `aria-describedby` sur
+  l'`<input>`, `[disabled]="submitting()"` sur le bouton, `[ariaPressed]`/`[attr.aria-pressed]`
+  sur les boutons à bascule (ex. « Copier le lien »). Cursor peut restyler la carte, pas
+  retirer ces éléments. `form-error` / `form-notice` sont des composants **utilitaires**
+  (comme `field-error`) : markup et styles maintenus côté logique, habillage repris des
+  tokens `--color-callout-error-*` / `--color-callout-info-*` — pas de frame Figma dédiée.
+  Idem pour `error-toast` (filet global), habillé depuis les mêmes tokens.
 - **la consommation des composants partagés** : les écrans (`login`, `register`, `upload`,
   …) posent leurs champs/boutons via `<app-ui-input>`, `<app-ui-select>`, `<app-ui-button>`
   plutôt que des `.field`/`.btn` locaux dupliqués. Un `<label>`/`<a routerLink>` stylé

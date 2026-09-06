@@ -82,4 +82,16 @@ describe('errorInterceptor (integ)', () => {
     expect(caught?.code).toBe('NETWORK');
     expect(caught?.status).toBe(0);
   });
+
+  it('pousse quand même une panne réseau dans le notifier, malgré SKIP_ERROR_NOTIFICATION', () => {
+    http
+      .get('/api/net', { context: skipErrorNotification() })
+      .subscribe({ next: () => undefined, error: () => undefined });
+
+    httpMock
+      .expectOne('/api/net')
+      .error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
+
+    expect(notifier.error()?.code).toBe('NETWORK');
+  });
 });
