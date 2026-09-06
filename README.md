@@ -84,10 +84,22 @@ en-tête `@figma-owned` (vérifié en CI).
 
 ## Démarrage
 
+> Les commandes sont données pour **bash** (Linux/macOS/Git Bash) et pour
+> **PowerShell** (Windows). Sous PowerShell, `&&` n'existe pas en 5.1 (on
+> enchaîne avec `;`) et tout argument `-Dclé.avec.points=valeur` **doit être
+> quoté** (`'-D...'`), sinon Maven le coupe au premier `.`
+> (`Unknown lifecycle phase ".run.profiles=dev"`).
+
 ### Dépendances (PostgreSQL + MinIO)
 
 ```bash
+# bash
 cd deploy && cp .env.example .env && docker compose --env-file .env up -d
+```
+
+```powershell
+# PowerShell
+cd deploy; Copy-Item .env.example .env; docker compose --env-file .env up -d
 ```
 
 Détail et interfaces web : [`deploy/README.md`](deploy/README.md).
@@ -95,6 +107,7 @@ Détail et interfaces web : [`deploy/README.md`](deploy/README.md).
 ### Backend
 
 ```bash
+# bash
 cd backend
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev      # http://localhost:8080
 ./mvnw test                                                # tests unitaires
@@ -102,21 +115,45 @@ cd backend
 ./mvnw spotless:apply                                      # formatage
 ```
 
+```powershell
+# PowerShell — arguments -D… quotés
+cd backend
+./mvnw spring-boot:run '-Dspring-boot.run.profiles=dev'    # http://localhost:8080
+./mvnw test                                                # tests unitaires
+./mvnw verify '-Dsurefire.skip=true'                       # tests d'intégration (Docker requis)
+./mvnw spotless:apply                                      # formatage
+```
+
 - Smoke : `GET http://localhost:8080/api/ping` → `{"status":"ok"}`
 - Santé : `GET http://localhost:8080/actuator/health`
 - Swagger (profil dev) : `http://localhost:8080/swagger-ui.html`
+- Le backend refuse de démarrer avec `Connection refused` (localhost:5432) →
+  les conteneurs sont arrêtés, relance `docker compose --env-file .env up -d`
+  depuis `deploy/`.
 
 ### Frontend
 
 Requiert **Node 24** (`nvm use 24` dans `frontend/`, voir `frontend/.nvmrc`).
 
 ```bash
+# bash
 cd frontend
 npm ci
 npm start                    # http://localhost:4200  (route /styleguide en dev)
 npm run test:unit            # tests unitaires (Vitest)
 npm run test:integ           # tests d'intégration (Vitest + TestBed)
 npm run lint && npm run lint:style && npm run format:check
+npm run build                # build de production
+```
+
+```powershell
+# PowerShell — enchaînement avec ; au lieu de &&
+cd frontend
+npm ci
+npm start                    # http://localhost:4200  (route /styleguide en dev)
+npm run test:unit            # tests unitaires (Vitest)
+npm run test:integ           # tests d'intégration (Vitest + TestBed)
+npm run lint; npm run lint:style; npm run format:check
 npm run build                # build de production
 ```
 
