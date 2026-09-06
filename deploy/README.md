@@ -5,8 +5,16 @@ Fournit les dépendances externes du backend : **PostgreSQL** et **MinIO** (stoc
 ## Démarrer
 
 ```bash
+# bash
 cd deploy
 cp .env.example .env      # ajuster si besoin
+docker compose --env-file .env up -d
+```
+
+```powershell
+# PowerShell
+cd deploy
+Copy-Item .env.example .env   # ajuster si besoin
 docker compose --env-file .env up -d
 ```
 
@@ -22,11 +30,21 @@ Le bucket `datashare-files` est créé automatiquement au démarrage (service `c
 ## Lancer le backend contre cet environnement
 
 ```bash
+# bash
 cd ../backend
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
+```powershell
+# PowerShell — l'argument -D… doit être quoté, sinon Maven le coupe au premier
+# point ("Unknown lifecycle phase \".run.profiles=dev\"")
+cd ../backend
+./mvnw spring-boot:run '-Dspring-boot.run.profiles=dev'
+```
+
 Les valeurs par défaut de `application.yml` pointent déjà sur ce PostgreSQL.
+Alternative sans Maven (nécessite `./mvnw package` au préalable) :
+`java -jar target/datashare-backend-*.jar --spring.profiles.active=dev`.
 
 ## Arrêter
 
