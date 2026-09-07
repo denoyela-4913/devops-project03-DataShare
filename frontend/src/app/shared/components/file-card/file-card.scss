@@ -1,20 +1,26 @@
-/* @figma-owned — carte de fichier (historique US05/US06). Placeholder fonctionnel
-   en attendant l'export Figma. Tokens uniquement (règle Stylelint color-no-hex).
-   Frame: à créer. Voir design/figma-map.md */
+/* @figma-owned — carte de fichier (historique US05/US06).
+   Tokens uniquement (règle Stylelint color-no-hex).
+   Frames: DataShare_local · Mon espace 32:516
+     carte #ffc191 / stroke #d7630b · statut expiré #c62020
+   Voir design/figma-map.md */
 
 .file-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   padding: 16px;
-  border: 1px solid var(--color-input-border);
+  border: 1px solid var(--color-file-card-stroke);
   border-radius: var(--radius-sm);
-  background: var(--color-white);
+  background: var(--color-file-card-bg);
 }
 
 .file-card--expired {
-  opacity: 0.6;
+  opacity: 1;
+}
+
+.file-card__icon {
+  flex-shrink: 0;
+  display: block;
 }
 
 .file-card__info {
@@ -22,12 +28,14 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  flex: 1;
 }
 
 .file-card__name {
-  font-family: var(--type-normal-font);
-  font-size: var(--type-normal-size);
-  line-height: var(--type-normal-line);
+  font-family: var(--type-file-name-font);
+  font-size: var(--type-file-name-size);
+  font-weight: var(--type-file-name-weight);
+  line-height: var(--type-file-name-line);
   color: var(--color-black);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -44,19 +52,70 @@
   color: var(--color-label);
 }
 
-.file-card__badge {
-  padding: 2px 8px;
-  border: 1px solid var(--color-input-border);
-  border-radius: var(--radius-sm);
+.file-card__status--expired {
+  color: var(--color-file-expired);
 }
 
-.file-card__badge--expired {
-  color: var(--color-file-size-error);
-  border-color: var(--color-file-size-error);
+.file-card__expired-copy {
+  margin: 0;
+  font-family: var(--type-small-font);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--color-label);
+}
+
+.file-card__lock {
+  flex-shrink: 0;
+  display: block;
+}
+
+.file-card__menu-toggle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+}
+
+.file-card__more {
+  display: none;
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .file-card__actions {
   display: flex;
   flex-shrink: 0;
+  margin-left: auto;
   gap: 8px;
+}
+
+@media (max-width: 833px) {
+  .file-card {
+    position: relative;
+    flex-wrap: wrap;
+  }
+
+  .file-card__more {
+    display: flex;
+  }
+
+  .file-card__actions {
+    display: none;
+    flex-basis: 100%;
+    margin-left: 0;
+    flex-direction: column;
+  }
+
+  .file-card__menu-toggle:checked ~ .file-card__actions {
+    display: flex;
+  }
 }

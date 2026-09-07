@@ -1,71 +1,120 @@
 <!-- @figma-owned — écran « Mes fichiers » (historique US05 + suppression US06).
-     Remplace l'ancien placeholder features/home. Composants partagés en attendant
-     l'export Figma de la série « Mon espace ».
+     Sidebar dans la page (Desktop-4 / iPhone-5/6). Le bandeau global est masqué
+     sur /history. Drawer mobile via checkbox (pas de TS supplémentaire).
      À PRÉSERVER : data-testid, @switch/@for, (pressed), (selectedChange),
-     (confirm)/(dismissed), <app-form-error> / <app-form-notice> (retours suppression),
-     aria-*.
-     Frame: à créer · voir design/figma-map.md -->
-<section class="history" data-testid="history-view">
-  <header class="history__head">
-    <div>
-      <h1 class="history__title">Mes fichiers</h1>
+     (confirm)/(dismissed), <app-form-error> / <app-form-notice>,
+     (copyRequested)/(remove), routerLink, aria-*.
+     Frames: DataShare_local · Mon espace 32:516
+       Desktop - 4 (15:390) · iPhone 16 - 5 (27:338) · iPhone 16 - 6 (27:540)
+     · voir design/figma-map.md -->
+<div class="history-shell" data-testid="history-view">
+  <input
+    id="history-drawer"
+    class="history-shell__toggle"
+    type="checkbox"
+    aria-hidden="true"
+    tabindex="-1"
+  />
+
+  <aside class="history__sidebar" aria-label="Navigation">
+    <label for="history-drawer" class="history__drawer-close">
+      <img src="assets/icons/icon-close.svg" width="24" height="24" alt="Fermer le menu" />
+    </label>
+
+    <div class="history__brand">
+      <p class="history__logo">DataShare</p>
       @if (user(); as u) {
         <p class="history__user" data-testid="history-email">{{ u.email }}</p>
       }
     </div>
-    <app-ui-button
-      variant="tertiary"
-      size="small"
-      (pressed)="logout()"
-      data-testid="history-logout"
-    >
-      Se déconnecter
-    </app-ui-button>
-  </header>
 
-  <app-form-error [error]="serverError()" />
-  <app-form-notice [notice]="notice()" />
+    <nav class="history__nav">
+      <a routerLink="/history" class="history__nav-item history__nav-item--active">
+        Mes fichiers
+      </a>
+    </nav>
 
-  @switch (state()) {
-    @case ('loading') {
-      <p class="history__hint" data-testid="history-loading" aria-busy="true">Chargement…</p>
-    }
-    @case ('error') {
-      <app-ui-callout type="error" data-testid="history-error">
-        Impossible de charger vos fichiers.
-      </app-ui-callout>
-    }
-    @case ('empty') {
-      <app-ui-callout type="info" data-testid="history-empty">
-        Vous n'avez encore partagé aucun fichier.
-      </app-ui-callout>
-    }
-    @case ('loaded') {
-      <app-ui-switch
-        [selected]="filter()"
-        (selectedChange)="filter.set($event)"
-        data-testid="history-filter"
-      />
+    <div class="history__sidebar-actions">
+      <a routerLink="/upload" class="history__add history__add--drawer">Ajouter des fichiers</a>
+      <app-ui-button variant="tertiary" size="small" (pressed)="logout()">
+        <img src="assets/icons/icon-logout.svg" width="16" height="16" alt="" />
+        Déconnexion
+      </app-ui-button>
+    </div>
+  </aside>
 
-      @if (visibleFiles().length === 0) {
-        <p class="history__hint" data-testid="history-filter-empty">
-          Aucun fichier pour ce filtre.
-        </p>
-      } @else {
-        <ul class="history__list" data-testid="history-list">
-          @for (file of visibleFiles(); track file.id) {
-            <li>
-              <app-file-card
-                [file]="file"
-                (copyRequested)="copyLink(file)"
-                (remove)="askDelete(file)"
-              />
-            </li>
-          }
-        </ul>
+  <label for="history-drawer" class="history__backdrop" aria-hidden="true"></label>
+
+  <div class="history__main">
+    <header class="history__bar">
+      <label for="history-drawer" class="history__menu-btn">
+        <img src="assets/icons/icon-menu.svg" width="24" height="24" alt="Ouvrir le menu" />
+      </label>
+      <p class="history__bar-title">DataShare</p>
+      @if (user(); as u) {
+        <span class="history__avatar" aria-hidden="true">{{ u.email.charAt(0).toUpperCase() }}</span>
       }
-    }
-  }
+      <div class="history__bar-actions">
+        <a routerLink="/upload" class="history__add">Ajouter des fichiers</a>
+        <app-ui-button
+          variant="tertiary"
+          size="small"
+          (pressed)="logout()"
+          data-testid="history-logout"
+        >
+          Déconnexion
+        </app-ui-button>
+      </div>
+    </header>
+
+    <div class="history__content">
+      <h1 class="history__title">Mes fichiers</h1>
+
+      <app-form-error [error]="serverError()" />
+      <app-form-notice [notice]="notice()" />
+
+      @switch (state()) {
+        @case ('loading') {
+          <p class="history__hint" data-testid="history-loading" aria-busy="true">Chargement…</p>
+        }
+        @case ('error') {
+          <app-ui-callout type="error" data-testid="history-error">
+            Impossible de charger vos fichiers.
+          </app-ui-callout>
+        }
+        @case ('empty') {
+          <app-ui-callout type="info" data-testid="history-empty">
+            Vous n'avez encore partagé aucun fichier.
+          </app-ui-callout>
+        }
+        @case ('loaded') {
+          <app-ui-switch
+            [selected]="filter()"
+            (selectedChange)="filter.set($event)"
+            data-testid="history-filter"
+          />
+
+          @if (visibleFiles().length === 0) {
+            <p class="history__hint" data-testid="history-filter-empty">
+              Aucun fichier pour ce filtre.
+            </p>
+          } @else {
+            <ul class="history__list" data-testid="history-list">
+              @for (file of visibleFiles(); track file.id) {
+                <li>
+                  <app-file-card
+                    [file]="file"
+                    (copyRequested)="copyLink(file)"
+                    (remove)="askDelete(file)"
+                  />
+                </li>
+              }
+            </ul>
+          }
+        }
+      }
+    </div>
+  </div>
 
   <app-confirm-dialog
     [open]="pendingDelete() !== null"
@@ -77,4 +126,4 @@
     (dismissed)="cancelDelete()"
     data-testid="history-confirm"
   />
-</section>
+</div>

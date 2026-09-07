@@ -1,44 +1,73 @@
-<!-- @figma-owned — carte d'un fichier dans l'historique (US05/US06). Placeholder
-     fonctionnel en attendant l'export Figma de la série "Mon espace".
+<!-- @figma-owned — carte d'un fichier dans l'historique (US05/US06).
+     Desktop : boutons Accéder / Supprimer. Mobile : menu ⋮ (mêmes boutons, display).
      À PRÉSERVER : data-testid, les <app-ui-button> + (pressed), les pipes fileSize
      et expiryStatus.
-     Frame: à créer · voir design/figma-map.md -->
+     Frames: DataShare_local · Mon espace 32:516 · Desktop - 4 (15:390) · iPhone 16 - 5 (27:338)
+     · voir design/figma-map.md -->
 @let expired = (file().expiresAt | expiryStatus) === 'expired';
 <article class="file-card" [class.file-card--expired]="expired" data-testid="file-card">
+  <img class="file-card__icon" src="assets/icons/icon-file.svg" width="24" height="24" alt="" />
+
   <div class="file-card__info">
     <span class="file-card__name" data-testid="file-card-name" [title]="file().name">
       {{ file().name }}
     </span>
     <span class="file-card__meta">
-      <span data-testid="file-card-size">{{ file().sizeBytes | fileSize }}</span>
+      <span class="file-card__size" data-testid="file-card-size">{{ file().sizeBytes | fileSize }}</span>
       <span
-        class="file-card__badge"
-        [class.file-card__badge--expired]="expired"
+        class="file-card__status"
+        [class.file-card__status--expired]="expired"
         data-testid="file-card-status"
       >
         {{ expired ? 'Expiré' : 'Actif' }}
       </span>
-      @if (file().passwordProtected) {
-        <span class="file-card__badge" data-testid="file-card-locked">Protégé</span>
-      }
     </span>
+    @if (expired) {
+      <p class="file-card__expired-copy">Ce fichier a expiré, il n’est plus stocké chez nous</p>
+    }
   </div>
-  <div class="file-card__actions">
-    <app-ui-button
-      variant="tertiary"
-      size="small"
-      (pressed)="copyRequested.emit()"
-      data-testid="file-card-copy"
-    >
-      Copier le lien
-    </app-ui-button>
-    <app-ui-button
-      variant="danger"
-      size="small"
-      (pressed)="remove.emit()"
-      data-testid="file-card-delete"
-    >
-      Supprimer
-    </app-ui-button>
-  </div>
+
+  @if (file().passwordProtected) {
+    <img
+      class="file-card__lock"
+      src="assets/icons/icon-lock.svg"
+      width="16"
+      height="16"
+      alt="Protégé"
+      data-testid="file-card-locked"
+    />
+  }
+
+  @if (!expired) {
+    <input
+      class="file-card__menu-toggle"
+      type="checkbox"
+      [id]="'file-menu-' + file().id"
+      aria-hidden="true"
+      tabindex="-1"
+    />
+    <label class="file-card__more" [attr.for]="'file-menu-' + file().id">
+      <img src="assets/icons/icon-more.svg" width="16" height="16" alt="Actions" />
+    </label>
+    <div class="file-card__actions">
+      <app-ui-button
+        variant="secondary"
+        size="small"
+        (pressed)="remove.emit()"
+        data-testid="file-card-delete"
+      >
+        <img src="assets/icons/icon-trash.svg" width="16" height="16" alt="" />
+        Supprimer
+      </app-ui-button>
+      <app-ui-button
+        variant="secondary"
+        size="small"
+        (pressed)="copyRequested.emit()"
+        data-testid="file-card-copy"
+      >
+        Accéder
+        <img src="assets/icons/icon-arrow-right.svg" width="16" height="16" alt="" />
+      </app-ui-button>
+    </div>
+  }
 </article>

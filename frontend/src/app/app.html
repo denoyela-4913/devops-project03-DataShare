@@ -1,26 +1,34 @@
 <!-- @figma-owned — coquille applicative (en-tête, navigation, pied de page) maintenue
      depuis Figma via Cursor. À PRÉSERVER : <app-error-toast/>, <router-outlet/>, le
      lien d'évitement, les data-testid.
-     Frame: DataShare_local · Login 55:333 — en-tête/pied de page communs aux frames
-     Desktop 6/7/8 (55:400, 55:419, 55:438) et iPhone 16 8/9/10 (55:334, 55:343, 56:491)
+     Header : « Mon espace » si session (Desktop-5) ; « Se connecter » sinon.
+     L’upload anonyme (iPhone 16-7, bandeau Se connecter) n’est pas dans le MVP.
+     Sur /history le chrome global est masqué : sidebar dans la page (Desktop-4).
+     Frame: DataShare_local · Login 55:333 — Header 24:440 · Desktop - 5 (16:186)
      · voir design/figma-map.md -->
 <a class="skip-link" href="#main">Aller au contenu</a>
 
 <app-error-toast />
 
-<div class="page">
-  <header class="site-header">
-    <a class="site-header__logo" routerLink="/" data-testid="app-logo">DataShare</a>
-    <a class="site-header__login-link" routerLink="/login" data-testid="app-header-login-link"
-      >Se connecter</a
-    >
-  </header>
+<div class="page" [class.page--workspace]="hideChrome()">
+  @if (!hideChrome()) {
+    <app-ui-header>
+      <a uiHeaderLogo routerLink="/" data-testid="app-logo">DataShare</a>
+      @if (auth.isAuthenticated()) {
+        <a uiHeaderAction routerLink="/history" data-testid="app-header-login-link">Mon espace</a>
+      } @else {
+        <a uiHeaderAction routerLink="/login" data-testid="app-header-login-link">Se connecter</a>
+      }
+    </app-ui-header>
+  }
 
-  <main id="main" class="site-main">
+  <main id="main" class="site-main" [class.site-main--workspace]="hideChrome()">
     <router-outlet />
   </main>
 
-  <footer class="site-footer">
-    <p class="site-footer__copy">DataShare &copy; 2026</p>
-  </footer>
+  @if (!hideChrome()) {
+    <footer class="site-footer">
+      <p class="site-footer__copy">DataShare &copy; 2026</p>
+    </footer>
+  }
 </div>
