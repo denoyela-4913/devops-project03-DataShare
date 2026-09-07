@@ -11,7 +11,7 @@ Vue produit / architecture. Le **processus** de passation Figma ⇄ code est dan
 | US04 — connexion | `/login` | `features/auth/login` + `field-error` | `POST /api/auth/login` | `LoginRequest` → `TokenResponse` | ☑ |
 | US01 — upload (compte) | `/upload` (garde `authGuard`) | `features/upload` (landing/form/succès) + `field-error` | `POST /api/files` (multipart, JWT requis) | `file` + `password?` + `expirationDays` → `UploadResponse` | ☑ (front + back ; US07 anonyme relâchera la garde) |
 | US02 — téléchargement | `/d/:token` (public) | `features/download` (placeholder fonctionnel) | `GET`/`POST /api/d/{token}` | `FileMetadata` | ☑ (front + back, e2e ; visuel Figma à venir) |
-| US05 — historique | `/history` (garde `authGuard`, `/` y redirige) | `features/history` + `file-card` + `ui-switch`, pipes `expiryStatus`/`fileSize` | `GET /api/files` (+ `GET /api/me` pour l'email) | `FileSummary[]` | ☑ (front + back, e2e ; visuel Figma à venir) |
+| US05 — historique | `/history` (garde `authGuard`, `/` y redirige) | `features/history` + `file-card` + `ui-switch`, pipes `expiryStatus`/`fileSize` | `GET /api/files` (+ `GET /api/me` pour l'email) | `FileSummary[]` | ☑ (front + back, e2e ; visuel Figma livré) |
 | US06 — suppression | `/history` | `file-card` + `confirm-dialog` (`<dialog>` natif) | `DELETE /api/files/{id}` → `204` | — | ☑ (front + back, e2e) |
 | US08 — tags | `/history`, `/upload` | `tag-chip`, filtrage | endpoints tags (`V2`) | `Tag[]` | ☐ |
 | Transverse — erreurs | toutes | `form-error` (dans la carte), `form-notice` (succès), `error-toast` (filet réseau) | — | `ErrorResponse` | ☑ |
@@ -41,10 +41,10 @@ autorisées que dans `_tokens.scss` (règle Stylelint `color-no-hex`, vérifiée
 | `error-toast` | filet global : panne réseau et erreurs non prises en charge par un écran ; flottant en bas, auto-fermeture | ☑ |
 | `ui-input` | champ de formulaire + libellé (remplace `ui-text-field`) | ☑ (consommé dans login/register/upload) |
 | `ui-select` | liste déroulante + libellé + chevron | ☑ (consommé dans upload) |
-| `ui-header` | en-tête appli (logo + action) | ◐ (testé, pas encore consommé) |
+| `ui-header` | en-tête appli (logo + action) | ☑ (consommé dans la coquille `app`, masqué sur `/history`) |
 | `ui-switch` | filtre segmenté Tous / Actifs / Expiré | ☑ (consommé dans `/history`) |
 | `ui-callout` | bandeau inline Info / Alert / Error | ☑ (consommé dans `/download`, `/history`) |
-| `file-card` | ligne d'historique (nom, taille, expiration, état) | ☑ (consommé dans `/history`) |
+| `file-card` | ligne d'historique (nom, taille, expiration, état ; « Accéder » = lien `/d/:token` nouvel onglet, « Supprimer ») | ☑ (consommé dans `/history`) |
 | `confirm-dialog` | confirmation d'action destructive, `<dialog>` natif (US06) | ☑ (consommé dans `/history`) |
 | `password-field` | saisie de mot de passe accessible (afficher/masquer) | ☐ |
 | `tag-chip` | étiquette de tag (US08) | ☐ |

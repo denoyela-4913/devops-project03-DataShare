@@ -41,6 +41,15 @@
   background: transparent;
 }
 
+// Aligné sur ui-button.scss .ui-button--secondary + .ui-button--small.
+@mixin btn-secondary-small {
+  min-height: 32px;
+  padding: 8px 12px;
+  color: var(--color-btn-tertiary-text);
+  background: transparent;
+  border-color: var(--color-btn-secondary-stroke);
+}
+
 @mixin btn-disabled {
   cursor: not-allowed;
   opacity: 0.6;

@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import type { CurrentUser } from '../../core/auth/auth.model';
 import { AuthService } from '../../core/auth/auth.service';
 import type { FileSummary } from '../../core/file/file.model';
@@ -25,7 +25,16 @@ export type HistoryState = 'loading' | 'loaded' | 'empty' | 'error';
  */
 @Component({
   selector: 'app-history',
-  imports: [UiButton, UiCallout, UiSwitch, FileCard, ConfirmDialog, FormError, FormNotice],
+  imports: [
+    RouterLink,
+    UiButton,
+    UiCallout,
+    UiSwitch,
+    FileCard,
+    ConfirmDialog,
+    FormError,
+    FormNotice,
+  ],
   templateUrl: './history.html',
   styleUrl: './history.scss',
 })
@@ -80,10 +89,6 @@ export class History {
         },
         error: () => this.state.set('error'),
       });
-  }
-
-  copyLink(file: FileSummary): void {
-    void navigator.clipboard?.writeText(file.downloadUrl);
   }
 
   askDelete(file: FileSummary): void {

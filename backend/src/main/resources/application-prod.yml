@@ -21,6 +21,7 @@ datashare:
     access-key: ${DATASHARE_STORAGE_ACCESS_KEY}
     secret-key: ${DATASHARE_STORAGE_SECRET_KEY}
   files:
+    # Origine publique du FRONTEND + /d (la page /d/:token), ex. https://datashare.example/d
     base-download-url: ${DATASHARE_DOWNLOAD_BASE_URL}
 
 server:

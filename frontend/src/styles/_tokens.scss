@@ -68,6 +68,27 @@
   --color-icon-ring-outer: #2f190d;
   --color-icon-ring-inner: #100218;
 
+  // ── Mon espace (Figma 32:516) ────────────────────────────────────────────
+  // Canvas Desktop-4 15:390 : #fff8f3
+  --color-workspace: #fff8f3;
+
+  // Barre d’actions Desktop-4 : #ffeee3 / stroke #d8611c
+  --color-workspace-bar: #ffeee3;
+  --color-workspace-bar-stroke: #d8611c;
+
+  // Cartes fichier : #ffc191 / stroke #d7630b (aligné Switch)
+  --color-file-card-bg: #ffc191;
+  --color-file-card-stroke: #d7630b;
+
+  // Statut « Expiré » #c62020 · e-mail sidebar #803a00 · avatar #f1e9e2
+  --color-file-expired: #c62020;
+  --color-workspace-muted: #803a00;
+  --color-workspace-chip: #f1e9e2;
+
+  // Trait sidebar #62361a · overlay drawer iPhone-6 40 %
+  --color-sidebar-stroke: #62361a;
+  --color-drawer-scrim: rgb(0 0 0 / 40%);
+
   // Bloc URL partagée (succès) : fond #ff5e00, stroke #d7630b, texte #d8640b
   // Figma iPhone 16-3 Frame 19 (15:387) · Desktop-3 Frame 19 (15:340 fond grisé #a49993)
   --color-link-url-bg: #ff5e00;
@@ -91,6 +112,9 @@
   --page-gutter: 80px;
   --content-width: 1280px;
   --card-width: 640px;
+  --sidebar-width: 259px;
+  --drawer-width: 295px;
+  --z-drawer: 40;
 }
 
 @media (max-width: 833px) {
