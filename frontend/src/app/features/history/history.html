@@ -2,8 +2,8 @@
      Sidebar dans la page (Desktop-4 / iPhone-5/6). Le bandeau global est masqué
      sur /history. Drawer mobile via checkbox (pas de TS supplémentaire).
      À PRÉSERVER : data-testid, @switch/@for, (pressed), (selectedChange),
-     (confirm)/(dismissed), <app-form-error> / <app-form-notice>,
-     (copyRequested)/(remove), routerLink, aria-*.
+     (confirm)/(dismissed), <app-form-error> / <app-form-notice>, (remove),
+     routerLink, aria-*.
      Frames: DataShare_local · Mon espace 32:516
        Desktop - 4 (15:390) · iPhone 16 - 5 (27:338) · iPhone 16 - 6 (27:540)
      · voir design/figma-map.md -->
@@ -52,7 +52,9 @@
       </label>
       <p class="history__bar-title">DataShare</p>
       @if (user(); as u) {
-        <span class="history__avatar" aria-hidden="true">{{ u.email.charAt(0).toUpperCase() }}</span>
+        <span class="history__avatar" aria-hidden="true">{{
+          u.email.charAt(0).toUpperCase()
+        }}</span>
       }
       <div class="history__bar-actions">
         <a routerLink="/upload" class="history__add">Ajouter des fichiers</a>
@@ -102,11 +104,7 @@
             <ul class="history__list" data-testid="history-list">
               @for (file of visibleFiles(); track file.id) {
                 <li>
-                  <app-file-card
-                    [file]="file"
-                    (copyRequested)="copyLink(file)"
-                    (remove)="askDelete(file)"
-                  />
+                  <app-file-card [file]="file" (remove)="askDelete(file)" />
                 </li>
               }
             </ul>

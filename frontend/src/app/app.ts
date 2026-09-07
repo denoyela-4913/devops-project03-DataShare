@@ -15,14 +15,17 @@ import { UiHeader } from './shared/components/ui-header/ui-header';
 export class App {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly notifier = inject(ErrorNotificationService);
+
   readonly currentUrl = signal(this.router.url);
+  /** Sur /history l'écran a sa propre sidebar : la coquille (en-tête + pied) s'efface. */
   readonly hideChrome = computed(() => this.currentUrl().split('?')[0].startsWith('/history'));
 
   constructor() {
-    const notifier = inject(ErrorNotificationService);
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationStart) {
-        notifier.clear();
+        // Le bandeau global ne doit pas suivre l'utilisateur d'un écran à l'autre.
+        this.notifier.clear();
       }
       if (event instanceof NavigationEnd) {
         this.currentUrl.set(event.urlAfterRedirects);

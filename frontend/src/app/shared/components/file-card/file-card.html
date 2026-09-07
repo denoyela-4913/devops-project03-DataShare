@@ -1,7 +1,8 @@
 <!-- @figma-owned — carte d'un fichier dans l'historique (US05/US06).
-     Desktop : boutons Accéder / Supprimer. Mobile : menu ⋮ (mêmes boutons, display).
-     À PRÉSERVER : data-testid, les <app-ui-button> + (pressed), les pipes fileSize
-     et expiryStatus.
+     « Accéder » ouvre la page de téléchargement (route publique /d/:token) dans un
+     nouvel onglet — un vrai <a href target="_blank">, à préserver comme lien.
+     À PRÉSERVER : data-testid, le <a> « Accéder » (href + target), l'<app-ui-button>
+     Supprimer + (pressed), les pipes fileSize et expiryStatus.
      Frames: DataShare_local · Mon espace 32:516 · Desktop - 4 (15:390) · iPhone 16 - 5 (27:338)
      · voir design/figma-map.md -->
 @let expired = (file().expiresAt | expiryStatus) === 'expired';
@@ -13,7 +14,9 @@
       {{ file().name }}
     </span>
     <span class="file-card__meta">
-      <span class="file-card__size" data-testid="file-card-size">{{ file().sizeBytes | fileSize }}</span>
+      <span class="file-card__size" data-testid="file-card-size">{{
+        file().sizeBytes | fileSize
+      }}</span>
       <span
         class="file-card__status"
         [class.file-card__status--expired]="expired"
@@ -23,7 +26,7 @@
       </span>
     </span>
     @if (expired) {
-      <p class="file-card__expired-copy">Ce fichier a expiré, il n’est plus stocké chez nous</p>
+      <p class="file-card__expired-copy">Ce fichier a expiré, il n'est plus stocké chez nous</p>
     }
   </div>
 
@@ -39,16 +42,6 @@
   }
 
   @if (!expired) {
-    <input
-      class="file-card__menu-toggle"
-      type="checkbox"
-      [id]="'file-menu-' + file().id"
-      aria-hidden="true"
-      tabindex="-1"
-    />
-    <label class="file-card__more" [attr.for]="'file-menu-' + file().id">
-      <img src="assets/icons/icon-more.svg" width="16" height="16" alt="Actions" />
-    </label>
     <div class="file-card__actions">
       <app-ui-button
         variant="secondary"
@@ -59,15 +52,16 @@
         <img src="assets/icons/icon-trash.svg" width="16" height="16" alt="" />
         Supprimer
       </app-ui-button>
-      <app-ui-button
-        variant="secondary"
-        size="small"
-        (pressed)="copyRequested.emit()"
-        data-testid="file-card-copy"
+      <a
+        class="file-card__open"
+        [href]="file().downloadUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-testid="file-card-open"
       >
         Accéder
         <img src="assets/icons/icon-arrow-right.svg" width="16" height="16" alt="" />
-      </app-ui-button>
+      </a>
     </div>
   }
 </article>

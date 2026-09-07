@@ -16,12 +16,10 @@ const BASE: FileSummary = {
 @Component({
   selector: 'app-file-card-host',
   imports: [FileCard],
-  template:
-    '<app-file-card [file]="file()" (copyRequested)="copied = true" (remove)="removed = true" />',
+  template: '<app-file-card [file]="file()" (remove)="removed = true" />',
 })
 class FileCardHost {
   readonly file = signal<FileSummary>(BASE);
-  copied = false;
   removed = false;
 }
 
@@ -42,12 +40,23 @@ describe('FileCard', () => {
     expect(testId(host, 'file-card-status')?.textContent).toContain('Actif');
   });
 
-  it('marque un fichier expiré', () => {
+  it('marque un fichier expiré et retire les actions', () => {
     const { fixture, host } = render();
     fixture.componentInstance.file.set({ ...BASE, expiresAt: '2000-01-01T00:00:00Z' });
     fixture.detectChanges();
     expect(testId(host, 'file-card-status')?.textContent).toContain('Expiré');
     expect(host.querySelector('.file-card--expired')).not.toBeNull();
+    expect(testId(host, 'file-card-open')).toBeNull();
+    expect(testId(host, 'file-card-delete')).toBeNull();
+  });
+
+  it('« Accéder » est un lien vers la page de téléchargement, nouvel onglet', () => {
+    const { host } = render();
+    const link = testId(host, 'file-card-open') as HTMLAnchorElement;
+    expect(link.tagName).toBe('A');
+    expect(link.getAttribute('href')).toBe(BASE.downloadUrl);
+    expect(link.getAttribute('target')).toBe('_blank');
+    expect(link.getAttribute('rel')).toContain('noopener');
   });
 
   it('affiche un badge Protégé quand le fichier a un mot de passe', () => {
@@ -57,11 +66,9 @@ describe('FileCard', () => {
     expect(testId(host, 'file-card-locked')).not.toBeNull();
   });
 
-  it('émet (copy) et (remove) au clic sur les boutons', () => {
+  it('émet (remove) au clic sur Supprimer', () => {
     const { fixture, host } = render();
-    (testId(host, 'file-card-copy') as HTMLElement).querySelector('button')!.click();
     (testId(host, 'file-card-delete') as HTMLElement).querySelector('button')!.click();
-    expect(fixture.componentInstance.copied).toBe(true);
     expect(fixture.componentInstance.removed).toBe(true);
   });
 });

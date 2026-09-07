@@ -25,7 +25,16 @@ export type HistoryState = 'loading' | 'loaded' | 'empty' | 'error';
  */
 @Component({
   selector: 'app-history',
-  imports: [RouterLink, UiButton, UiCallout, UiSwitch, FileCard, ConfirmDialog, FormError, FormNotice],
+  imports: [
+    RouterLink,
+    UiButton,
+    UiCallout,
+    UiSwitch,
+    FileCard,
+    ConfirmDialog,
+    FormError,
+    FormNotice,
+  ],
   templateUrl: './history.html',
   styleUrl: './history.scss',
 })
@@ -80,10 +89,6 @@ export class History {
         },
         error: () => this.state.set('error'),
       });
-  }
-
-  copyLink(file: FileSummary): void {
-    void navigator.clipboard?.writeText(file.downloadUrl);
   }
 
   askDelete(file: FileSummary): void {
