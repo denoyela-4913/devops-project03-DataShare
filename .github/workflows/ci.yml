@@ -76,6 +76,11 @@ jobs:
         run: pipx run yamllint -c .yamllint.yaml .
       - name: markdownlint
         run: npx --yes markdownlint-cli2@0.23.2 "**/*.md"
+      - name: shellcheck
+        run: |
+          mapfile -t scripts < <(git ls-files '*.sh')
+          printf 'shellcheck: %s\n' "${scripts[@]}"
+          shellcheck "${scripts[@]}"
       - name: figma-owned headers
         run: bash tools/check-figma-owned.sh
 

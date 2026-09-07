@@ -11,7 +11,10 @@ set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"
 profiles="${DATASHARE_PURGE_PROFILES:-dev,purge}"
-jar="$(ls "$here"/../backend/target/datashare-backend-*.jar 2>/dev/null | head -n 1 || true)"
+
+jars=("$here"/../backend/target/datashare-backend-*.jar)
+jar="${jars[0]}"
+[ -e "$jar" ] || jar=""
 
 if [ "${1:-}" = "--check" ]; then
   echo "jar      : ${jar:-<non construit — lancer: cd backend && mvn -o package -DskipTests>}"
