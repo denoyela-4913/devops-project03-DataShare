@@ -46,6 +46,42 @@ Les valeurs par défaut de `application.yml` pointent déjà sur ce PostgreSQL.
 Alternative sans Maven (nécessite `./mvnw package` au préalable) :
 `java -jar target/datashare-backend-*.jar --spring.profiles.active=dev`.
 
+## Purger les fichiers expirés (outil manuel)
+
+Supprime les fichiers dont la date d'expiration est dépassée — ligne `stored_file`
+**et** objet MinIO. Outil d'exploitation ; la purge automatique planifiée est le
+périmètre d'US10 et réutilisera la même logique (`com.datashare.maintenance.ExpiredFilePurger`).
+
+```bash
+# la stack dev tourne, et le jar est construit :
+cd ../backend && mvn -o package -DskipTests && cd ../deploy
+
+./purge-expired.sh
+#   → "Purge : 2/2 fichier(s) expiré(s) supprimé(s) — 0 échec(s) stockage"
+#   → l'appli s'arrête seule (code 1 si un objet n'a pas pu être supprimé)
+
+./purge-expired.sh --check    # valide le script sans rien exécuter
+```
+
+Fabriquer un fichier expiré pour tester (après avoir déposé un fichier via l'appli) :
+
+```bash
+docker compose -f docker-compose.yml exec db \
+  psql -U datashare -d datashare \
+  -c "UPDATE stored_file SET expires_at = now() - interval '2 days' WHERE original_name = 'test.txt';"
+```
+
+Vérifier :
+
+```bash
+docker compose -f docker-compose.yml exec db \
+  psql -U datashare -d datashare \
+  -c "SELECT id, original_name FROM stored_file WHERE expires_at < now();"   # → 0 ligne
+```
+
+Contre un autre environnement : `DATASHARE_PURGE_PROFILES=prod,purge` + les variables
+`DATASHARE_DB_*` / `DATASHARE_STORAGE_*` / `DATASHARE_JWT_SECRET`.
+
 ## Arrêter
 
 ```bash

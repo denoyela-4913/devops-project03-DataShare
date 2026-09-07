@@ -1,0 +1,8 @@
+# Profil "purge" — mode outil : supprime les fichiers expirés puis arrête l'appli.
+# Voir com.datashare.maintenance.ExpiredFilePurger / PurgeRunner et deploy/purge-expired.sh.
+# À combiner avec un profil de base pour la config de connexion :
+#   java -jar datashare-backend-*.jar --spring.profiles.active=dev,purge
+spring:
+  main:
+    web-application-type: none
+    banner-mode: "off"

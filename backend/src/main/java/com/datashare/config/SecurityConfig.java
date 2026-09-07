@@ -2,6 +2,7 @@ package com.datashare.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,8 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
  * <p>Endpoints publics : ping, health, Swagger (GET), {@code POST /api/auth/register|login} et
  * {@code GET|POST /api/d/**} (liens de partage, US02). Tout le reste exige un access token
  * valide (voir {@link SecurityBeans}).
+ *
+ * <p>Inactif sous le profil {@code purge} (outil de maintenance sans contexte web).
  */
 @Configuration
+@Profile("!purge")
 public class SecurityConfig {
 
     private static final String[] PUBLIC_GET = {

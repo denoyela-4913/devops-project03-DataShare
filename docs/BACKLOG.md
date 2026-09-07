@@ -52,6 +52,20 @@ implémentation. Points à instruire :
 - **Lien à usage unique / compteur de téléchargements** : le lien reste valide jusqu'à
   expiration (téléchargements multiples), comme un lien WeTransfer.
 
+## Expiration des fichiers (US10) — planifié
+
+Un fichier expiré reste en base et dans MinIO jusqu'à suppression. Aujourd'hui :
+
+- l'UI affiche « Ce fichier a expiré » et retire les actions sur la carte ;
+- le nettoyage se fait **à la main** via `deploy/purge-expired.sh` (profil Spring
+  `purge` → `com.datashare.maintenance.ExpiredFilePurger`).
+
+**US10 = rendre cette purge automatique** : un `@Scheduled` (`@EnableScheduling`,
+un profil `prod` actif) qui appelle `ExpiredFilePurger.purge()` périodiquement.
+La logique existe déjà et est testée (`ExpiredFilePurgerIT`) — US10 n'ajoute que le
+déclencheur. Nécessaire pour les comptes abandonnés dont le propriétaire ne revient
+jamais purger sa liste.
+
 ## Historique / suppression de fichiers (US05/US06) — améliorations différées
 
 - **Pagination de `GET /api/files`** : la liste complète est renvoyée. Suffisant tant
