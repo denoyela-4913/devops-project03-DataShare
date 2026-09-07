@@ -1,23 +1,35 @@
-<!-- @figma-owned — écran de téléchargement d'un lien de partage (US02). Placeholder
-     fonctionnel : composants partagés (app-ui-input / app-ui-button / app-ui-callout)
-     en attendant l'export Figma de la série « téléchargement ».
+<!-- @figma-owned — écran de téléchargement d'un lien de partage (US02).
      À PRÉSERVER : data-testid, @switch/@if, [formGroup]/formControlName, (ngSubmit),
      [invalid], <app-field-error>, <app-form-error> (erreur serveur), [disabled], aria-*.
-     Frame: à créer · voir design/figma-map.md -->
+     Champs / bouton : `app-ui-input` / `app-ui-button` / `app-ui-callout`.
+     Frames: DataShare_local · Téléchargement 56:740
+       Protégé vide  : iPhone 16 - 12 (56:750) · Desktop - 9 (56:779)
+       Protégé saisi : iPhone 16 - 17 (56:1222) · Desktop - 10 (58:591)
+       Public        : iPhone 16 - 15 (56:1092) · Desktop - 11 (58:632)
+       Expiré        : iPhone 16 - 16 (56:1178) · Desktop - 12 (58:802)
+     Pas de frame Figma pour loading / 404 : même carte, callout error.
+     Claude : remplacer le libellé d’expiration « bientôt » par un relatif
+     (Figma : info « dans 3 jours » / alert « demain ») à partir de metadata().expiresAt.
+     Voir design/figma-map.md -->
 @switch (state()) {
   @case ('loading') {
     <section class="card" data-testid="download-loading" aria-busy="true">
+      <h1 class="card__title">Télécharger un fichier</h1>
       <p class="card__text">Chargement…</p>
     </section>
   }
   @case ('not-found') {
     <section class="card" data-testid="download-not-found">
+      <h1 class="card__title">Télécharger un fichier</h1>
       <app-ui-callout type="error">Ce lien de téléchargement n'existe pas.</app-ui-callout>
     </section>
   }
   @case ('expired') {
     <section class="card" data-testid="download-expired">
-      <app-ui-callout type="error">Ce lien de téléchargement a expiré.</app-ui-callout>
+      <h1 class="card__title">Télécharger un fichier</h1>
+      <app-ui-callout type="error">
+        Ce fichier n'est plus disponible en téléchargement car il a expiré.
+      </app-ui-callout>
     </section>
   }
   @case ('ready') {
@@ -25,9 +37,24 @@
       <h1 class="card__title" id="download-title">Télécharger un fichier</h1>
 
       <div class="file-row" data-testid="download-file">
-        <span class="file-row__name" data-testid="download-file-name">{{ metadata()?.name }}</span>
-        <span class="file-row__size" data-testid="download-file-size">{{ sizeLabel() }}</span>
+        <img
+          class="file-row__icon"
+          src="assets/icons/icon-file.svg"
+          width="24"
+          height="24"
+          alt=""
+        />
+        <div class="file-row__meta">
+          <span class="file-row__name" data-testid="download-file-name">{{
+            metadata()?.name
+          }}</span>
+          <span class="file-row__size" data-testid="download-file-size">{{ sizeLabel() }}</span>
+        </div>
       </div>
+
+      <app-ui-callout type="info" data-testid="download-expiry">
+        Ce fichier expirera bientôt.
+      </app-ui-callout>
 
       <form
         class="form"
@@ -50,7 +77,7 @@
               formControlName="password"
               type="password"
               autocomplete="off"
-              placeholder="Mot de passe du fichier"
+              placeholder="Saisissez le mot de passe..."
               aria-describedby="download-password-error"
               data-testid="download-password-input"
             />
@@ -62,7 +89,20 @@
           </app-ui-input>
         }
 
-        <app-ui-button type="submit" [disabled]="downloading()" data-testid="download-submit">
+        <app-ui-button
+          type="submit"
+          [disabled]="
+            downloading() || (!!metadata()?.passwordProtected && form.controls.password.invalid)
+          "
+          data-testid="download-submit"
+        >
+          <img
+            class="card__btn-icon"
+            src="assets/icons/icon-download-cloud-16.svg"
+            width="16"
+            height="16"
+            alt=""
+          />
           {{ downloading() ? 'Téléchargement…' : 'Télécharger' }}
         </app-ui-button>
       </form>

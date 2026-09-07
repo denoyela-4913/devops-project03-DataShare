@@ -1,5 +1,9 @@
-/* @figma-owned — écran de téléchargement (US02). Placeholder fonctionnel en attendant
-   l'export Figma. Tokens uniquement (règle Stylelint color-no-hex). Frame: à créer.
+/* @figma-owned — écran de téléchargement (US02). Tokens uniquement
+   (règle Stylelint color-no-hex).
+   Frames: DataShare_local · Téléchargement 56:740
+     iPhone 16 - 12/17/15/16 (56:750, 56:1222, 56:1092, 56:1178)
+     Desktop - 9/10/11/12 (56:779, 58:591, 58:632, 58:802)
+   Carte 640 / 345, radius 16, pad 24, gap 24, file row 56.
    Voir design/figma-map.md */
 
 .card {
@@ -34,17 +38,35 @@
   text-align: center;
 }
 
+.card__btn-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
 .file-row {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
   gap: 16px;
+  min-height: 56px;
   padding: 8px;
+}
+
+.file-row__icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+.file-row__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
 }
 
 .file-row__name {
   font-family: var(--type-normal-font);
   font-size: var(--type-normal-size);
+  font-weight: var(--type-normal-weight);
   line-height: var(--type-normal-line);
   color: var(--color-black);
   overflow: hidden;
@@ -53,9 +75,9 @@
 }
 
 .file-row__size {
-  flex-shrink: 0;
   font-family: var(--type-small-font);
   font-size: var(--type-small-size);
+  font-weight: var(--type-small-weight);
   line-height: var(--type-small-line);
   color: var(--color-label);
 }
@@ -64,4 +86,10 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    box-shadow: none;
+  }
 }

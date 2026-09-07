@@ -1,0 +1,16 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#clip-download-cloud)">
+    <path
+      d="M5.333 11.333 8 14l2.667-2.667M8 8v6M13.593 12.26c.65-.354 1.164-.915 1.46-1.594.296-.679.358-1.437.175-2.155a4.67 4.67 0 0 0-1.184-1.809A4.67 4.67 0 0 0 12 6h-.84a6.01 6.01 0 0 0-1.1-2.119A6.01 6.01 0 0 0 8.145 2.454 6.01 6.01 0 0 0 5.8 2.005a6.01 6.01 0 0 0-2.306.62A6.01 6.01 0 0 0 .86 8.769a6.01 6.01 0 0 0 1.14 2.098"
+      stroke="#BA681F"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+  <defs>
+    <clipPath id="clip-download-cloud">
+      <rect width="16" height="16" fill="white" />
+    </clipPath>
+  </defs>
+</svg>
