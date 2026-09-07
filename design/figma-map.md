@@ -35,5 +35,5 @@ Statuts : ☐ à faire · ◐ généré, à réviser · ☑ validé (voir DoD da
 | _inscription_ (Desktop - 7, iPhone 16 - 10) | 55:419 / 56:491 | `/register` | US03 | `POST /api/auth/register` | ◐ |
 | _connexion_ (Desktop - 6, iPhone 16 - 9) | 55:400 / 55:343 | `/login` | US04 | `POST /api/auth/login` | ◐ |
 | Téléversement 32:515 (Desktop - 2/1/3, iPhone 16 - 1/2/4/3) | 32:515 | `/upload` | US01/US07 | `POST /api/files` | ◐ |
-| _téléchargement_ (à exporter) | — | `/d/:token` | US02 | `GET`/`POST /api/d/{token}` | ◐ (logique + placeholder fonctionnel, visuel Figma à venir) |
+| Téléchargement 56:740 (Desktop-9/10/11/12, iPhone 16-12/17/15/16) | 56:779 / 58:591 / 58:632 / 58:802 / 56:750 / 56:1222 / 56:1092 / 56:1178 | `/d/:token` | US02 | `GET`/`POST /api/d/{token}` | ◐ (visuel livré ; loading/404 sans frame ; expiry relatif à câbler) |
 | Mon espace 32:516 (Desktop-4, iPhone-5/6) | 15:390 / 27:338 / 27:540 | `/history` | US05/US06 | `GET`/`DELETE /api/files` | ☑ (visuel livré ; sidebar dans la page ; upload anonyme hors MVP) |
