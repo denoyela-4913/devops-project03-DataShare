@@ -10,7 +10,7 @@ Vue produit / architecture. Le **processus** de passation Figma ⇄ code est dan
 | US03 — création de compte | `/register` | `features/auth/register` + `field-error` | `POST /api/auth/register` | `RegisterRequest` → `TokenResponse` | ☑ (front + back, e2e) |
 | US04 — connexion | `/login` | `features/auth/login` + `field-error` | `POST /api/auth/login` | `LoginRequest` → `TokenResponse` | ☑ |
 | US01 — upload (compte) | `/upload` (garde `authGuard`) | `features/upload` (landing/form/succès) + `field-error` | `POST /api/files` (multipart, JWT requis) | `file` + `password?` + `expirationDays` → `UploadResponse` | ☑ (front + back ; US07 anonyme relâchera la garde) |
-| US02 — téléchargement | `/d/:token` (public) | `features/download` (placeholder fonctionnel) | `GET`/`POST /api/d/{token}` | `FileMetadata` | ☑ (front + back, e2e ; visuel Figma à venir) |
+| US02 — téléchargement | `/d/:token` (public) | `features/download` | `GET`/`POST /api/d/{token}` | `FileMetadata` | ☑ (front + back, e2e ; visuel Figma livré, expiration relative) |
 | US05 — historique | `/history` (garde `authGuard`, `/` y redirige) | `features/history` + `file-card` + `ui-switch`, pipes `expiryStatus`/`fileSize` | `GET /api/files` (+ `GET /api/me` pour l'email) | `FileSummary[]` | ☑ (front + back, e2e ; visuel Figma livré) |
 | US06 — suppression | `/history` | `file-card` + `confirm-dialog` (`<dialog>` natif) | `DELETE /api/files/{id}` → `204` | — | ☑ (front + back, e2e) |
 | US08 — tags | `/history`, `/upload` | `tag-chip`, filtrage | endpoints tags (`V2`) | `Tag[]` | ☐ |
