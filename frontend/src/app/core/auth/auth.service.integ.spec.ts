@@ -16,7 +16,7 @@ describe('AuthService (integ)', () => {
   let tokens: TokenStore;
 
   beforeEach(() => {
-    localStorage.clear();
+    sessionStorage.clear();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -50,6 +50,30 @@ describe('AuthService (integ)', () => {
       .expectOne('/api/auth/login')
       .flush({ accessToken: 'tok.abc', tokenType: 'Bearer', expiresIn: 3600 });
     expect(tokens.token()).toBe('tok.abc');
+  });
+
+  it('login remplace un token expiré déjà présent (isAuthenticated repasse à vrai)', () => {
+    tokens.set(fakeJwt(-10));
+    expect(service.isAuthenticated()).toBe(false);
+
+    const fresh = fakeJwt(3600);
+    service.login('a@b.com', 'password123').subscribe();
+    httpMock
+      .expectOne('/api/auth/login')
+      .flush({ accessToken: fresh, tokenType: 'Bearer', expiresIn: 3600 });
+
+    expect(tokens.token()).toBe(fresh);
+    expect(service.isAuthenticated()).toBe(true);
+  });
+
+  it('register remplace un token expiré déjà présent', () => {
+    tokens.set(fakeJwt(-10));
+    const fresh = fakeJwt(3600);
+    service.register('a@b.com', 'password123').subscribe();
+    httpMock
+      .expectOne('/api/auth/register')
+      .flush({ accessToken: fresh, tokenType: 'Bearer', expiresIn: 3600 });
+    expect(tokens.token()).toBe(fresh);
   });
 
   it('logout vide le token', () => {

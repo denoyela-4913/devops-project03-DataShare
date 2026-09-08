@@ -62,6 +62,7 @@ describe('Historique', () => {
         cy.get('[data-testid="confirm-dialog-confirm"]').click();
         cy.get('[data-testid="history-empty"]').should('be.visible');
 
+        cy.clearAllSessionStorage();
         cy.clearLocalStorage();
         cy.visit(path);
         cy.get('[data-testid="download-not-found"]').should('be.visible');

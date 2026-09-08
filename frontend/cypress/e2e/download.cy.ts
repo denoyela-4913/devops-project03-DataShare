@@ -39,6 +39,7 @@ describe('Téléchargement', () => {
   it('lien public : affiche le fichier et lance le téléchargement (200)', () => {
     signUp();
     uploadAndGetSharePath().then((path) => {
+      cy.clearAllSessionStorage();
       cy.clearLocalStorage();
       cy.intercept('POST', '/api/d/*').as('download');
       cy.visit(path);
@@ -54,9 +55,21 @@ describe('Téléchargement', () => {
     cy.get('[data-testid="download-not-found"]').should('be.visible');
   });
 
+  it("écran anonyme : l'en-tête propose « Se connecter », jamais l'espace d'un compte ouvert", () => {
+    // Compte ouvert dans l'onglet (cas « on se relogue puis on ouvre un lien de partage »).
+    signUp();
+    uploadAndGetSharePath().then((path) => {
+      cy.visit(path);
+      cy.get('[data-testid="app-header-login-link"]')
+        .should('have.text', 'Se connecter')
+        .and('have.attr', 'href', '/login');
+    });
+  });
+
   it('lien protégé : mot de passe requis, refusé si incorrect (403) puis accepté (200)', () => {
     signUp();
     uploadAndGetSharePath('filepass1').then((path) => {
+      cy.clearAllSessionStorage();
       cy.clearLocalStorage();
       cy.intercept('POST', '/api/d/*').as('dl');
       cy.visit(path);

@@ -1,7 +1,8 @@
 <!-- @figma-owned — coquille applicative (en-tête, navigation, pied de page) maintenue
      depuis Figma via Cursor. À PRÉSERVER : <app-error-toast/>, <router-outlet/>, le
      lien d'évitement, les data-testid.
-     Header : « Mon espace » si session (Desktop-5) ; « Se connecter » sinon.
+     Header : « Mon espace » si session (Desktop-5) ; « Se connecter » sinon —
+     et toujours « Se connecter » sur un lien de partage /d/:token (écran anonyme).
      L’upload anonyme (iPhone 16-7, bandeau Se connecter) n’est pas dans le MVP.
      Sur /history le chrome global est masqué : sidebar dans la page (Desktop-4).
      Frame: DataShare_local · Login 55:333 — Header 24:440 · Desktop - 5 (16:186)
@@ -14,7 +15,7 @@
   @if (!hideChrome()) {
     <app-ui-header>
       <a uiHeaderLogo routerLink="/" data-testid="app-logo">DataShare</a>
-      @if (auth.isAuthenticated()) {
+      @if (auth.isAuthenticated() && !onShareLink()) {
         <a uiHeaderAction routerLink="/history" data-testid="app-header-login-link">Mon espace</a>
       } @else {
         <a uiHeaderAction routerLink="/login" data-testid="app-header-login-link">Se connecter</a>

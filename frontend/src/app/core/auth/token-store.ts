@@ -3,8 +3,16 @@ import { Injectable, signal } from '@angular/core';
 const STORAGE_KEY = 'datashare.token';
 
 /**
- * Conserve l'access token JWT : signal (source de vérité pour l'appli) + `localStorage`
- * (persistance entre rechargements). Tout accès au stockage est protégé (mode privé, SSR).
+ * Conserve l'access token JWT : signal (source de vérité pour l'appli) + `sessionStorage`
+ * (persistance sur rechargement, mais **propre à l'onglet**).
+ *
+ * Le choix de `sessionStorage` plutôt que `localStorage` est délibéré : un nouvel onglet —
+ * lien de partage ouvert depuis l'historique (`target="_blank" rel="noopener"`), ou onglet
+ * ouvert à la main — démarre avec un stockage vierge, donc déconnecté. La page `/d/:token`
+ * n'hérite jamais de la session d'un compte, et ouvrir `/history` dans un onglet neuf ne
+ * donne pas accès à l'espace de qui que ce soit sans se reconnecter.
+ *
+ * Tout accès au stockage est protégé (mode privé, SSR).
  */
 @Injectable({ providedIn: 'root' })
 export class TokenStore {
@@ -25,7 +33,7 @@ export class TokenStore {
 
 function readStorage(): string | null {
   try {
-    return localStorage.getItem(STORAGE_KEY);
+    return sessionStorage.getItem(STORAGE_KEY);
   } catch {
     return null;
   }
@@ -34,9 +42,9 @@ function readStorage(): string | null {
 function writeStorage(token: string | null): void {
   try {
     if (token === null) {
-      localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(STORAGE_KEY);
     } else {
-      localStorage.setItem(STORAGE_KEY, token);
+      sessionStorage.setItem(STORAGE_KEY, token);
     }
   } catch {
     // stockage indisponible : on garde uniquement l'état en mémoire
