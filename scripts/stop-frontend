@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Lanceur - delegue a datashare.sh (toute la logique y est).
+exec "$(dirname "$0")/datashare.sh" stop-frontend "$@"
