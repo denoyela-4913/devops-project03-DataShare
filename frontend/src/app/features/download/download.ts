@@ -8,7 +8,7 @@ import type { ApiError } from '../../core/http/api-error';
 import { FieldError } from '../../shared/components/field-error/field-error';
 import { FormError } from '../../shared/components/form-error/form-error';
 import { UiButton } from '../../shared/components/ui-button/ui-button';
-import { UiCallout } from '../../shared/components/ui-callout/ui-callout';
+import { UiCallout, type UiCalloutType } from '../../shared/components/ui-callout/ui-callout';
 import { UiInput } from '../../shared/components/ui-input/ui-input';
 
 export type DownloadState = 'loading' | 'ready' | 'not-found' | 'expired';
@@ -43,6 +43,27 @@ export class Download {
   readonly sizeLabel = computed(() => {
     const mb = (this.metadata()?.sizeBytes ?? 0) / 1_048_576;
     return mb >= 1024 ? `${(mb / 1024).toFixed(1)} Go` : `${mb.toFixed(1)} Mo`;
+  });
+
+  /**
+   * Libellé du bandeau d'expiration (`data-testid="download-expiry"`), aligné sur Figma :
+   * « demain » en alerte quand il reste moins d'un jour, « dans N jours » en info au-delà.
+   * `null` (bandeau masqué) sans métadonnée ou si la date est déjà passée — ce dernier cas
+   * correspond déjà à l'état `expired`.
+   */
+  readonly expiry = computed<{ label: string; tone: UiCalloutType } | null>(() => {
+    const meta = this.metadata();
+    if (!meta) {
+      return null;
+    }
+    const remainingMs = new Date(meta.expiresAt).getTime() - Date.now();
+    if (remainingMs <= 0) {
+      return null;
+    }
+    const days = Math.ceil(remainingMs / 86_400_000);
+    return days <= 1
+      ? { label: 'Ce fichier expirera demain.', tone: 'alert' }
+      : { label: `Ce fichier expirera dans ${days} jours.`, tone: 'info' };
   });
 
   constructor() {

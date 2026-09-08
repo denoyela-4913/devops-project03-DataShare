@@ -8,8 +8,8 @@
        Public        : iPhone 16 - 15 (56:1092) · Desktop - 11 (58:632)
        Expiré        : iPhone 16 - 16 (56:1178) · Desktop - 12 (58:802)
      Pas de frame Figma pour loading / 404 : même carte, callout error.
-     Claude : remplacer le libellé d’expiration « bientôt » par un relatif
-     (Figma : info « dans 3 jours » / alert « demain ») à partir de metadata().expiresAt.
+     Le bandeau d'expiration (`download-expiry`) prend son libellé et son type
+     (info « dans N jours » / alert « demain ») du signal `expiry()` de download.ts.
      Voir design/figma-map.md -->
 @switch (state()) {
   @case ('loading') {
@@ -52,9 +52,11 @@
         </div>
       </div>
 
-      <app-ui-callout type="info" data-testid="download-expiry">
-        Ce fichier expirera bientôt.
-      </app-ui-callout>
+      @if (expiry(); as expiryInfo) {
+        <app-ui-callout [type]="expiryInfo.tone" data-testid="download-expiry">
+          {{ expiryInfo.label }}
+        </app-ui-callout>
+      }
 
       <form
         class="form"

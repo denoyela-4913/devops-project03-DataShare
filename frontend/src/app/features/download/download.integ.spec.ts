@@ -7,12 +7,17 @@ import type { FileMetadata } from '../../core/download/download.model';
 import type { ApiError } from '../../core/http/api-error';
 import { Download } from './download';
 
+const in5Days = () => new Date(Date.now() + 5 * 86_400_000).toISOString();
+
 const META: FileMetadata = {
   name: 'rapport.pdf',
   sizeBytes: 5 * 1_048_576,
-  expiresAt: '2026-01-01T00:00:00Z',
+  expiresAt: in5Days(),
   passwordProtected: false,
 };
+
+const calloutClass = (el: Element | null, modifier: string) =>
+  el?.querySelector('.ui-callout')?.classList.contains(`ui-callout--${modifier}`) ?? false;
 
 describe('Download (integ)', () => {
   function render(overrides?: { meta?: Partial<FileMetadata>; metaError?: ApiError }) {
@@ -58,6 +63,22 @@ describe('Download (integ)', () => {
     expect(testId(fixture, 'download-file-name')?.textContent).toContain('rapport.pdf');
     expect(testId(fixture, 'download-file-size')?.textContent).toContain('5.0 Mo');
     expect(testId(fixture, 'download-password-input')).toBeNull();
+  });
+
+  it('annonce l’expiration en jours (bandeau info)', () => {
+    const { fixture } = render();
+    const callout = testId(fixture, 'download-expiry');
+    expect(callout?.textContent).toContain('Ce fichier expirera dans 5 jours.');
+    expect(calloutClass(callout, 'info')).toBe(true);
+  });
+
+  it('passe le bandeau d’expiration en alerte quand l’échéance est imminente', () => {
+    const { fixture } = render({
+      meta: { expiresAt: new Date(Date.now() + 6 * 3_600_000).toISOString() },
+    });
+    const callout = testId(fixture, 'download-expiry');
+    expect(callout?.textContent).toContain('Ce fichier expirera demain.');
+    expect(calloutClass(callout, 'alert')).toBe(true);
   });
 
   it('un lien inconnu (404) affiche l’état introuvable', () => {
