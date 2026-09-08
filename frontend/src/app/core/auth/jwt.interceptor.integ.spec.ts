@@ -11,7 +11,7 @@ describe('jwtInterceptor (integ)', () => {
   let tokens: TokenStore;
 
   beforeEach(() => {
-    localStorage.clear();
+    sessionStorage.clear();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([jwtInterceptor])),
@@ -44,5 +44,27 @@ describe('jwtInterceptor (integ)', () => {
     expect(
       httpMock.expectOne('https://example.com/data').request.headers.has('Authorization'),
     ).toBe(false);
+  });
+
+  for (const path of ['/api/auth/login', '/api/auth/register']) {
+    it(`n'ajoute rien sur ${path} même avec un token (le login émet un jeton neuf)`, () => {
+      tokens.set('tok.expired');
+      http.post(path, {}).subscribe();
+      expect(httpMock.expectOne(path).request.headers.has('Authorization')).toBe(false);
+    });
+  }
+
+  it("n'ajoute rien sur un lien de partage /api/d/* même avec un token", () => {
+    tokens.set('tok.123');
+    http.get('/api/d/abc123').subscribe();
+    expect(httpMock.expectOne('/api/d/abc123').request.headers.has('Authorization')).toBe(false);
+  });
+
+  it('ajoute quand même le token sur les autres routes /api (ex. /api/me)', () => {
+    tokens.set('tok.123');
+    http.get('/api/me').subscribe();
+    expect(httpMock.expectOne('/api/me').request.headers.get('Authorization')).toBe(
+      'Bearer tok.123',
+    );
   });
 });

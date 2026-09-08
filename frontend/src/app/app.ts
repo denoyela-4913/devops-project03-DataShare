@@ -20,6 +20,11 @@ export class App {
   readonly currentUrl = signal(this.router.url);
   /** Sur /history l'écran a sa propre sidebar : la coquille (en-tête + pied) s'efface. */
   readonly hideChrome = computed(() => this.currentUrl().split('?')[0].startsWith('/history'));
+  /**
+   * `/d/:token` est un écran de partage anonyme : l'en-tête y propose toujours « Se connecter »,
+   * jamais « Mon espace » — même si un compte est ouvert dans l'onglet.
+   */
+  readonly onShareLink = computed(() => this.currentUrl().split('?')[0].startsWith('/d/'));
 
   constructor() {
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
