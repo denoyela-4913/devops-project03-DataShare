@@ -40,3 +40,4 @@ coverage/
 # --- Build / misc ---
 *.log
 tmp/
+scripts/.run/

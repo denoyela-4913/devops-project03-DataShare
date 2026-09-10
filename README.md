@@ -90,6 +90,20 @@ en-tête `@figma-owned` (vérifié en CI).
 > quoté** (`'-D...'`), sinon Maven le coupe au premier `.`
 > (`Unknown lifecycle phase ".run.profiles=dev"`).
 
+### Raccourcis
+
+Depuis la racine, `scripts/` pilote la stack sans se soucier des `cd` :
+
+```bash
+./scripts/start-backend-dev        # ou .ps1 / .cmd sous Windows
+./scripts/start-frontend-dev
+./scripts/status-appli             # tableau OK/NOK (backend, frontend, Docker)
+./scripts/stop-backend ; ./scripts/stop-frontend
+```
+
+Détail, options (`--bg`, `--hard`) et mode prod : [`scripts/README.md`](scripts/README.md).
+Les sections ci-dessous décrivent les commandes sous-jacentes.
+
 ### Dépendances (PostgreSQL + MinIO)
 
 ```bash
