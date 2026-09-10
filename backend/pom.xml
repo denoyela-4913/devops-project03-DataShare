@@ -39,7 +39,7 @@
 
 		<spotless.version>3.10.1</spotless.version>
 		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
-		<checkstyle.version>10.26.1</checkstyle.version>
+		<checkstyle.version>14.1.0</checkstyle.version>
 		<pmd.plugin.version>3.27.0</pmd.plugin.version>
 		<jacoco.version>0.8.13</jacoco.version>
 	</properties>
