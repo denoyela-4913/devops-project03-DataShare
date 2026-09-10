@@ -206,6 +206,10 @@
 						<exclude>com/datashare/config/**</exclude>
 						<exclude>com/datashare/**/dto/**</exclude>
 						<exclude>com/datashare/**/*Properties.class</exclude>
+						<!-- Point d'entrée du profil `purge` : `purger.purge()` + `System.exit`,
+						     non testable en processus. La logique testée vit dans
+						     ExpiredFilePurger et PurgeReport.exitCode(). -->
+						<exclude>com/datashare/maintenance/PurgeRunner.class</exclude>
 					</excludes>
 				</configuration>
 				<executions>
