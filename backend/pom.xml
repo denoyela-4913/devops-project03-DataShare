@@ -35,7 +35,7 @@
 		<springdoc.version>3.1.0</springdoc.version>
 		<!-- 8.5.x : okhttp 4.x (résolution Maven propre) ; 9.x tire okhttp 5.x multiplateforme
 		     qui ne se résout pas sans métadonnées Gradle. -->
-		<minio.version>8.5.17</minio.version>
+		<minio.version>9.0.3</minio.version>
 
 		<spotless.version>3.10.1</spotless.version>
 		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
