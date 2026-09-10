@@ -46,10 +46,13 @@ export class Download {
   });
 
   /**
-   * Libellé du bandeau d'expiration (`data-testid="download-expiry"`), aligné sur Figma :
-   * « demain » en alerte quand il reste moins d'un jour, « dans N jours » en info au-delà.
-   * `null` (bandeau masqué) sans métadonnée ou si la date est déjà passée — ce dernier cas
-   * correspond déjà à l'état `expired`.
+   * Libellé et type du bandeau d'expiration (`data-testid="download-expiry"`).
+   * Le décompte se fait en jours du calendrier (minuit à minuit), pas en tranches de 24 h.
+   * - expire aujourd'hui  → « aujourd'hui », alerte (cas absent de Figma, ajouté)
+   * - expire demain       → « demain », alerte
+   * - au-delà             → « dans N jours », info
+   * `null` (bandeau masqué) sans métadonnée ou si la date est déjà passée — ce dernier
+   * cas correspond déjà à l'état de page `expired`.
    */
   readonly expiry = computed<{ label: string; tone: UiCalloutType } | null>(() => {
     const meta = this.metadata();
@@ -57,13 +60,32 @@ export class Download {
       return null;
     }
     const remainingMs = new Date(meta.expiresAt).getTime() - Date.now();
+    // Le fichier est expiré => on ne montre pas de bandeau, l'état de page est déjà `expired`.
     if (remainingMs <= 0) {
       return null;
     }
-    const days = Math.ceil(remainingMs / 86_400_000);
-    return days <= 1
-      ? { label: 'Ce fichier expirera demain.', tone: 'alert' }
-      : { label: `Ce fichier expirera dans ${days} jours.`, tone: 'info' };
+    // Comparaison de dates « nues » (sans l'heure) : combien de minuits séparent
+    // aujourd'hui du jour d'expiration ?
+    const startOfDay = (d: Date): number => {
+      const copy = new Date(d);
+      copy.setHours(0, 0, 0, 0);
+      return copy.getTime();
+    };
+
+    // Math.round (et non ceil/floor) : les jours de changement d'heure durent 23 h
+    // ou 25 h, la division ne tombe alors pas pile sur un entier.
+    const days = Math.round(
+      (startOfDay(new Date(meta.expiresAt)) - startOfDay(new Date())) / 86_400_000,
+    );
+
+    // days >= 0 ici (remainingMs > 0 => expiration dans le futur).
+    if (days === 0) {
+      return { label: "Ce fichier expirera aujourd'hui.", tone: 'alert' };
+    }
+    if (days === 1) {
+      return { label: 'Ce fichier expirera demain.', tone: 'alert' };
+    }
+    return { label: `Ce fichier expirera dans ${days} jours.`, tone: 'info' };
   });
 
   constructor() {
