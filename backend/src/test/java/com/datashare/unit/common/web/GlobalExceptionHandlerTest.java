@@ -7,10 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.datashare.common.error.ConflictException;
 import com.datashare.common.web.GlobalExceptionHandler;
 import com.datashare.config.ErrorProperties;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,10 +28,9 @@ class GlobalExceptionHandlerTest {
     }
 
     private MockMvc mockMvc(boolean verbose) {
-        JsonMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
         return MockMvcBuilders.standaloneSetup(new BoomController())
                 .setControllerAdvice(new GlobalExceptionHandler(new ErrorProperties(verbose)))
-                .setMessageConverters(new MappingJackson2HttpMessageConverter(mapper))
+                .setMessageConverters(new JacksonJsonHttpMessageConverter())
                 .build();
     }
 
