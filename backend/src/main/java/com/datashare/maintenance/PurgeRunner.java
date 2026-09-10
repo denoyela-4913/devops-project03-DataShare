@@ -29,7 +29,6 @@ public class PurgeRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         PurgeReport report = purger.purge();
-        int code = report.storageFailures() > 0 ? 1 : 0;
-        System.exit(SpringApplication.exit(context, () -> code));
+        System.exit(SpringApplication.exit(context, report::exitCode));
     }
 }
