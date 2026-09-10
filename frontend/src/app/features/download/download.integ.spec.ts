@@ -7,12 +7,19 @@ import type { FileMetadata } from '../../core/download/download.model';
 import type { ApiError } from '../../core/http/api-error';
 import { Download } from './download';
 
-const in5Days = () => new Date(Date.now() + 5 * 86_400_000).toISOString();
+// We compare the dates without the time to know if the file expires today, tomorrow or later.
+const endOfDayIn = (n: number): string => {
+  const d = new Date(); // Current date.
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + n); // Adding n days to the current date.
+  d.setHours(23, 59, 59, 999); // Setting hour to go to end of the day.
+  return d.toISOString();
+};
 
 const META: FileMetadata = {
   name: 'rapport.pdf',
   sizeBytes: 5 * 1_048_576,
-  expiresAt: in5Days(),
+  expiresAt: endOfDayIn(5), // 5 days from now
   passwordProtected: false,
 };
 
@@ -72,12 +79,22 @@ describe('Download (integ)', () => {
     expect(calloutClass(callout, 'info')).toBe(true);
   });
 
-  it('passe le bandeau d’expiration en alerte quand l’échéance est imminente', () => {
+  it('passe le bandeau d’expiration en alerte quand l’échéance est imminente (demain)', () => {
     const { fixture } = render({
-      meta: { expiresAt: new Date(Date.now() + 6 * 3_600_000).toISOString() },
+      meta: { expiresAt: endOfDayIn(1) },
     });
     const callout = testId(fixture, 'download-expiry');
     expect(callout?.textContent).toContain('Ce fichier expirera demain.');
+    expect(calloutClass(callout, 'alert')).toBe(true);
+  });
+
+  // Test the case not present in Figma ("aujourd'hui")
+  it("passe le bandeau d’expiration en alerte quand l’échéance est imminente (aujourd'hui)", () => {
+    const { fixture } = render({
+      meta: { expiresAt: endOfDayIn(0) },
+    });
+    const callout = testId(fixture, 'download-expiry');
+    expect(callout?.textContent).toContain("Ce fichier expirera aujourd'hui.");
     expect(calloutClass(callout, 'alert')).toBe(true);
   });
 
