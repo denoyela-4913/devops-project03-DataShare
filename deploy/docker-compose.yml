@@ -23,7 +23,10 @@ services:
       retries: 10
 
   minio:
-    image: minio/minio:latest
+    # minio/minio a été retiré de Docker Hub en 10/2025 (MinIO Community est passé
+    # source-only). quay.io/minio est le miroir figé de la dernière image publiée ;
+    # tag explicite (pas de "latest") pour rester reproductible sur ce miroir gelé.
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-datashare}
@@ -40,7 +43,7 @@ services:
       retries: 10
 
   createbuckets:
-    image: minio/mc:latest
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
     depends_on:
       minio:
         condition: service_healthy
