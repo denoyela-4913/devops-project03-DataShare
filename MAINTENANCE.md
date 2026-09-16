@@ -31,11 +31,11 @@ Chaque PR Dependabot passe par la CI complète (mêmes *required checks* que les
 - Traiter les PR Dependabot **chaque semaine** (ne pas laisser s'accumuler).
 - **Ne jamais démarrer ou rester sur une version hors support OSS.** Leçon de ce
   projet : Spring Boot 3.5 (fin de support 30/06/2026) et Angular 19 (EOL ~05/2026)
-  ont été écartés au profit de **Spring Boot 4.1** et **Angular 22**.
+  ont été écartés au profit de **Spring Boot 4.1** (EOL ~07/2028) et **Angular 22** (EOL ~06/2028).
 - Vérifier le support avant une montée majeure :
   - Spring Boot — <https://endoflife.date/spring-boot>
   - Angular — <https://endoflife.date/angular>
-  - Node — <https://endoflife.date/nodejs> (cible : LTS active, actuellement **Node 24**)
+  - Node — <https://endoflife.date/nodejs> (cible : LTS active, actuellement **Node 24** (EOL ~04/2028))
 - Après une montée : `./mvnw verify` (back) et `npm run test:unit && npm run test:integ && npm run build` (front) en local avant de pousser.
 
 ### Procédure montée majeure — Angular

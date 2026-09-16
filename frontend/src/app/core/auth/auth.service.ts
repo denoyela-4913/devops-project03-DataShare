@@ -62,6 +62,12 @@ function isExpired(token: string): boolean {
 }
 
 function readExpiry(token: string): number | null {
+  // Frontend only check here the expiration date of the token, 
+  // without verifying its signature.
+  // Replace "-" and "_" which may be present in the base64url encoding
+  // of the JWT payload with "+" and "/" for standard base64 decoding.
+  // Use "atob" to decode the base64 string and parse the JSON payload
+  // to extract the "exp" field.
   try {
     const segment = (token.split('.')[1] ?? '').replace(/-/g, '+').replace(/_/g, '/');
     const payload = JSON.parse(atob(segment)) as { exp?: unknown };

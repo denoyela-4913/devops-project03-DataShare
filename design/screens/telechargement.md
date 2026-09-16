@@ -15,7 +15,7 @@ Pas de maquette pour **loading** ni **404** : même carte + callout.
 
 ## À câbler côté logique (optionnel, hors PR Figma)
 
-1. **Expiration relative** (`data-testid="download-expiry"`) : Figma info *« Ce fichier expirera dans 3 jours. »* vs alert *« Ce fichier expirera demain. »* à partir de `metadata().expiresAt`. Placeholder actuel : *« Ce fichier expirera bientôt. »* (`type="info"`).
+1. **Expiration relative** (`data-testid="download-expiry"`) : Figma info *« Ce fichier expirera dans 3 jours. »* vs alert *« Ce fichier expirera demain. »* à partir de `metadata().expiresAt`. L'expiration prend en compte l'appartenance au jour (+ cas subtils de changements d'heure 2 fois par an).
 2. Icône bouton : `icon-download-cloud-16.svg` (export Figma instance échoué ; équivalent Lucide aligné sur `icon-upload-cloud-16`). Le disabled Figma colore le trait en `#aea49b` — le `ui-button` gère déjà l’état disabled.
 
 Les `data-testid` et le flux `@switch` / formulaire sont inchangés. Tests integ existants doivent rester verts sans changement de `.spec.ts`.

@@ -28,10 +28,14 @@ public class AuthService {
     @Transactional
     public TokenResponse register(RegisterRequest request) {
         String email = normalize(request.email());
+        // Here, if a user with the same email exists, reject creation.
         if (users.existsByEmail(email)) {
             throw new EmailAlreadyUsedException(email);
         }
         User user = new User(email, passwordEncoder.encode(request.password()));
+        // Here, try+catch to manage concurrent accesses with the same email.
+        // If two users try to register the same email at the same time, one of them
+        // will succeed and the other will throw a DataIntegrityViolationException.
         try {
             users.saveAndFlush(user);
         } catch (DataIntegrityViolationException e) {
