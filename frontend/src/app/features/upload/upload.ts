@@ -61,6 +61,21 @@ export class Upload {
     { value: '7', label: 'Une semaine' },
   ];
 
+  /**
+   * Version accordée pour l'insérer dans la phrase de succès (data-testid="upload-success-block"),
+   * contrairement aux libellés du menu déroulant ci-dessus, en capitale.
+   */
+  readonly expirationSentence = computed(() => {
+    switch (this.form.controls.expiration.value) {
+      case '1':
+        return 'une journée';
+      case '3':
+        return '3 jours';
+      default:
+        return 'une semaine';
+    }
+  });
+
   startUpload(): void {
     this.state.set('form');
   }

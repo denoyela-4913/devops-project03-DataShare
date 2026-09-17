@@ -89,6 +89,53 @@ describe('Upload (integ)', () => {
     expect(testId(fixture, 'upload-share-url')).not.toBeNull();
   });
 
+  it('annonce « une journée » pour une expiration à 1 jour', () => {
+    const { fixture, fileService } = render();
+    fixture.componentInstance.selectedFile.set(fileOfSize(10 * 1_048_576));
+    fixture.componentInstance.startUpload();
+    fixture.componentInstance.form.controls.expiration.setValue('1');
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+
+    expect(fileService.upload).toHaveBeenCalledWith(expect.any(File), {
+      expirationDays: 1,
+      password: undefined,
+    });
+    expect(fixture.componentInstance.expirationSentence()).toBe('une journée');
+    expect(testId(fixture, 'upload-success-block')?.textContent).toContain('une journée');
+  });
+
+  it('annonce « 3 jours » pour une expiration à 3 jours', () => {
+    const { fixture, fileService } = render();
+    fixture.componentInstance.selectedFile.set(fileOfSize(10 * 1_048_576));
+    fixture.componentInstance.startUpload();
+    fixture.componentInstance.form.controls.expiration.setValue('3');
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+
+    expect(fileService.upload).toHaveBeenCalledWith(expect.any(File), {
+      expirationDays: 3,
+      password: undefined,
+    });
+    expect(fixture.componentInstance.expirationSentence()).toBe('3 jours');
+    expect(testId(fixture, 'upload-success-block')?.textContent).toContain('3 jours');
+  });
+
+  it('annonce « une semaine » pour une expiration à 7 jours (défaut du formulaire)', () => {
+    const { fixture, fileService } = render();
+    fixture.componentInstance.selectedFile.set(fileOfSize(10 * 1_048_576));
+    fixture.componentInstance.startUpload();
+    fixture.componentInstance.submit();
+    fixture.detectChanges();
+
+    expect(fileService.upload).toHaveBeenCalledWith(expect.any(File), {
+      expirationDays: 7,
+      password: undefined,
+    });
+    expect(fixture.componentInstance.expirationSentence()).toBe('une semaine');
+    expect(testId(fixture, 'upload-success-block')?.textContent).toContain('une semaine');
+  });
+
   it('une erreur serveur réactive le bouton et affiche le bandeau', () => {
     const { fixture, fileService } = render();
     fileService.upload.mockReturnValue(
