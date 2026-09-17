@@ -1,7 +1,8 @@
 <!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
      À PRÉSERVER : les data-testid, (change)="onFileChange($event)", (ngSubmit),
      [class.field--error], <app-form-error> (erreur serveur), [disabled], aria-*,
-     routerLink. Champs et boutons consomment les composants partagés
+     routerLink, {{ expirationSentence() }} (durée réellement choisie, pas de texte en
+     dur). Champs et boutons consomment les composants partagés
      `app-ui-input` / `app-ui-select` /
      `app-ui-button` (shared/components) — hors <label> de sélection de fichier,
      qui restent des liens stylés « bouton » (mixins frontend/src/styles/_buttons.scss).
@@ -271,7 +272,7 @@
     <!-- Message + lien -->
     <div class="success-block" data-testid="upload-success-block">
       <p class="success-block__msg">
-        Félicitations, ton fichier sera conservé chez nous pendant une semaine&nbsp;!
+        Félicitations, ton fichier sera conservé chez nous pendant {{ expirationSentence() }}&nbsp;!
       </p>
       <a
         class="success-block__url"
