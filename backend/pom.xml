@@ -37,7 +37,7 @@
 		     Fait passer okhttp en 4.x -> 5.x (okio suit) ; on reste sur la branche 8.x plutôt
 		     que 9.x, dont l'okhttp 5.x plus récent est documenté comme cassant la résolution
 		     Maven pure sans métadonnées Gradle (voir docs/BACKLOG.md). -->
-		<minio.version>8.6.0</minio.version>
+		<minio.version>9.0.3</minio.version>
 		<!-- Classes réelles d'okhttp (le jar "okhttp" plain-Maven est un stub, voir plus bas). -->
 		<okhttp-jvm.version>5.1.0</okhttp-jvm.version>
 		<tika.version>4.0.0</tika.version>
