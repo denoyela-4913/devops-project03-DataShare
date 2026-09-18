@@ -22,8 +22,24 @@ implémentation. Points à instruire :
 
 ## Upload de fichiers (US01) — améliorations différées
 
-- **Détection de type par magic-bytes** (Apache Tika ou équivalent) : aujourd'hui, contrôle
-  par extension + `Content-Type` déclaré uniquement. Un `.exe` renommé `.pdf` passe.
+- **Détection de type par magic-bytes — fait, avec une limite connue** : `FileService.upload`
+  détecte le type réel par octets (`tika-core`) et le compare, comme l'extension déclarée, à
+  `datashare.files.blocked-extensions`. Un `.exe`/`.dll`/`.com`/`.scr` (signature PE), `.bat`/
+  `.cmd` ou `.sh` (shebang) renommé `.pdf` est désormais rejeté — voir `SECURITY.md` §2 et les
+  tests de `FileServiceTest` (un par famille détectable).
+  **Limite** : `tika-core` (choisi léger, sans `tika-parsers`) ne reconnaît que les formats à
+  signature binaire propre. Restent non détectables par le contenu, seule la liste noire par
+  nom de fichier les arrête : `.msi` (conteneur OLE, partagé avec les formats Office — besoin
+  d'inspecter les flux internes, pas juste un préfixe d'octets), `.jar` (indiscernable d'un
+  `.zip` générique sans lire l'entrée centrale du zip, hors de portée d'une détection par
+  préfixe), et les scripts texte sans signature (`.ps1`, `.vbs`, `.vbe`, `.js`, `.jse`).
+  **Solution de remplacement plus lourde (à instruire, PR future)** : `tika-parsers` (ou son
+  sous-module de détection de conteneurs) inspecte réellement le contenu des archives ZIP/OLE
+  au lieu d'un simple préfixe d'octets — fermerait l'écart `.msi`/`.jar`. Coût : dépendance
+  nettement plus lourde (dizaines de libs transitives — PDFBox, POI, etc. — contre 3 libs
+  légères pour `tika-core` seul) pour un gain limité à 2 des 16 extensions de la liste noire,
+  les scripts texte restant de toute façon hors de portée d'une détection par contenu. À
+  arbitrer si le besoin devient concret (signal d'abus réel plutôt que possibilité théorique).
 - **Antivirus** (ClamAV en side-car) : hors périmètre MVP.
 - **Multipart upload S3** géré explicitement pour les très gros fichiers (le SDK MinIO le
   fait déjà en interne pour `putObject` avec taille connue ; à valider sur du 1 Go réel).

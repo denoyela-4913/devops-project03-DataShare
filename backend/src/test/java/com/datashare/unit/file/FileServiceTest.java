@@ -60,29 +60,51 @@ class FileServiceTest {
 
     private FileService service;
 
+    /** Même liste que datashare.files.blocked-extensions en application.yml. */
+    private static final List<String> BLOCKED_EXTENSIONS = List.of(
+            "exe", "bat", "cmd", "com", "scr", "msi", "sh", "ps1", "vbs", "vbe", "js", "jse", "jar", "dll", "app",
+            "deb", "rpm");
+
     @BeforeEach
     void setUp() {
-        FileProperties props =
-                new FileProperties(1_073_741_824L, 7, 7, List.of("exe", "bat", "sh"), "http://localhost:8080/d");
+        FileProperties props = new FileProperties(1_073_741_824L, 7, 7, BLOCKED_EXTENSIONS, "http://localhost:8080/d");
         service = new FileService(files, storage, passwordEncoder, props);
         Mockito.lenient().when(files.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
+    /**
+     * Le Content-Type déclaré ici ("application/octet-stream") n'a plus aucune influence sur ce
+     * qui est stocké/servi : le type réel est désormais détecté par octets à partir de
+     * {@code content} (voir upload_ignores_the_client_declared_content_type_and_stores_the_detected_one).
+     */
     private static MultipartFile file(String name, byte[] content) {
         return new MockMultipartFile("file", name, "application/octet-stream", content);
     }
 
     @Test
     void upload_stores_bytes_persists_metadata_and_returns_a_link() {
+        // "hello" n'a aucune signature binaire : Tika le détecte comme text/plain (le contenu
+        // réel, pas le Content-Type déclaré par file() — voir
+        // upload_ignores_the_client_declared_content_type_and_stores_the_detected_one).
         UploadResponse response = service.upload(file("rapport.pdf", "hello".getBytes()), null, null, OWNER);
 
-        verify(storage).store(anyString(), any(), eq(5L), eq("application/octet-stream"));
+        verify(storage).store(anyString(), any(), eq(5L), eq("text/plain"));
         ArgumentCaptor<StoredFile> saved = ArgumentCaptor.forClass(StoredFile.class);
         verify(files).save(saved.capture());
         assertThat(saved.getValue().getOriginalName()).isEqualTo("rapport.pdf");
         assertThat(saved.getValue().getOwnerId()).isEqualTo(OWNER);
         assertThat(saved.getValue().getExpiresAt()).isAfter(Instant.now().plusSeconds(6 * 24 * 3600L));
         assertThat(response.downloadUrl()).isEqualTo("http://localhost:8080/d/" + response.token());
+    }
+
+    @Test
+    void upload_ignores_the_client_declared_content_type_and_stores_the_detected_one() {
+        // Le client ment : il déclare text/html (payload XSS classique), mais envoie un vrai PDF.
+        MultipartFile lying = new MockMultipartFile("file", "photo.jpg", "text/html", "%PDF-1.4\n...".getBytes());
+
+        service.upload(lying, null, null, OWNER);
+
+        verify(storage).store(anyString(), any(), anyLong(), eq("application/pdf"));
     }
 
     @Test
@@ -98,9 +120,93 @@ class FileServiceTest {
     }
 
     @Test
-    void upload_rejects_a_blocked_extension() {
-        assertThatThrownBy(() -> service.upload(file("virus.exe", new byte[] {1}), null, null, OWNER))
+    void upload_rejects_every_blocked_extension_by_declared_name() {
+        for (String ext : BLOCKED_EXTENSIONS) {
+            assertThatThrownBy(() -> service.upload(file("virus." + ext, new byte[] {1}), null, null, OWNER))
+                    .as("extension .%s (nom déclaré)", ext)
+                    .isInstanceOf(ForbiddenFileTypeException.class);
+        }
+    }
+
+    // ── Détection du type réel par octets, indépendante de l'extension déclarée ──────────────
+    // tika-core (sans tika-parsers) ne reconnaît de façon fiable que les formats binaires avec
+    // une signature propre. Les 5 tests suivants couvrent les familles de la liste noire que
+    // cette détection rattrape effectivement quand le fichier est renommé avec une extension
+    // autorisée. Voir SECURITY.md pour la limite : msi/jar/scripts texte (ps1, vbs, vbe, js,
+    // jse) n'ont pas de signature exploitable par cette bibliothèque légère — documenté par
+    // upload_does_not_detect_every_blocked_type_by_content_known_tika_core_limitation ci-dessous.
+
+    /** En-tête PE minimal (MZ + pointeur e_lfanew vers "PE\0\0") — famille exe/dll/com/scr. */
+    private static byte[] peHeader() {
+        byte[] header = new byte[0x80];
+        header[0] = 'M';
+        header[1] = 'Z';
+        header[0x3C] = 0x40; // e_lfanew : offset de la signature PE
+        header[0x40] = 'P';
+        header[0x41] = 'E';
+        return header;
+    }
+
+    @Test
+    void upload_rejects_a_windows_executable_renamed_with_an_allowed_extension() {
+        assertThatThrownBy(() -> service.upload(file("photo.pdf", peHeader()), null, null, OWNER))
+                .as("signature PE détectée malgré l'extension .pdf déclarée")
                 .isInstanceOf(ForbiddenFileTypeException.class);
+    }
+
+    @Test
+    void upload_rejects_a_batch_script_renamed_with_an_allowed_extension() {
+        byte[] bat = "@echo off\r\necho hi\r\n".getBytes(StandardCharsets.UTF_8);
+        assertThatThrownBy(() -> service.upload(file("photo.pdf", bat), null, null, OWNER))
+                .isInstanceOf(ForbiddenFileTypeException.class);
+    }
+
+    @Test
+    void upload_rejects_a_shell_script_renamed_with_an_allowed_extension() {
+        byte[] shebang = "#!/bin/sh\necho hi".getBytes(StandardCharsets.UTF_8);
+        assertThatThrownBy(() -> service.upload(file("photo.pdf", shebang), null, null, OWNER))
+                .isInstanceOf(ForbiddenFileTypeException.class);
+    }
+
+    @Test
+    void upload_rejects_a_debian_package_renamed_with_an_allowed_extension() {
+        byte[] ar = "!<arch>\ndebian-binary   0           0     0     100644  4         `\n2.0\n"
+                .getBytes(StandardCharsets.UTF_8);
+        assertThatThrownBy(() -> service.upload(file("photo.pdf", ar), null, null, OWNER))
+                .isInstanceOf(ForbiddenFileTypeException.class);
+    }
+
+    @Test
+    void upload_rejects_an_rpm_package_renamed_with_an_allowed_extension() {
+        byte[] rpmLead = {(byte) 0xED, (byte) 0xAB, (byte) 0xEE, (byte) 0xDB, 0, 0, 0, 0};
+        assertThatThrownBy(() -> service.upload(file("photo.pdf", rpmLead), null, null, OWNER))
+                .isInstanceOf(ForbiddenFileTypeException.class);
+    }
+
+    @Test
+    void upload_does_not_detect_every_blocked_type_by_content_known_tika_core_limitation() {
+        // msi (conteneur OLE, indiscernable de .doc/.xls par simple préfixe d'octets) et les
+        // scripts texte sans shebang (ps1/vbs/vbe/js/jse) passent la détection par octets s'ils
+        // sont renommés — seul le nom de fichier déclaré les arrête (voir
+        // upload_rejects_every_blocked_extension_by_declared_name). Test volontairement présent
+        // pour rendre cette limite visible si une évolution future (tika-parsers, ou autre) la
+        // comble : il faudra alors le mettre à jour en toute conscience plutôt que de découvrir
+        // le changement de comportement par hasard.
+        byte[] oleContainer = {(byte) 0xD0, (byte) 0xCF, 0x11, (byte) 0xE0, (byte) 0xA1, (byte) 0xB1, 0x1A, (byte) 0xE1
+        };
+        byte[] powershell = "Write-Host 'hi'".getBytes(StandardCharsets.UTF_8);
+
+        // Ne lève pas : upload() retourne normalement, preuve que la détection par octets n'a
+        // rien bloqué (le nom de fichier déclaré, .pdf ici, est autorisé).
+        UploadResponse msiUpload = service.upload(file("photo.pdf", oleContainer), null, null, OWNER);
+        UploadResponse ps1Upload = service.upload(file("photo.pdf", powershell), null, null, OWNER);
+
+        assertThat(msiUpload)
+                .as(".msi renommé .pdf : passe la détection par octets (limite connue)")
+                .isNotNull();
+        assertThat(ps1Upload)
+                .as(".ps1 renommé .pdf : passe la détection par octets (limite connue)")
+                .isNotNull();
     }
 
     @Test

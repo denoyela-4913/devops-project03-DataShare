@@ -40,6 +40,7 @@
 		<minio.version>8.6.0</minio.version>
 		<!-- Classes réelles d'okhttp (le jar "okhttp" plain-Maven est un stub, voir plus bas). -->
 		<okhttp-jvm.version>5.1.0</okhttp-jvm.version>
+		<tika.version>4.0.0</tika.version>
 
 		<spotless.version>3.10.1</spotless.version>
 		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
@@ -121,6 +122,16 @@
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
 			<version>${okhttp-jvm.version}</version>
+		</dependency>
+
+		<!-- Détection du type réel à l'upload (magic bytes), indépendante du Content-Type
+		     déclaré par le client (voir S3StorageService et FileService.detectContentType).
+		     tika-core seul : détection uniquement, pas tika-parsers (extraction de contenu,
+		     beaucoup plus lourd, inutile ici). -->
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>${tika.version}</version>
 		</dependency>
 
 		<!-- test -->

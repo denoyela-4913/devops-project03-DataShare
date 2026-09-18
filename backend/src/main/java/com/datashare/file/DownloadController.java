@@ -20,6 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/d")
 public class DownloadController {
 
+    /**
+     * Empêche le navigateur de deviner un type différent du {@code Content-Type} déclaré
+     * (MIME-sniffing) — défense en profondeur en complément de la détection par octets faite à
+     * l'upload (FileService.upload) et de Content-Disposition: attachment ci-dessous.
+     */
+    private static final String X_CONTENT_TYPE_OPTIONS = "X-Content-Type-Options";
+
     private final FileService fileService;
 
     public DownloadController(FileService fileService) {
@@ -40,6 +47,7 @@ public class DownloadController {
                 .build();
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+                .header(X_CONTENT_TYPE_OPTIONS, "nosniff")
                 .contentType(mediaType(payload.contentType()))
                 .contentLength(payload.sizeBytes())
                 .body(new InputStreamResource(payload.content()));

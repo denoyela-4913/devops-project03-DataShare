@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +41,16 @@ public class FileService {
     private final StorageService storage;
     private final PasswordEncoder passwordEncoder;
     private final FileProperties properties;
+
+    /**
+     * Détection du type réel par octets (magic bytes), jamais le Content-Type déclaré par le
+     * client. {@code getMinLength()} = la profondeur de lecture nécessaire pour couvrir toutes
+     * les signatures connues du registre Tika (65 536 octets au 17/09/2026) — négligeable
+     * devant la taille max d'un dépôt (1 Go), lu une seule fois indépendamment de la taille.
+     */
+    private final MimeTypes mimeTypes = MimeTypes.getDefaultMimeTypes();
+
+    private final Tika tika = new Tika(mimeTypes);
 
     public FileService(
             StoredFileRepository files,
@@ -66,6 +79,16 @@ public class FileService {
             throw new ForbiddenFileTypeException(extension);
         }
 
+        // Type réel détecté par octets — jamais le Content-Type déclaré par le client (voir
+        // detectContentType). Contrôle complémentaire à celui du nom de fichier ci-dessus :
+        // rattrape un exécutable/script renommé avec une extension autorisée (dans la limite
+        // de ce qu'une signature binaire peut trahir, voir SECURITY.md).
+        String contentType = detectContentType(file, name);
+        String detectedExtension = extensionForContentType(contentType);
+        if (properties.blockedExtensionSet().contains(detectedExtension)) {
+            throw new ForbiddenFileTypeException(detectedExtension);
+        }
+
         int days = expirationDays != null ? expirationDays : properties.defaultExpirationDays();
         if (days < 1 || days > properties.maxExpirationDays()) {
             throw new InvalidExpirationException(days, properties.maxExpirationDays());
@@ -75,7 +98,6 @@ public class FileService {
 
         String token = DownloadTokens.generate();
         String storageKey = UUID.randomUUID().toString();
-        String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
 
         try (InputStream stream = file.getInputStream()) {
             storage.store(storageKey, stream, size, contentType);
@@ -193,6 +215,32 @@ public class FileService {
             return "fichier";
         }
         return name.length() > MAX_NAME_LENGTH ? name.substring(name.length() - MAX_NAME_LENGTH) : name;
+    }
+
+    /** Lit un préfixe du flux (jamais le fichier entier) et le fait détecter par Tika. */
+    private String detectContentType(MultipartFile file, String filename) {
+        try (InputStream stream = file.getInputStream()) {
+            byte[] header = stream.readNBytes(mimeTypes.getMinLength());
+            return tika.detect(header, filename);
+        } catch (IOException e) {
+            throw new StorageException("Lecture du fichier reçu impossible", e);
+        }
+    }
+
+    /**
+     * Extension canonique (sans le point, en minuscules) du type MIME détecté, comparée à la
+     * même liste noire que l'extension déclarée ({@code datashare.files.blocked-extensions}).
+     * Vide si le type est inconnu du registre ou n'a aucune extension associée (ex. conteneurs
+     * ambigus comme l'OLE des .msi, indiscernable des formats Office par simple signature).
+     */
+    private static String extensionForContentType(String contentType) {
+        try {
+            String extension =
+                    MimeTypes.getDefaultMimeTypes().forName(contentType).getExtension();
+            return extension.isEmpty() ? "" : extension.substring(1).toLowerCase(Locale.ROOT);
+        } catch (MimeTypeException e) {
+            return "";
+        }
     }
 
     private static String extensionOf(String filename) {
