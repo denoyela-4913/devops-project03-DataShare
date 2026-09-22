@@ -161,7 +161,6 @@ identifié (CPU / IO disque / connexions BDD / GC), action décidée.
 - **Action** : creuser l'écart upload/download au prochain run ; tester avec des fichiers
   plus gros et une charge plus soutenue avant la mise en prod.
 
-
 ### Lighthouse — run hors debug (`ng serve --configuration production`)
 
 - **Contexte** : run pris via le dev-server Angular en configuration production (pas

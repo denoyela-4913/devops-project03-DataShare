@@ -62,7 +62,7 @@ function isExpired(token: string): boolean {
 }
 
 function readExpiry(token: string): number | null {
-  // Frontend only check here the expiration date of the token, 
+  // Frontend only check here the expiration date of the token,
   // without verifying its signature.
   // Replace "-" and "_" which may be present in the base64url encoding
   // of the JWT payload with "+" and "/" for standard base64 decoding.
