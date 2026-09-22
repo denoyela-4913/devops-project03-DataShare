@@ -4,8 +4,10 @@ Projet 3 — OpenClassrooms DevOps. Application de transfert de fichiers via lie
 de téléchargement temporaires (type WeTransfer), avec options de protection et de
 gestion pour les utilisateurs connectés.
 
-> ⚠️ Repo en cours de mise en place. Ce README décrit la cible ; le code arrive
-> par PR successives (voir [Roadmap](#roadmap)).
+> ✅ MVP obligatoire (US01→US06) livré et testé (unitaire + intégration + e2e).
+> US09/US10 partiels, US07/US08 non traités (voir [Périmètre](#périmètre) et
+> [Roadmap](#roadmap)). Détail par domaine : `TESTING.md`, `SECURITY.md`, `PERF.md`,
+> `MAINTENANCE.md`.
 
 ## Périmètre
 

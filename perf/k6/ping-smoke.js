@@ -7,6 +7,9 @@ import { check } from 'k6';
 //
 //   k6 run k6/ping-smoke.js
 //   k6 run -e BASE_URL=http://localhost:8080 k6/ping-smoke.js
+//  ou avec docker :
+//   docker run --rm -i grafana/k6 run -e BASE_URL=http://host.docker.internal:8080 - < k6/ping-smoke.js
+
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
 

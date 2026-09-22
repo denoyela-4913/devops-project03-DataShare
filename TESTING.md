@@ -28,12 +28,12 @@ Règle de placement :
 
 | US | Unitaire | Intégration | Fonctionnel / e2e | Statut |
 |---|---|---|---|---|
-| US01 — upload (compte) | `FileServiceTest` (token, hash mdp, extension bloquée par nom **et par type détecté par octets** — une famille par extension binaire de la liste noire, `tika-core` —, durée annoncée réelle au succès, expiration hors bornes, taille) ; `DownloadTokensTest` ; front `upload.integ.spec` (états, > 1 Go, durée réelle au succès, submit → `FileService`), `file.service.integ.spec` | `FileControllerIT` (Testcontainers PG + **MinIO**) : 201 + métadonnées persistées + objet dans le bucket ; 401 ; 400 `FORBIDDEN_FILE_TYPE` / `INVALID_EXPIRATION` / `VALIDATION` · `MinioStorageServiceIT` (store/retrieve/delete) | e2e upload→download (US02) | ☑ back + front (soumission câblée ; e2e attend US02) |
-| US02 — téléchargement via lien | vérif expiration + mot de passe | `GET /api/d/{token}` (métadonnées, flux, 404/410, 401 mdp) | e2e upload→download | ☐ |
+| US01 — upload (compte) | `FileServiceTest` (token, hash mdp, extension bloquée par nom **et par type détecté par octets** — une famille par extension binaire de la liste noire, `tika-core` —, durée annoncée réelle au succès, expiration hors bornes, taille) ; `DownloadTokensTest` ; front `upload.integ.spec` (états, > 1 Go, durée réelle au succès, submit → `FileService`), `file.service.integ.spec` | `FileControllerIT` (Testcontainers PG + **MinIO**) : 201 + métadonnées persistées + objet dans le bucket ; 401 ; 400 `FORBIDDEN_FILE_TYPE` / `INVALID_EXPIRATION` / `VALIDATION` · `MinioStorageServiceIT` (store/retrieve/delete) | e2e upload→download (**`download.cy.ts`**) | ☑ back + front + e2e |
+| US02 — téléchargement via lien | `DownloadTokensTest` (expiration, mot de passe) | `DownloadControllerIT` — `GET`/`POST /api/d/{token}` (métadonnées, flux, 404/410, 401 mdp) | e2e upload→download (**`download.cy.ts`**) | ☑ |
 | US03 — création de compte | back : `AuthServiceTest`, `JwtServiceTest` · front : `register.integ.spec` (validation, mdp différents, submit → `AuthService.register` → navigation), `field-error.spec` | `AuthControllerIT` : 201, 409 `EMAIL_ALREADY_USED`, 400 `VALIDATION` · front : `auth.service.integ.spec` (POST + stockage token) | **`cypress/e2e/auth.cy.ts`** : inscription → espace perso ; email déjà pris → erreur | ☑ |
 | US04 — connexion | back : `AuthServiceTest` · front : `login.integ.spec` (submit, `?redirect=`, erreur serveur), `token-store.spec`, `auth.guard.spec`, `jwt.interceptor.integ.spec` | `AuthControllerIT` : 200 + token, 401 `INVALID_CREDENTIALS` ; `MeControllerIT` : `/api/me` 401 sans token / 200 avec / 401 compte supprimé | `auth.cy.ts` : déconnexion → reconnexion ; page protégée sans session → `/login` | ☑ |
-| US05 — historique | tri/état du lien | `GET /api/files` (liste du propriétaire uniquement) | e2e historique→suppression | ☐ |
-| US06 — suppression | suppression physique + métadonnées, propriété | `DELETE /api/files/{id}` (204, 403 non-propriétaire) | e2e historique→suppression | ☐ |
+| US05 — historique | `expiry-status-pipe.spec`, `file-size-pipe.spec`, `file-card.spec` | `FileControllerIT` — `GET /api/files` (liste du propriétaire uniquement) ; front `history.integ.spec` | e2e historique→suppression (**`history.cy.ts`**) | ☑ |
+| US06 — suppression | `confirm-dialog.spec` | `FileControllerIT` — `DELETE /api/files/{id}` (204, 403 non-propriétaire) | e2e historique→suppression (**`history.cy.ts`**) | ☑ |
 | US07 — upload anonyme | règles US01 sans `owner` | `POST /api/files` sans JWT | — | ☐ |
 | US08 — tags | longueur ≤ 30, anti-doublon | `V2` + endpoints tags | — | ☐ |
 | US09 — mdp fichier | hash, min 6 | vérif au téléchargement | — | ☐ |
@@ -47,10 +47,13 @@ Câblés avec la première feature offrant un parcours complet (US03/US04).
 1. **Inscription → connexion** ☑ (`cypress/e2e/auth.cy.ts`) — créer un compte, atterrir
    sur l'espace personnel, se déconnecter, se reconnecter ; email déjà utilisé → message
    d'erreur explicite ; page protégée sans session → redirection vers `/login`.
-2. **Upload → téléchargement** ☐ — déposer un fichier, récupérer le lien, l'ouvrir dans
-   un contexte non authentifié, voir les métadonnées, télécharger.
-3. **Historique → suppression** ☐ — l'utilisateur voit ses fichiers, en supprime un
-   après confirmation, il disparaît ; il ne voit pas les fichiers d'un autre.
+2. **Upload → téléchargement** ☑ (`cypress/e2e/download.cy.ts`) — déposer un fichier,
+   récupérer le lien, l'ouvrir dans un contexte non authentifié, voir les métadonnées,
+   télécharger ; lien protégé par mot de passe refusé puis accepté ; lien inconnu → état
+   introuvable.
+3. **Historique → suppression** ☑ (`cypress/e2e/history.cy.ts`) — l'utilisateur voit ses
+   fichiers, filtre Tous/Actifs/Expiré, en supprime un après confirmation, il disparaît ;
+   un fichier supprimé n'est plus téléchargeable.
 4. **Modes debug/prod** ☐ — provoquer une erreur 409 : en build dev, l'info-bulle de
    détail technique est présente ; en build prod, seule la mention générique.
 
