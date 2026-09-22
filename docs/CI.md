@@ -1,7 +1,7 @@
 # CI / Pipeline — DataShare
 
 Référence vivante du pipeline GitHub Actions. Recoupée par `TESTING.md` et
-`MAINTENANCE.md` une fois ceux-ci créés.
+`MAINTENANCE.md`.
 
 ## Vue d'ensemble
 
@@ -28,7 +28,7 @@ obligatoire**.
 | `backend-integ` | Tests d'intégration + fonctionnels backend (Failsafe, `*IT`, Testcontainers) |
 | `frontend-unit` | Tests unitaires frontend (Vitest) + garde de config prod/dev |
 | `frontend-integ` | Tests d'intégration frontend (Vitest + Angular TestBed) |
-| `frontend-e2e` | *(placeholder)* Cypress — activé avec la feature auth (US03/US04) |
+| `frontend-e2e` | Cypress contre la stack complète (Postgres + MinIO + backend + `ng serve`) — 3 specs : `auth.cy.ts`, `download.cy.ts`, `history.cy.ts` |
 | `assert-prod-bundle` | Build prod + vérifie que la config debug ne fuit pas dans `dist/` |
 | `security` | gitleaks + `npm audit`. À venir : OWASP dependency-check, CodeQL, SpotBugs |
 
@@ -60,6 +60,7 @@ Vérifications **statiques, rapides, sans test, sans réseau**.
 | **actionlint** | erreurs de syntaxe/refs dans `.github/workflows/*.yml` |
 | **yamllint** (`.yamllint.yaml`, profil *relaxed*) | indentation, clés dupliquées |
 | **markdownlint** (`.markdownlint-cli2.jsonc`, profil permissif) | structure des titres, cohérence des listes, sauts de ligne, liens |
+| **shellcheck** | tous les scripts `*.sh` du dépôt (`deploy/`, `tools/`, etc.) |
 | **`tools/check-figma-owned.sh`** | tout `frontend/src/app/**/*.{html,scss}` doit porter l'en-tête `@figma-owned` |
 
 ### `commitlint`
@@ -90,8 +91,10 @@ target Angular avec deux configurations (`unit` / `integ`).
 
 ## Couverture
 
-**Rapport seul** pour l'instant (back : JaCoCo ; front : Vitest v8), pas de seuil
-bloquant. La porte à **70 %** est activée quand le code métier arrive (PR US01).
+**Porte bloquante active à 70 % de lignes** : back — `jacoco:check` (`BUNDLE LINE ≥ 0.70`)
+dans `backend-integ`, activée par la PR #0006 ; front — `tools/check-coverage.mjs` dans
+`frontend-integ`, activée par la PR #0007. Outils : JaCoCo (back), Vitest + coverage-v8
+(front). Détail par user story et couverture actuelle : voir [`TESTING.md`](../TESTING.md) §6.
 
 ## `assert-prod-bundle`
 

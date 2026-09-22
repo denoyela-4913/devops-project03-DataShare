@@ -8,6 +8,8 @@ import { check } from 'k6';
 //     -H 'Content-Type: application/json' \
 //     -d '{"email":"k6@example.com","password":"password123"}' | jq -r .accessToken)
 //   k6 run -e BASE_URL=http://localhost:8080 -e TOKEN="$TOKEN" -e SIZE_MB=1 k6/upload.js
+//  ou avec docker :
+//   docker run --rm -i grafana/k6 run -e BASE_URL=http://host.docker.internal:8080 -e TOKEN=$TOKEN - < k6/upload.js
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
 const TOKEN = __ENV.TOKEN;

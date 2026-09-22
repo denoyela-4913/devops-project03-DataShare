@@ -43,9 +43,13 @@ implémentation. Points à instruire :
 - **Antivirus** (ClamAV en side-car) : hors périmètre MVP.
 - **Multipart upload S3** géré explicitement pour les très gros fichiers (le SDK MinIO le
   fait déjà en interne pour `putObject` avec taille connue ; à valider sur du 1 Go réel).
-- **SDK stockage** : SDK MinIO 8.5.x retenu (okhttp 4.x, résolution Maven propre). MinIO 9.x
-  tire okhttp 5.x multiplateforme qui ne se résout pas sans métadonnées Gradle. Migration
-  vers AWS SDK v2 possible = réécrire seulement `S3StorageService`.
+- **SDK stockage — résolu** : SDK MinIO **8.6.0**. okhttp ≥ 5.x est publié en module Kotlin
+  Multiplatform (le jar Maven « plain » `com.squareup.okhttp3:okhttp` est un stub vide, les
+  classes réelles vivent dans `okhttp-jvm`, invisible pour une résolution Maven pure sans
+  redirection de POM). Contournement : exclusion du stub + redéclaration explicite de
+  `okhttp-jvm` à la même version dans `backend/pom.xml` (à revalider à chaque bump de
+  `minio.version` via `mvn dependency:tree -Dincludes=com.squareup.okhttp3:okhttp`).
+  Migration vers AWS SDK v2 possible = réécrire seulement `S3StorageService`.
 - **Message d'erreur inline** pour le mot de passe du fichier trop court (aujourd'hui :
   validé serveur, affiché via `ErrorToast`).
 - **Compte supprimé** : un upload avec un token valide dont le compte a disparu échoue en
