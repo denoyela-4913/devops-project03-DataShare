@@ -24,6 +24,12 @@ updates:
     commit-message:
       prefix: build
       prefix-development: chore
+    groups:
+      # @vitest/coverage-v8 exige une version exacte de vitest (peer) : toujours ensemble.
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
 
   - package-ecosystem: docker
     directory: /backend
