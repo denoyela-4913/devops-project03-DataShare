@@ -14,7 +14,7 @@ Plan de tests vivant. Recoupé par [`docs/CI.md`](docs/CI.md) (pipeline) et
 | **Back — fonctionnel** | scénarios API bout en bout (un ou plusieurs endpoints) | Spring Boot Test (`RANDOM_PORT`) + Testcontainers | idem | `backend-integ` |
 | **Front — unitaire** | pipes, services, guards, `token.store`, logique de composant isolée | Vitest | aucune | `frontend-unit` |
 | **Front — intégration** | composant rendu + template + DI, intercepteur, formulaire + validation | Vitest + Angular `TestBed` + jsdom | `HttpTestingController` (réponses simulées) | `frontend-integ` |
-| **Front — e2e** | 3–4 parcours critiques dans un vrai navigateur | Cypress | stack complète dockerisée | `frontend-e2e` |
+| **Front — e2e** | 3–4 parcours critiques dans un vrai navigateur | Cypress | PostgreSQL + MinIO (conteneurs) + backend réel + `ng serve` | `frontend-e2e` |
 | **Garde bundle** | la config debug ne fuit pas en production | build + `grep` | — | `assert-prod-bundle` |
 
 Règle de placement :
@@ -29,15 +29,15 @@ Règle de placement :
 | US | Unitaire | Intégration | Fonctionnel / e2e | Statut |
 |---|---|---|---|---|
 | US01 — upload (compte) | `FileServiceTest` (token, hash mdp, extension bloquée par nom **et par type détecté par octets** — une famille par extension binaire de la liste noire, `tika-core` —, durée annoncée réelle au succès, expiration hors bornes, taille) ; `DownloadTokensTest` ; front `upload.integ.spec` (états, > 1 Go, durée réelle au succès, submit → `FileService`), `file.service.integ.spec` | `FileControllerIT` (Testcontainers PG + **MinIO**) : 201 + métadonnées persistées + objet dans le bucket ; 401 ; 400 `FORBIDDEN_FILE_TYPE` / `INVALID_EXPIRATION` / `VALIDATION` · `MinioStorageServiceIT` (store/retrieve/delete) | e2e upload→download (**`download.cy.ts`**) | ☑ back + front + e2e |
-| US02 — téléchargement via lien | `DownloadTokensTest` (expiration, mot de passe) | `DownloadControllerIT` — `GET`/`POST /api/d/{token}` (métadonnées, flux, 404/410, 401 mdp) | e2e upload→download (**`download.cy.ts`**) | ☑ |
+| US02 — téléchargement via lien | `DownloadTokensTest` (expiration, mot de passe) | `DownloadControllerIT` — `GET`/`POST /api/d/{token}` (métadonnées, flux, 404 inconnu, 410 expiré, 403 mdp faux) | e2e upload→download (**`download.cy.ts`**) | ☑ |
 | US03 — création de compte | back : `AuthServiceTest`, `JwtServiceTest` · front : `register.integ.spec` (validation, mdp différents, submit → `AuthService.register` → navigation), `field-error.spec` | `AuthControllerIT` : 201, 409 `EMAIL_ALREADY_USED`, 400 `VALIDATION` · front : `auth.service.integ.spec` (POST + stockage token) | **`cypress/e2e/auth.cy.ts`** : inscription → espace perso ; email déjà pris → erreur | ☑ |
 | US04 — connexion | back : `AuthServiceTest` · front : `login.integ.spec` (submit, `?redirect=`, erreur serveur), `token-store.spec`, `auth.guard.spec`, `jwt.interceptor.integ.spec` | `AuthControllerIT` : 200 + token, 401 `INVALID_CREDENTIALS` ; `MeControllerIT` : `/api/me` 401 sans token / 200 avec / 401 compte supprimé | `auth.cy.ts` : déconnexion → reconnexion ; page protégée sans session → `/login` | ☑ |
 | US05 — historique | `expiry-status-pipe.spec`, `file-size-pipe.spec`, `file-card.spec` | `FileControllerIT` — `GET /api/files` (liste du propriétaire uniquement) ; front `history.integ.spec` | e2e historique→suppression (**`history.cy.ts`**) | ☑ |
-| US06 — suppression | `confirm-dialog.spec` | `FileControllerIT` — `DELETE /api/files/{id}` (204, 403 non-propriétaire) | e2e historique→suppression (**`history.cy.ts`**) | ☑ |
+| US06 — suppression | `confirm-dialog.spec` | `FileControllerIT` — `DELETE /api/files/{id}` (204 ; 404 fichier d'autrui — indiscernable d'un id inconnu, et fichier conservé ; 404 id inconnu) | e2e historique→suppression (**`history.cy.ts`**) | ☑ |
 | US07 — upload anonyme | règles US01 sans `owner` | `POST /api/files` sans JWT | — | ☐ |
 | US08 — tags | longueur ≤ 30, anti-doublon | `V2` + endpoints tags | — | ☐ |
-| US09 — mdp fichier | hash, min 6 | vérif au téléchargement | — | ☐ |
-| US10 — expiration auto | calcul de la date, borne 1–7 j | job planifié de purge (déclenché manuellement en test) | — | ☐ |
+| US09 — mdp fichier | `FileServiceTest` (hash BCrypt, min 6, mdp absent ou faux refusé au téléchargement) | `DownloadControllerIT` : bon mdp → octets, mdp faux → 403 | e2e lien protégé refusé puis accepté (**`download.cy.ts`**) | ☑ |
+| US10 — expiration auto | `FileServiceTest` (borne 1–7 j) ; `PurgeReportTest` (code de sortie) | `ExpiredFilePurgerIT` (ligne + objet MinIO des seuls fichiers expirés, objet déjà disparu toléré) ; `PurgeWrapperIT` (`deploy/purge-expired.sh --check`) | — | ◐ purge testée, déclenchement manuel (`@Scheduled` à câbler) |
 | Socle transverse | contrat d'erreur verbose/non-verbose ; garde config prod ; pipes `fileSize`/`expiryStatus` | contexte Spring démarre ; `/api/ping` public ; intercepteur d'erreur ; `ErrorToast` debug/prod | — | ☑ |
 
 ## 3. Scénarios e2e critiques (Cypress)
@@ -66,7 +66,8 @@ Chaque test décrit **Given / When / Then**. Un test d'endpoint valide au minimu
 
 - le **code HTTP** attendu (succès et échecs) ;
 - la **forme du corps** (champs présents, types) ;
-- l'**autorisation** (401 sans jeton, 403 pour un non-propriétaire) ;
+- l'**autorisation** (401 sans jeton ; 404 sur la ressource d'un autre utilisateur, pour
+  ne pas révéler son existence) ;
 - la **validation** (400 + corps d'erreur normalisé pour chaque contrainte de saisie).
 
 Une fonctionnalité est « faite » quand : tests unit + integ verts, scénario e2e
@@ -98,11 +99,13 @@ npm run verify:config # garde prod != debug
 
 Rapport de couverture : `frontend/coverage/index.html`.
 
-### e2e (à venir)
+### e2e
 
 ```bash
-cd deploy && docker compose --env-file .env up -d   # stack
-cd ../frontend && npm run e2e                         # Cypress
+cd deploy && docker compose --env-file .env up -d                      # PostgreSQL + MinIO + bucket
+cd ../backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev   # :8080
+cd ../frontend && npm start                                              # :4200 (autre terminal)
+npm run e2e                                                              # Cypress (ou e2e:open)
 ```
 
 ## 6. Couverture — seuil
@@ -111,11 +114,12 @@ cd ../frontend && npm run e2e                         # Cypress
 - Outils : **JaCoCo** (back), **Vitest + coverage-v8** (front).
 - **Back : porte bloquante active** (PR #0006). `jacoco:merge` (unit + integ) puis
   `jacoco:check` **BUNDLE LINE ≥ 0.70** au `verify` (donc dans le job `backend-integ`).
-  Exclusions : `config/**`, `*Application`, `**/dto/**`, `*Properties`. Couverture
-  actuelle : **~93 %** (lignes).
+  Exclusions : `config/**`, `*Application`, `**/dto/**`, `*Properties`, `PurgeRunner`
+  (point d'entrée `System.exit` du profil `purge`). Couverture
+  actuelle : **~88 %** (lignes).
 - **Front : porte bloquante active** (PR #0007). `ng test` (projets unit + integ) +
   `--coverage` + `tools/check-coverage.mjs` (lignes ≥ 70 %) dans le job `frontend-integ`.
-  `frontend-unit` reste rapide (projet unit seul). Couverture actuelle : **~92 %** (lignes).
+  `frontend-unit` reste rapide (projet unit seul). Couverture actuelle : **~95 %** (lignes).
 - Capture du rapport : `docs/screenshots/coverage-backend.png` (JaCoCo) — voir
   [`docs/screenshots/README.md`](docs/screenshots/README.md). Rapport local :
   `backend/target/site/jacoco-merged/index.html`.

@@ -45,7 +45,7 @@ autorisées que dans `_tokens.scss` (règle Stylelint `color-no-hex`, vérifiée
 | `ui-switch` | filtre segmenté Tous / Actifs / Expiré | ☑ (consommé dans `/history`) |
 | `ui-callout` | bandeau inline Info / Alert / Error | ☑ (consommé dans `/download`, `/history`) |
 | `file-card` | ligne d'historique (nom, taille, expiration, état ; « Accéder » = lien `/d/:token` nouvel onglet, « Supprimer ») | ☑ (consommé dans `/history`) |
-| `confirm-dialog` | confirmation d'action destructive, `<dialog>` natif (US06) | ☑ (consommé dans `/history`) |
+| `confirm-dialog` | confirmation d'action destructive, `<dialog>` natif (US06) | ◐ placeholder fonctionnel sans frame Figma (consommé dans `/history`) |
 | `password-field` | saisie de mot de passe accessible (afficher/masquer) | ☐ |
 | `tag-chip` | étiquette de tag (US08) | ☐ |
 | `empty-state` / `loading-skeleton` | états vides / de chargement | ☐ |
@@ -66,7 +66,8 @@ autorisées que dans `_tokens.scss` (règle Stylelint `color-no-hex`, vérifiée
 
 ## 4. Responsive
 
-- **Mobile-first**, breakpoints issus des frames Figma (`_breakpoints.scss`).
+- **Mobile-first**, breakpoints à extraire des frames Figma (`_breakpoints.scss` est
+  encore un stub ☐, voir [`design/figma-map.md`](design/figma-map.md)).
 - Contenu large (tableaux d'historique) : défilement horizontal dans son conteneur,
   jamais de débordement de la page.
 

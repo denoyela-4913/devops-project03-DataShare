@@ -7,8 +7,8 @@ produire au fil des PR de features.
 
 | Fichier | Contenu | Quand | Doc |
 |---|---|---|---|
-| `coverage-backend.png` | rapport JaCoCo (`backend/target/site/jacoco-merged/index.html`) montrant ≥ 70 % (actuellement ~93 %) | **maintenant** (porte active depuis PR #0006) | `TESTING.md` |
-| `coverage-frontend.png` | rapport Vitest (`frontend/coverage/datashare-frontend/index.html`) montrant ≥ 70 % (actuellement ~92 %) | **maintenant** (porte active depuis PR #0007) | `TESTING.md` |
+| `coverage-backend.png` | rapport JaCoCo (`backend/target/site/jacoco-merged/index.html`) montrant ≥ 70 % (actuellement ~88 %) | **maintenant** (porte active depuis PR #0006) | `TESTING.md` |
+| `coverage-frontend.png` | rapport Vitest (`frontend/coverage/datashare-frontend/index.html`) montrant ≥ 70 % (actuellement ~95 %) | **maintenant** (porte active depuis PR #0007) | `TESTING.md` |
 | `k6-ping.png` | synthèse d'un run k6 sur `GET /api/ping` (référence) | **maintenant** (disponible) | `PERF.md` |
 | `k6-upload.png` | synthèse d'un run k6 sur `POST /api/files` | **maintenant** (disponible) | `PERF.md` |
 | `k6-download.png` | synthèse d'un run k6 sur `GET /api/d/{token}` | **maintenant** (disponible) | `PERF.md` |
