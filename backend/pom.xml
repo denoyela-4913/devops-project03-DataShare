@@ -32,7 +32,7 @@
 		<java.version>21</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<springdoc.version>3.1.0</springdoc.version>
+		<springdoc.version>3.1.1</springdoc.version>
 		<!-- 8.6.0 corrige CVE-2025-59952 (fuite d'info via substitution XML, GHSA-h7rh-xfpj-hpcm).
 		     Fait passer okhttp en 4.x -> 5.x (okio suit) ; on reste sur la branche 8.x plutôt
 		     que 9.x, dont l'okhttp 5.x plus récent est documenté comme cassant la résolution
