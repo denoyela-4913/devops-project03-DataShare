@@ -18,8 +18,13 @@
   <section class="landing" aria-labelledby="landing-title" data-testid="upload-landing">
     <p class="landing__cta" id="landing-title">Tu veux partager un fichier&nbsp;?</p>
 
-    <div class="landing__icon-wrap" aria-hidden="true">
-      <div class="landing__icon-ring">
+    <label
+      class="landing__icon-wrap"
+      for="file-input-landing"
+      title="Sélectionner un fichier à partager"
+      data-testid="upload-landing-icon"
+    >
+      <div class="landing__icon-ring" aria-hidden="true">
         <svg
           class="landing__icon-svg"
           viewBox="0 0 48 48"
@@ -48,14 +53,6 @@
           />
         </svg>
       </div>
-    </div>
-
-    <label
-      class="btn btn--primary landing__choose-btn"
-      for="file-input-landing"
-      data-testid="upload-landing-choose"
-    >
-      Choisir un fichier
       <input
         id="file-input-landing"
         class="visually-hidden"
