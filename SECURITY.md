@@ -31,6 +31,7 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 | Message d'erreur de connexion **identique** pour email inconnu et mdp faux (401 `INVALID_CREDENTIALS`) ; cause réelle uniquement dans le champ `debug` (mode verbeux) | pas d'énumération de comptes | ☑ |
 | `GET /api/me` **relit le compte en base** (pas seulement les claims) | un token valide dont le compte a été supprimé est rejeté (401) | ☑ |
 | Endpoints protégés : 401 rendu au format `ErrorResponse` (`RestAuthenticationEntryPoint`) | cohérence de l'API | ☑ |
+| Image MinIO **`pgsty/minio`** (fork communautaire), **tag épinglé** — idem `pgsty/mc` | `minio/minio` retiré de Docker Hub (10/2025), miroir `quay.io/minio` devenu privé (09/2026) ; jamais de `latest` pour rester reproductible | ☑ (`deploy/`, CI, Testcontainers) ; confiance dans le fork à réévaluer, voir [`MAINTENANCE.md`](MAINTENANCE.md) |
 | **Pas** de rotation automatique de la clé JWT dans le MVP | complexité (jeu de clés à validité recouvrante) disproportionnée ; à discuter | ☐ voir [`docs/BACKLOG.md`](docs/BACKLOG.md) |
 | Profil **prod** durci (erreurs, Swagger, Actuator) | limiter la reconnaissance et la fuite d'info | ☑ |
 | `owner_id` **nullable** (upload anonyme) + FK `ON DELETE CASCADE` | US07 ; suppression de compte propre | ☑ (schéma) |

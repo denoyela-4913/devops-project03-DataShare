@@ -17,6 +17,25 @@ Procédures de maintenance : dépendances, exploitation, pipeline, dette.
 
 Chaque PR Dependabot passe par la CI complète (mêmes *required checks* que les autres).
 
+### Images tierces hors Dependabot (suivi manuel)
+
+Dependabot ne surveille que les `Dockerfile` de `backend/` et `frontend/`. Les images
+d'infrastructure sont suivies **à la main** et doivent rester **alignées aux 3 endroits** :
+
+| Image | `deploy/docker-compose.yml` | `.github/workflows/ci.yml` (`frontend-e2e`) | Testcontainers (`MinioTestcontainersConfiguration`) |
+|---|---|---|---|
+| `postgres:16-alpine` | ☑ | ☑ (service) | — (module `testcontainers-postgresql`) |
+| `pgsty/minio:RELEASE.2026-08-04T00-00-00Z` | ☑ | ☑ | ☑ |
+| `pgsty/mc:RELEASE.2026-09-16T00-00-00Z` | ☑ (`createbuckets`) | — | — |
+| `adminer:latest` | ☑ (outil de dev uniquement) | — | — |
+
+Historique MinIO : `minio/minio` retiré de Docker Hub (10/2025, MinIO Community passé
+*source-only*), puis miroir `quay.io/minio` devenu privé (401, 09/2026) → bascule vers
+**`pgsty/minio`** / **`pgsty/mc`**, fork communautaire (même binaire, même CLI), tag
+explicite, jamais `latest`. Risque : dépendance à un mainteneur tiers — surveiller ses
+publications et garder la possibilité de revenir à une image construite depuis les
+sources MinIO (ou de basculer vers AWS S3 via `StorageService`).
+
 ### Niveaux de risque
 
 | Type | Exemple | Traitement |

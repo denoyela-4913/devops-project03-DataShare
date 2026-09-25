@@ -139,6 +139,13 @@ CORS restreint à l'origine du front, en-têtes de sécurité via nginx (CSP,
 X-Frame-Options, X-Content-Type-Options, Referrer-Policy), HTTPS au reverse-proxy.
 À traiter avec la PR de déploiement.
 
+## Image MinIO (fork `pgsty`)
+
+Depuis 09/2026, MinIO tourne sur `pgsty/minio` / `pgsty/mc` (tags épinglés) après le
+retrait de `minio/minio` (Docker Hub) puis de `quay.io/minio` (privé). Reste à décider à
+terme : conserver ce fork, construire l'image depuis les sources MinIO, ou basculer vers
+AWS S3 (seul `S3StorageService` à réécrire). Suivi : [`MAINTENANCE.md`](../MAINTENANCE.md).
+
 ## Conteneurisation complète
 
 `docker-compose.prod.yml` (backend + frontend nginx + db) et les scripts d'installation

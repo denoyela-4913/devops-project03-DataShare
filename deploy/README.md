@@ -27,6 +27,10 @@ docker compose --env-file .env up -d
 
 Le bucket `datashare-files` est créé automatiquement au démarrage (service `createbuckets`).
 
+Images : `postgres:16-alpine`, `pgsty/minio` et `pgsty/mc` (fork communautaire de MinIO,
+tags épinglés — `minio/minio` a quitté Docker Hub et `quay.io/minio` est devenu privé),
+`adminer`. Suivi des versions : [`MAINTENANCE.md`](../MAINTENANCE.md).
+
 ## Lancer le backend contre cet environnement
 
 ```bash

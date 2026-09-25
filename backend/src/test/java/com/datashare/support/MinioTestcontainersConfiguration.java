@@ -13,10 +13,10 @@ public class MinioTestcontainersConfiguration {
     @Bean
     MinIOContainer minioContainer() {
         // minio/minio a été retiré de Docker Hub en 10/2025 (MinIO Community est passé
-        // source-only) ; quay.io/minio est le miroir figé, tag explicite (voir
-        // deploy/docker-compose.yml). asCompatibleSubstituteFor requis : MinIOContainer
-        // valide aussi le registre de l'image, pas seulement le dépôt.
-        return new MinIOContainer(DockerImageName.parse("quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z")
+        // source-only), puis quay.io/minio est passé privé (401) en 09/2026 ; pgsty/minio
+        // est le fork communautaire compatible, tag explicite (voir deploy/docker-compose.yml).
+        // asCompatibleSubstituteFor requis : MinIOContainer valide le nom de l'image.
+        return new MinIOContainer(DockerImageName.parse("pgsty/minio:RELEASE.2026-08-04T00-00-00Z")
                 .asCompatibleSubstituteFor("minio/minio"));
     }
 
