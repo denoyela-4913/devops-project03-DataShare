@@ -5,7 +5,8 @@ de téléchargement temporaires (type WeTransfer), avec options de protection et
 gestion pour les utilisateurs connectés.
 
 > ✅ MVP obligatoire (US01→US06) livré et testé (unitaire + intégration + e2e).
-> US09/US10 partiels, US07/US08 non traités (voir [Périmètre](#périmètre) et
+> US09 livré, US10 partiel (purge écrite et testée, déclenchement manuel),
+> US07/US08 non traités (voir [Périmètre](#périmètre) et
 > [Roadmap](#roadmap)). Détail par domaine : `TESTING.md`, `SECURITY.md`, `PERF.md`,
 > `MAINTENANCE.md`.
 
@@ -23,14 +24,14 @@ Spécifications complètes : voir le PDF fourni par OpenClassrooms.
 | Couche | Choix | Pourquoi |
 |---|---|---|
 | Back-end | **Spring Boot** (Java 21, Maven) | réutilisation P2 ; Spring Security + JWT, JPA, `@Scheduled` (purge US10), Bean Validation ; outillage de test de référence (JUnit 5, Testcontainers, RestAssured) |
-| Front-end | **Angular** + **Jest** | réutilisation P2 ; Reactive Forms adaptées aux nombreux contrôles de saisie ; structure imposée |
+| Front-end | **Angular** + **Vitest** + **Cypress** | réutilisation P2 ; Reactive Forms adaptées aux nombreux contrôles de saisie ; structure imposée |
 | Base de données | **PostgreSQL** + Flyway | modèle relationnel (user↔file↔tags), contraintes d'unicité, migrations versionnées |
 | Stockage | **MinIO** (API S3) derrière une abstraction `StorageService` — image `pgsty/minio` (fork communautaire, tag épinglé) | compatible S3 sans coût cloud ; données persistées sur volume Docker local ; bascule S3 possible sans toucher au métier |
 | CI/CD | **GitHub Actions** | intégré au repo |
 
 Deux modes de configuration : **prod** (messages d'erreur génériques) et **debug**
-(détail technique en info-bulle sur le message générique). Voir [`docs/CI.md`](docs/CI.md)
-et, à venir, `DESIGN.md`.
+(détail technique dépliable sous le message générique). Voir [`docs/CI.md`](docs/CI.md)
+et [`DESIGN.md`](DESIGN.md).
 
 ## Structure du dépôt (cible)
 
@@ -61,8 +62,8 @@ tools/       scripts de contrôle (en-têtes @figma-owned, etc.)
 - **PR obligatoire** vers `master` — merge **squash uniquement**, branche
   supprimée automatiquement.
 - Titre de PR au format **Conventional Commits** (devient le message de commit).
-- `master` protégée ; à terme, merge conditionné à une CI verte
-  (voir [`docs/CI.md`](docs/CI.md)).
+- `master` protégée ; merge conditionné à une CI verte (11 jobs requis,
+  voir [`docs/CI.md`](docs/CI.md)).
 
 ## Deux éditeurs
 
@@ -174,4 +175,4 @@ npm run build                # build de production
 ```
 
 Le proxy `/api` vers le backend est géré par `nginx.conf` en conteneur ; en dev,
-configurer un proxy `ng serve` quand les features consommeront l'API.
+par `ng serve` via `frontend/proxy.conf.json` (`/api` → `http://localhost:8080`).

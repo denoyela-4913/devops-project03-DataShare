@@ -89,7 +89,8 @@ npm run lint && npm run test:unit && npm run test:integ && npm run build
 |---|---|
 | `DATASHARE_DB_URL`, `DATASHARE_DB_USERNAME`, `DATASHARE_DB_PASSWORD` | connexion PostgreSQL |
 | `DATASHARE_JWT_SECRET` | clé HMAC de signature JWT (≥ 32 octets) |
-| `DATASHARE_STORAGE_*` (endpoint, bucket, clés) | accès MinIO / S3 |
+| `DATASHARE_STORAGE_ENDPOINT`, `DATASHARE_STORAGE_BUCKET`, `DATASHARE_STORAGE_ACCESS_KEY`, `DATASHARE_STORAGE_SECRET_KEY` | accès MinIO / S3 |
+| `DATASHARE_DOWNLOAD_BASE_URL` | préfixe des liens de partage = origine publique du **frontend** + `/d` (ex. `https://datashare.example/d`) |
 | `SPRING_PROFILES_ACTIVE=prod` | active le profil durci |
 
 Aucune valeur par défaut n'est fournie dans `application-prod.yml` : une variable
@@ -101,6 +102,12 @@ manquante fait échouer le démarrage (comportement voulu).
   fois appliqués. Toute évolution = un nouveau `V{n+1}__*.sql`.
 - Appliquées automatiquement au démarrage du backend.
 - Vérifier l'état : table `flyway_schema_history`.
+
+### Purge des fichiers expirés (US10, manuel en attendant `@Scheduled`)
+
+`deploy/purge-expired.sh` (profil Spring `purge` → `ExpiredFilePurger`) supprime la ligne
+**et** l'objet MinIO de chaque fichier expiré ; code de sortie 1 si un objet n'a pas pu
+être supprimé. Détail : [`deploy/README.md`](deploy/README.md).
 
 ### Sauvegarde / restauration
 
@@ -136,5 +143,6 @@ Référence complète : [`docs/CI.md`](docs/CI.md).
 ## 5. Dette connue
 
 Voir [`docs/BACKLOG.md`](docs/BACKLOG.md) : PR gestion de la clé JWT, câblage OWASP
-dependency-check / CodeQL / SpotBugs, activation de la porte de couverture 70 %,
-durcissement en-têtes HTTP, CORS.
+dependency-check / SpotBugs, déclenchement planifié de la purge (US10,
+`@Scheduled`), durcissement en-têtes HTTP, CORS. (La porte de couverture 70 % est
+active depuis les PR #0006/#0007.)

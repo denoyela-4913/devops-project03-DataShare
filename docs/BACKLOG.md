@@ -25,7 +25,7 @@ implémentation. Points à instruire :
 - **Détection de type par magic-bytes — fait, avec une limite connue** : `FileService.upload`
   détecte le type réel par octets (`tika-core`) et le compare, comme l'extension déclarée, à
   `datashare.files.blocked-extensions`. Un `.exe`/`.dll`/`.com`/`.scr` (signature PE), `.bat`/
-  `.cmd` ou `.sh` (shebang) renommé `.pdf` est désormais rejeté — voir `SECURITY.md` §2 et les
+  `.cmd`, `.sh` (shebang), `.deb` ou `.rpm` renommé `.pdf` est désormais rejeté — voir `SECURITY.md` §2 et les
   tests de `FileServiceTest` (un par famille détectable).
   **Limite** : `tika-core` (choisi léger, sans `tika-parsers`) ne reconnaît que les formats à
   signature binaire propre. Restent non détectables par le contenu, seule la liste noire par
@@ -37,7 +37,7 @@ implémentation. Points à instruire :
   sous-module de détection de conteneurs) inspecte réellement le contenu des archives ZIP/OLE
   au lieu d'un simple préfixe d'octets — fermerait l'écart `.msi`/`.jar`. Coût : dépendance
   nettement plus lourde (dizaines de libs transitives — PDFBox, POI, etc. — contre 3 libs
-  légères pour `tika-core` seul) pour un gain limité à 2 des 16 extensions de la liste noire,
+  légères pour `tika-core` seul) pour un gain limité à 2 des 17 extensions de la liste noire,
   les scripts texte restant de toute façon hors de portée d'une détection par contenu. À
   arbitrer si le besoin devient concret (signal d'abus réel plutôt que possibilité théorique).
 - **Antivirus** (ClamAV en side-car) : hors périmètre MVP.
@@ -51,7 +51,8 @@ implémentation. Points à instruire :
   `minio.version` via `mvn dependency:tree -Dincludes=com.squareup.okhttp3:okhttp`).
   Migration vers AWS SDK v2 possible = réécrire seulement `S3StorageService`.
 - **Message d'erreur inline** pour le mot de passe du fichier trop court (aujourd'hui :
-  validé serveur, affiché via `ErrorToast`).
+  validé serveur uniquement, erreur affichée en tête de carte via `<app-form-error>`, pas
+  sous le champ — aucun validateur client `minLength(6)`).
 - **Compte supprimé** : un upload avec un token valide dont le compte a disparu échoue en
   500 (violation de clé étrangère `owner_id`) — pourrait être un 401 explicite.
 
@@ -65,8 +66,6 @@ implémentation. Points à instruire :
   (`GET`/`POST /api/d/{token}`) et le niveau de l'upload (déjà bufferisé).
 - **Requêtes Range / reprise de téléchargement** : non supporté (téléchargement complet
   uniquement). À ajouter si lecture de médias volumineux en flux.
-- **Écran Figma** : la série « téléchargement » n'est pas encore exportée depuis Figma.
-  `features/download` est un placeholder fonctionnel (composants `app-ui-*`) à reskin.
 - **Composant `password-field`** dédié (afficher/masquer) : aujourd'hui un simple
   `app-ui-input` + `type="password"`.
 - **Lien à usage unique / compteur de téléchargements** : le lien reste valide jusqu'à
@@ -95,10 +94,6 @@ jamais purger sa liste.
   `storage.delete` en `try/catch` (log si échec). Un échec du stockage laisse un objet
   orphelin inoffensif ; pas de mécanisme de rejeu/compensation. Un audit MinIO ponctuel
   suffirait à nettoyer.
-- **En-tête de coquille statique** : `app.html` affiche toujours « Se connecter ». La
-  déconnexion vit dans l'écran `/history`. Rendre l'en-tête dynamique (connecté/anonyme)
-  avec le composant `ui-header` — PR « coquille appli » dédiée avec l'export Figma
-  (frame Login 55:333).
 - **Filtre Tous/Actifs/Expiré côté client** : appliqué sur la liste déjà chargée, pas de
   paramètre serveur. Cohérent avec l'absence de pagination.
 

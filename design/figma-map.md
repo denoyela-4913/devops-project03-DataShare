@@ -15,7 +15,7 @@ Statuts : ☐ à faire · ◐ généré, à réviser · ☑ validé (voir DoD da
 | Switch Component | 35:301 | `shared/components/ui-switch` | `ui-switch.html`, `ui-switch.scss` | ☑ (filtre de `/history`) |
 | Callout Component | 56:1078 | `shared/components/ui-callout` | `ui-callout.html`, `ui-callout.scss` | ☑ (`/download`, `/history`) |
 | Mon espace · cartes (Desktop-4) | 15:390 | `shared/components/file-card` | `file-card.html`, `file-card.scss` | ☑ (« Accéder » lien nouvel onglet, « Supprimer ») |
-| _à créer_ | — | `shared/components/confirm-dialog` | `confirm-dialog.html`, `confirm-dialog.scss` | ◐ (placeholder fonctionnel) |
+| _à créer_ | — | `shared/components/confirm-dialog` | `confirm-dialog.html`, `confirm-dialog.scss` | ◐ (placeholder fonctionnel `<dialog>` natif, consommé dans `/history` ; pas de frame Figma dédiée) |
 | DataShare_local · Login 55:333 + Header 24:440 + Desktop-5 | 55:333 / 16:186 | coquille appli | `app/app.html`, `app/app.scss` | ☑ (en-tête `ui-header` + pied ; chrome masqué sur `/history`) |
 | Composants UI 9:113 | 9:113 | `features/styleguide` | `styleguide.html`, `styleguide.scss` | ◐ |
 
@@ -28,12 +28,12 @@ Statuts : ☐ à faire · ◐ généré, à réviser · ☑ validé (voir DoD da
 | Breakpoints | `src/styles/_breakpoints.scss` | ☐ |
 | — | `design/tokens.reference.json` | ◐ |
 
-## Écrans (features à venir)
+## Écrans
 
 | Frame Figma | node-id | Route | US | Endpoint | Statut |
 |---|---|---|---|---|---|
 | _inscription_ (Desktop - 7, iPhone 16 - 10) | 55:419 / 56:491 | `/register` | US03 | `POST /api/auth/register` | ☑ (front + back, e2e) |
 | _connexion_ (Desktop - 6, iPhone 16 - 9) | 55:400 / 55:343 | `/login` | US04 | `POST /api/auth/login` | ☑ (front + back, e2e) |
-| Téléversement 32:515 (Desktop - 2/1/3, iPhone 16 - 1/2/4/3) | 32:515 | `/upload` | US01/US07 | `POST /api/files` | ☑ (US01 livré ; US07 dépôt anonyme à venir) |
+| Téléversement 32:515 (Desktop - 2/1/3, iPhone 16 - 1/2/4/3) | 32:515 | `/upload` | US01/US07 | `POST /api/files` | ☑ (US01 livré ; US07 dépôt anonyme non traité, hors MVP) |
 | Téléchargement 56:740 (Desktop-9/10/11/12, iPhone 16-12/17/15/16) | 56:779 / 58:591 / 58:632 / 58:802 / 56:750 / 56:1222 / 56:1092 / 56:1178 | `/d/:token` | US02 | `GET`/`POST /api/d/{token}` | ☑ (visuel livré, expiry relatif câblé ; loading/404 = même carte, sans frame dédiée) |
 | Mon espace 32:516 (Desktop-4, iPhone-5/6) | 15:390 / 27:338 / 27:540 | `/history` | US05/US06 | `GET`/`DELETE /api/files` | ☑ (visuel livré ; sidebar dans la page ; upload anonyme hors MVP) |
