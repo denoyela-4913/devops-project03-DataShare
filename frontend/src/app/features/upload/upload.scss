@@ -248,7 +248,8 @@
   color: var(--color-black);
 }
 
-// Figma Frame 19 sur iPhone-3 : fill #ff5e00, stroke #d7630b, texte #d8640b
+// Figma Frame 19 (iPhone-3) : fill #ff5e00, texte #d8640b, illisibles (1,2:1) ; couleurs
+// corrigées dans _tokens.scss (fond #ffc191, texte #1e1e1e), voir DESIGN.md §3.
 .success-block__url {
   display: block;
   padding: 8px 16px;
