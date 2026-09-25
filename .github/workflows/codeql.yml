@@ -1,0 +1,43 @@
+name: CodeQL
+
+# SAST (analyse statique de sécurité) du backend Java et du frontend TypeScript.
+# Résultats dans l'onglet Security > Code scanning du dépôt. Voir docs/CI.md et SECURITY.md.
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  schedule:
+    # Hebdomadaire : de nouvelles requêtes CodeQL peuvent révéler des failles sans changement de code.
+    - cron: "17 4 * * 1"
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: codeql (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        # build-mode none : Java analysé sans compilation Maven (plus rapide, pas de JDK requis).
+        language: [java-kotlin, javascript-typescript]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          queries: security-extended
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}

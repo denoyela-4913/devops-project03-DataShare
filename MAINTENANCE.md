@@ -131,6 +131,7 @@ docker exec -i datashare-dev-db-1 psql -U datashare datashare < backup.sql
 Référence complète : [`docs/CI.md`](docs/CI.md).
 
 - 11 jobs, tous *required* sur `master` (sauf `commitlint` qui ne s'exécute que sur PR).
+- Workflow séparé `codeql.yml` (SAST) : PR, push `master` et hebdomadaire.
 - Ajouter un job → le faire tourner une fois → l'ajouter aux *required status checks*
   via `gh api ... /branches/master/protection`.
 
