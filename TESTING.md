@@ -57,8 +57,8 @@ Câblés avec la première feature offrant un parcours complet (US03/US04).
 4. **Modes debug/prod** ☐ — provoquer une erreur 409 : en build dev, l'info-bulle de
    détail technique est présente ; en build prod, seule la mention générique.
 
-Job CI **`frontend-e2e`** : PostgreSQL (service) + backend (`java -jar`, profil `dev`) +
-`ng serve` (proxy `/api`) + `cypress run`.
+Job CI **`frontend-e2e`** : PostgreSQL (service) + MinIO (`pgsty/minio`, `docker run`) +
+backend (`java -jar`, profil `dev`) + `ng serve` (proxy `/api`) + `cypress run`.
 
 ## 4. Critères d'acceptation
 
