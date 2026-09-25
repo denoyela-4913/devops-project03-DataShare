@@ -124,6 +124,7 @@ docker exec -i datashare-dev-db-1 psql -U datashare datashare < backup.sql
 Référence complète : [`docs/CI.md`](docs/CI.md).
 
 - 11 jobs, tous *required* sur `master` (sauf `commitlint` qui ne s'exécute que sur PR).
+- Workflow séparé `codeql.yml` (SAST) : PR, push `master` et hebdomadaire.
 - Ajouter un job → le faire tourner une fois → l'ajouter aux *required status checks*
   via `gh api ... /branches/master/protection`.
 
@@ -136,5 +137,6 @@ Référence complète : [`docs/CI.md`](docs/CI.md).
 ## 5. Dette connue
 
 Voir [`docs/BACKLOG.md`](docs/BACKLOG.md) : PR gestion de la clé JWT, câblage OWASP
-dependency-check / CodeQL / SpotBugs, activation de la porte de couverture 70 %,
-durcissement en-têtes HTTP, CORS.
+dependency-check / SpotBugs, déclenchement planifié de la purge (US10,
+`@Scheduled`), durcissement en-têtes HTTP, CORS. (La porte de couverture 70 % est
+active depuis les PR #0006/#0007.)

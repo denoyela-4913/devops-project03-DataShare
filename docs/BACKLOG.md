@@ -125,11 +125,12 @@ Pas de refresh token dans le MVP (re-login à l'expiration, 1 h). Un refresh tok
 
 ## Scans de sécurité à câbler
 
-Job CI `security` : actuellement gitleaks + `npm audit`. À ajouter dans une PR dédiée :
+Job CI `security` : actuellement gitleaks + `npm audit` ; **CodeQL** fait (workflow
+`codeql.yml`) et **Dependabot security alerts** activées. À ajouter dans une PR dédiée :
 
-- **OWASP dependency-check** (Maven) — CVE des dépendances backend. 1er run long
-  (téléchargement de la base NVD) → prévoir le cache / une clé API NVD.
-- **CodeQL** — SAST Java + TypeScript (workflow `codeql.yml` séparé possible).
+- **OWASP dependency-check** (Maven) — CVE des dépendances backend, **bloquant en CI**
+  (les alertes Dependabot ne bloquent pas). 1er run long (téléchargement de la base NVD)
+  → prévoir le cache / une clé API NVD.
 - **SpotBugs** (`spotbugs-maven-plugin`) — *patterns* de bugs Java. Exige la
   compilation, d'où sa place dans `security` et non `lint-back`.
 

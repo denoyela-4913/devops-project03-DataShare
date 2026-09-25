@@ -44,9 +44,10 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 | **`npm audit --audit-level=high`** | dépendances frontend | `security` | ☑ — **0 vulnérabilité** au dernier run |
 | **gitleaks** | secrets dans l'historique et le diff | `security` | ☑ — aucun secret détecté |
 | **OWASP dependency-check** | dépendances backend (Maven, base NVD) | `security` | ☐ à câbler (PR dédiée — 1er run long : téléchargement NVD) |
-| **CodeQL** | SAST Java + TypeScript | `security` | ☐ à câbler |
+| **CodeQL** (`security-extended`) | SAST Java + TypeScript | `codeql` (workflow `codeql.yml`) : PR, push `master`, hebdo | ☑ actif — résultats dans *Security › Code scanning* |
 | **SpotBugs** | *patterns* de bugs Java (ex. `NullPointerException` probable) | `security` | ☐ à câbler |
 | **Dependabot** | PR de mise à jour hebdo (maven, npm, actions, docker) | — | ☑ actif — voir [`MAINTENANCE.md`](MAINTENANCE.md) |
+| **Dependabot security alerts** | CVE connues des dépendances (Maven **backend compris**, npm, Actions) — alerte dans *Security › Dependabot* | — (paramètre du dépôt) | ☑ actif — couvre en partie, sans bloquer la CI, le périmètre d'OWASP dependency-check en attendant son câblage |
 
 ## 4. Analyse des résultats
 
@@ -54,7 +55,10 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
   l'arbre de dépendances Angular 22 actuel. Aucune décision de dérogation nécessaire.
 - **Secrets** : gitleaks ne détecte rien ; les seuls secrets du dépôt sont des valeurs
   de dev explicitement factices (`application-dev.yml`, `.env.example`).
-- **Backend** : analyse en attente du câblage OWASP dependency-check / SpotBugs.
+- **Code (Java + TypeScript)** : CodeQL actif ; les alertes éventuelles sont triées dans
+  *Security › Code scanning* (correction, ou rejet motivé et daté ici).
+- **Backend (dépendances)** : Dependabot security alerts actives ; analyse OWASP
+  dependency-check / SpotBugs en attente de câblage.
 
 ## 5. Politique
 

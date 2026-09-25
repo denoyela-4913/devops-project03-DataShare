@@ -30,7 +30,10 @@ obligatoire**.
 | `frontend-integ` | Tests d'intégration frontend (Vitest + Angular TestBed) |
 | `frontend-e2e` | Cypress contre la stack complète (Postgres + MinIO `pgsty/minio` + backend + `ng serve`) — 3 specs : `auth.cy.ts`, `download.cy.ts`, `history.cy.ts` |
 | `assert-prod-bundle` | Build prod + vérifie que la config debug ne fuit pas dans `dist/` |
-| `security` | gitleaks + `npm audit`. À venir : OWASP dependency-check, CodeQL, SpotBugs |
+| `security` | gitleaks + `npm audit`. À venir : OWASP dependency-check, SpotBugs |
+
+Workflow séparé [`.github/workflows/codeql.yml`](../.github/workflows/codeql.yml) :
+**CodeQL** (voir [§ `codeql`](#codeql)).
 
 ## Détail du lint
 
@@ -114,5 +117,26 @@ mode verbeux.
   vulnérabilité fait échouer le job ; une indisponibilité de l'endpoint d'avis npm
   (503, timeout) est traitée comme non bloquante (message `::warning::`).
 
-À venir (PR dédiée) : OWASP dependency-check (Maven), CodeQL (Java + TS), SpotBugs
-(*patterns* de bugs Java, ex. `NullPointerException` probable sur un chemin d'exécution).
+À venir (PR dédiée) : OWASP dependency-check (Maven), SpotBugs (*patterns* de bugs
+Java, ex. `NullPointerException` probable sur un chemin d'exécution).
+
+## `codeql`
+
+Workflow séparé [`.github/workflows/codeql.yml`](../.github/workflows/codeql.yml) — SAST
+(analyse statique de sécurité) fourni par GitHub, gratuit sur dépôt public.
+
+- **Déclencheurs** : chaque PR, push vers `master`, et **hebdomadaire** (lundi 04:17 UTC)
+  pour appliquer les nouvelles requêtes CodeQL au code inchangé.
+- **Matrice** : `java-kotlin` (backend) et `javascript-typescript` (frontend), jobs
+  `codeql (java-kotlin)` / `codeql (javascript-typescript)`.
+- **`build-mode: none`** : Java analysé sans compilation Maven (rapide, pas de JDK).
+- **Suite `security-extended`** : requêtes de sécurité par défaut + requêtes à précision
+  moindre (plus d'alertes potentielles, à trier).
+- **Résultats** : onglet *Security › Code scanning* du dépôt, et annotations sur la PR.
+  Le job échoue sur une erreur d'analyse, pas sur une alerte : le blocage d'une PR sur
+  alerte se règle par une règle de protection *Code scanning* sur `master` (seuil
+  `high`/`critical`, cohérent avec la politique de [`SECURITY.md`](../SECURITY.md) §5).
+
+Complément hors CI : **Dependabot security alerts** (paramètres du dépôt) — alerte sur les
+CVE connues des dépendances Maven, npm et Actions (onglet *Security › Dependabot*) ; le
+correctif passe par les PR Dependabot hebdomadaires ou une PR manuelle.
