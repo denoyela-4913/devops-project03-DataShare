@@ -39,7 +39,7 @@
 		     Maven pure sans métadonnées Gradle (voir docs/BACKLOG.md). -->
 		<minio.version>8.6.0</minio.version>
 		<!-- Classes réelles d'okhttp (le jar "okhttp" plain-Maven est un stub, voir plus bas). -->
-		<okhttp-jvm.version>5.1.0</okhttp-jvm.version>
+		<okhttp-jvm.version>5.5.0</okhttp-jvm.version>
 		<tika.version>4.0.0</tika.version>
 
 		<spotless.version>3.10.1</spotless.version>
