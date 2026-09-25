@@ -25,6 +25,11 @@ updates:
       prefix: build
       prefix-development: chore
     groups:
+      # Les paquets @angular/* exigent tous la même version (peer deps strictes) :
+      # montés un par un, chaque PR échoue sur ERESOLVE (#22, #26, #34, #36).
+      angular:
+        patterns:
+          - "@angular/*"
       # @vitest/coverage-v8 exige une version exacte de vitest (peer) : toujours ensemble.
       vitest:
         patterns:
