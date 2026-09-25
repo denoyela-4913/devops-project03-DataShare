@@ -22,7 +22,7 @@ Tout fichier « Figma » porte un en-tête `@figma-owned` (vérifié par le job 
 ## Couleurs corrigées pour le contraste (ne pas écraser)
 
 Les jetons de boutons (`btn-*-text`, `btn-*-stroke`), du callout d'alerte et du lien de
-partage (`link-url-*`) diffèrent volontairement de Figma pour respecter WCAG AA. Tableau
+partage (`link-url-*`) et le logo du menu latéral (noir au lieu du blanc de Figma) diffèrent volontairement de Figma pour respecter WCAG AA. Tableau
 justificatif : [`DESIGN.md` §3.1](../DESIGN.md). Cursor doit les conserver, ou la maquette
 Figma doit être corrigée d'abord.
 
