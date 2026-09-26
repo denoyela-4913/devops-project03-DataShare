@@ -32,7 +32,7 @@ jobs:
         # build-mode none : Java analysé sans compilation Maven (plus rapide, pas de JDK requis).
         language: [java-kotlin, javascript-typescript]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
