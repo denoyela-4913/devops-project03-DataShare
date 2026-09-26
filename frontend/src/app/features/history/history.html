@@ -38,7 +38,12 @@
 
     <div class="history__sidebar-actions">
       <a routerLink="/upload" class="history__add history__add--drawer">Ajouter des fichiers</a>
-      <app-ui-button variant="tertiary" size="small" (pressed)="logout()">
+      <app-ui-button
+        variant="tertiary"
+        size="small"
+        (pressed)="logout()"
+        data-testid="history-logout-drawer"
+      >
         <img src="assets/icons/icon-logout.svg" width="16" height="16" alt="" />
         Déconnexion
       </app-ui-button>

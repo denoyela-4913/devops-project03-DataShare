@@ -3,10 +3,13 @@
 /** Parcours critique inscription / connexion (US03 / US04). */
 describe('Authentification', () => {
   /** Sous 833 px (iPhone), la déconnexion est dans le menu latéral : l'ouvrir d'abord. */
-  const openMenuIfMobile = () =>
+  const logout = () =>
     cy.window().then((win) => {
       if (win.innerWidth <= 833) {
         cy.get('[data-testid="history-menu-btn"]').click();
+        cy.get('[data-testid="history-logout-drawer"]').click();
+      } else {
+        cy.get('[data-testid="history-logout"]').click();
       }
     });
 
@@ -26,8 +29,7 @@ describe('Authentification', () => {
     cy.location('pathname').should('eq', '/history');
     cy.get('[data-testid="history-email"]').should('contain', email);
 
-    openMenuIfMobile();
-    cy.get('[data-testid="history-logout"]').click();
+    logout();
     cy.location('pathname').should('eq', '/login');
 
     cy.get('[data-testid="login-email-input"]').type(email);
