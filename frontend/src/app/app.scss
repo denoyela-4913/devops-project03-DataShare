@@ -55,7 +55,9 @@
   font-family: var(--type-normal-font);
   font-size: var(--type-normal-size);
   line-height: var(--type-normal-line);
-  color: var(--color-white);
+
+  // Figma : blanc (3,5:1 sur le bas du dégradé, sous 4,5:1). Noir : 6,0:1. Voir DESIGN.md §3.1.
+  color: var(--color-black);
 }
 
 @media (max-width: 833px) {
