@@ -68,6 +68,14 @@ autorisées que dans `_tokens.scss` (règle Stylelint `color-no-hex`, vérifiée
 
 - **Mobile-first**, breakpoints à extraire des frames Figma (`_breakpoints.scss` est
   encore un stub ☐, voir [`design/figma-map.md`](design/figma-map.md)).
+- **Cible iPhone (Safari iOS)** : la hauteur de page utilise `100vh` puis `100dvh` (repli
+  pour les navigateurs sans `dvh`) : `100vh` compte la hauteur avec les barres de Safari
+  rétractées, ce qui crée un défilement inutile et cache le bas de page tant que les barres
+  sont visibles ; `100dvh` suit la zone réellement visible. Effet secondaire assumé : la
+  page s'ajuste quand la barre d'adresse se rétracte. Champs de saisie à 16 px (pas de zoom
+  automatique de Safari). Zones sûres (`safe-area-inset`) inutiles tant qu'on reste dans
+  Safari sans `viewport-fit=cover`. Vérifié par le job `frontend-e2e-webkit` (WebKit,
+  viewport 393×852), voir [`TESTING.md`](TESTING.md).
 - Contenu large (tableaux d'historique) : défilement horizontal dans son conteneur,
   jamais de débordement de la page.
 
