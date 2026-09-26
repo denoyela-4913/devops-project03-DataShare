@@ -85,6 +85,7 @@ sont exemptés (1.4.3) ; ils sont corrigés ici par confort. Les boutons du proj
 | Texte du callout d'alerte | `--color-callout-alert-text` | `#aa642b` | 4,3:1 ✗ | `#8f4a12` | 6,2:1 ✓ | 1.4.3 |
 | Lien de partage (après téléversement) | `--color-link-url-bg` + `--color-link-url-text` | `#ff5e00` / `#d8640b` | 1,2:1 ✗ | `#ffc191` / `#1e1e1e` | 10,5:1 ✓ | 1.4.3 |
 | Logo « DataShare » du menu latéral (Mon espace) | `.history__logo` (`--color-black`, 32 px : grand texte, seuil 3:1) | blanc | 1,7:1 en haut du dégradé ✗ (3,5:1 en bas) | noir `#000` (inchangé) | 12,5:1 en haut, 6,0:1 en bas ✓ | 1.4.3 (3:1) |
+| Croix de fermeture du menu latéral | `assets/icons/icon-close.svg` (trait 2,5 px, composant d'interface : seuil 3:1) | blanc | 1,7:1 sur le haut du dégradé ✗ | `#1e1e1e` (celui des labels) | 9,9:1 ✓ | 1.4.11 (3:1) |
 
 Ratios calculés avec la formule WCAG de luminance relative, sur le fond réel de l'écran
 (`#fff7f7` pour les boutons, `#fff5ed` pour le callout).
