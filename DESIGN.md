@@ -86,6 +86,7 @@ sont exemptés (1.4.3) ; ils sont corrigés ici par confort. Les boutons du proj
 | Lien de partage (après téléversement) | `--color-link-url-bg` + `--color-link-url-text` | `#ff5e00` / `#d8640b` | 1,2:1 ✗ | `#ffc191` / `#1e1e1e` | 10,5:1 ✓ | 1.4.3 |
 | Logo « DataShare » du menu latéral (Mon espace) | `.history__logo` (`--color-black`, 32 px : grand texte, seuil 3:1) | blanc | 1,7:1 en haut du dégradé ✗ (3,5:1 en bas) | noir `#000` (inchangé) | 12,5:1 en haut, 6,0:1 en bas ✓ | 1.4.3 (3:1) |
 | Croix de fermeture du menu latéral | `assets/icons/icon-close.svg` (trait 2,5 px, composant d'interface : seuil 3:1) | blanc | 1,7:1 sur le haut du dégradé ✗ | `#1e1e1e` (celui des labels) | 9,9:1 ✓ | 1.4.11 (3:1) |
+| Copyright du pied de page | `.site-footer__copy` (`--color-black`, 16 px : texte normal, seuil 4,5:1) | blanc | 3,5:1 sur le bas du dégradé ✗ | noir `#000` | 6,0:1 ✓ | 1.4.3 (4,5:1) |
 
 Ratios calculés avec la formule WCAG de luminance relative, sur le fond réel de l'écran
 (`#fff7f7` pour les boutons, `#fff5ed` pour le callout).
@@ -98,7 +99,8 @@ Impacts de ces écarts :
   inchangés, sauf le fond du lien.
 - **Périmètre** : tous les `ui-button` (primaire, secondaire, tertiaire, désactivé), le
   bouton « Changer », le callout d'alerte, le lien de partage et la croix de fermeture
-  du menu latéral (noire au lieu de blanche). Boutons sombre et danger, callouts d'info
+  du menu latéral (noire au lieu de blanche) et le copyright du pied de page (noir au
+  lieu de blanc). Boutons sombre et danger, callouts d'info
   et d'erreur : inchangés (déjà conformes).
 - **Fidélité Figma** : écart assumé. `_tokens.scss` et `design/tokens.reference.json`
   sont `@figma-owned` : **ne pas resynchroniser ces valeurs depuis Figma** sans avoir
