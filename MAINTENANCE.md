@@ -25,16 +25,28 @@ d'infrastructure sont suivies **à la main** et doivent rester **alignées aux 3
 | Image | `deploy/docker-compose.yml` | `.github/workflows/ci.yml` (`frontend-e2e`) | Testcontainers (`MinioTestcontainersConfiguration`) |
 |---|---|---|---|
 | `postgres:16-alpine` | ☑ | ☑ (service) | — (module `testcontainers-postgresql`) |
-| `pgsty/minio:RELEASE.2026-08-04T00-00-00Z` | ☑ | ☑ | ☑ |
-| `pgsty/mc:RELEASE.2026-09-16T00-00-00Z` | ☑ (`createbuckets`) | — | — |
+| `ghcr.io/denoyela-4913/silo:RELEASE.2026-09-16T00-00-00Z` (MinIO + `mcli`) | ☑ (`minio`, `createbuckets`) | ☑ | ☑ |
 | `adminer:latest` | ☑ (outil de dev uniquement) | — | — |
 
 Historique MinIO : `minio/minio` retiré de Docker Hub (10/2025, MinIO Community passé
-*source-only*), puis miroir `quay.io/minio` devenu privé (401, 09/2026) → bascule vers
-**`pgsty/minio`** / **`pgsty/mc`**, fork communautaire (même binaire, même CLI), tag
-explicite, jamais `latest`. Risque : dépendance à un mainteneur tiers — surveiller ses
-publications et garder la possibilité de revenir à une image construite depuis les
-sources MinIO (ou de basculer vers AWS S3 via `StorageService`).
+*source-only*, dépôt archivé le 25/04/2026), miroir `quay.io/minio` devenu privé (401,
+09/2026), puis `pgsty/minio` gelé (renommé **`pgsty/silo`** le 06/08/2026). Bascule vers
+**`ghcr.io/denoyela-4913/silo`** : image construite depuis notre fork
+[`denoyela-4913/silo`](https://github.com/denoyela-4913/silo) (copie de `pgsty/silo`),
+publiée sur GHCR (package public), tag explicite, jamais `latest`. Le client `mcli` est
+embarqué : `pgsty/mc` n'est plus utilisé. Licence AGPL-3.0 : le fork public publie les
+sources de l'image.
+
+**Mettre à jour l'image MinIO** (à faire après chaque avis de sécurité de SILO,
+<https://silo.pgsty.com/about/security-advisories/>) :
+
+1. Dans le fork : *Sync fork* (ou `gh repo sync denoyela-4913/silo`).
+2. Lancer le workflow *Publish GHCR image (DataShare)* du fork avec le tag `RELEASE.*` voulu :
+   `gh workflow run ghcr-image.yml -R denoyela-4913/silo -f tag=RELEASE.<date>`.
+3. Reporter le nouveau tag aux 3 endroits (tableau ci-dessus), lancer la CI, puis merger.
+
+Le workflow du fork ne construit que `linux/amd64`. Le SDK Java `io.minio:minio` est
+suivi séparément (Dependabot).
 
 ### Niveaux de risque
 

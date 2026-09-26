@@ -220,14 +220,14 @@ jobs:
         working-directory: backend
         run: ./mvnw -B -ntp -q package -DskipTests
       - name: Start MinIO (stockage objet, requis par l'upload/download)
-        # minio/minio a été retiré de Docker Hub en 10/2025 (MinIO Community est passé
-        # source-only), puis quay.io/minio est passé privé (401) en 09/2026 ; pgsty/minio est
-        # le fork communautaire compatible, tag explicite (voir deploy/docker-compose.yml).
+        # minio/minio a été retiré de Docker Hub (10/2025), quay.io/minio est passé privé (09/2026)
+        # et pgsty/minio est gelé (renommé pgsty/silo). Image construite depuis notre fork
+        # denoyela-4913/silo et publiée sur GHCR, tag explicite (voir deploy/docker-compose.yml).
         run: |
           docker run -d --name minio -p 9000:9000 \
             -e MINIO_ROOT_USER=datashare \
             -e MINIO_ROOT_PASSWORD=datashare-secret \
-            pgsty/minio:RELEASE.2026-08-04T00-00-00Z server /data
+            ghcr.io/denoyela-4913/silo:RELEASE.2026-09-16T00-00-00Z server /data
           for _ in $(seq 1 30); do
             if curl -sf http://localhost:9000/minio/health/live; then
               echo "minio up"

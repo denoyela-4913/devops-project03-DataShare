@@ -26,7 +26,7 @@ Spécifications complètes : voir le PDF fourni par OpenClassrooms.
 | Back-end | **Spring Boot** (Java 21, Maven) | réutilisation P2 ; Spring Security + JWT, JPA, `@Scheduled` (purge US10), Bean Validation ; outillage de test de référence (JUnit 5, Testcontainers, RestAssured) |
 | Front-end | **Angular** + **Vitest** + **Cypress** | réutilisation P2 ; Reactive Forms adaptées aux nombreux contrôles de saisie ; structure imposée |
 | Base de données | **PostgreSQL** + Flyway | modèle relationnel (user↔file↔tags), contraintes d'unicité, migrations versionnées |
-| Stockage | **MinIO** (API S3) derrière une abstraction `StorageService` — image `pgsty/minio` (fork communautaire, tag épinglé) | compatible S3 sans coût cloud ; données persistées sur volume Docker local ; bascule S3 possible sans toucher au métier |
+| Stockage | **MinIO** (API S3) derrière une abstraction `StorageService` — image `silo` (fork `denoyela-4913/silo` de `pgsty/silo`, publiée sur GHCR, tag épinglé) | compatible S3 sans coût cloud ; données persistées sur volume Docker local ; bascule S3 possible sans toucher au métier |
 | CI/CD | **GitHub Actions** | intégré au repo |
 
 Deux modes de configuration : **prod** (messages d'erreur génériques) et **debug**

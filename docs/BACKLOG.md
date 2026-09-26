@@ -135,12 +135,13 @@ CORS restreint à l'origine du front, en-têtes de sécurité via nginx (CSP,
 X-Frame-Options, X-Content-Type-Options, Referrer-Policy), HTTPS au reverse-proxy.
 À traiter avec la PR de déploiement.
 
-## Image MinIO (fork `pgsty`)
+## Image MinIO (fork `silo`)
 
-Depuis 09/2026, MinIO tourne sur `pgsty/minio` / `pgsty/mc` (tags épinglés) après le
-retrait de `minio/minio` (Docker Hub) puis de `quay.io/minio` (privé). Reste à décider à
-terme : conserver ce fork, construire l'image depuis les sources MinIO, ou basculer vers
-AWS S3 (seul `S3StorageService` à réécrire). Suivi : [`MAINTENANCE.md`](../MAINTENANCE.md).
+**Fait** : MinIO tourne sur `ghcr.io/denoyela-4913/silo` (notre fork de `pgsty/silo`, image
+construite en CI et publiée sur GHCR, `mcli` embarqué), voir [`MAINTENANCE.md`](../MAINTENANCE.md).
+Reste à décider à terme : suivre `pgsty/silo` (mises à jour de sécurité manuelles), publier
+aussi `linux/arm64`, ou basculer vers AWS S3 (seul `S3StorageService` à réécrire). Un
+scanner d'images (Trivy/Grype) en CI donnerait la liste réelle des CVE de l'image.
 
 ## Conteneurisation complète
 
