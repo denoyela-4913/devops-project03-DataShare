@@ -343,7 +343,7 @@ jobs:
       - name: Install WebKit (Playwright) pour Cypress
         working-directory: frontend
         run: |
-          npm install --no-save playwright-webkit
+          npm install --no-save --legacy-peer-deps playwright-webkit
           npx playwright-webkit install-deps webkit || npx playwright install-deps webkit
       - name: Cypress WebKit, viewport iPhone (contre ng serve + backend)
         working-directory: frontend
