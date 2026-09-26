@@ -29,6 +29,7 @@ obligatoire**.
 | `frontend-unit` | Tests unitaires frontend (Vitest) + garde de config prod/dev |
 | `frontend-integ` | Tests frontend (Vitest, projets unit + integ) + porte de couverture 70 % |
 | `frontend-e2e` | Cypress contre la stack complète (Postgres + MinIO `silo` (GHCR) + backend + `ng serve`) — 3 specs : `auth.cy.ts`, `download.cy.ts`, `history.cy.ts` |
+| `frontend-e2e-webkit` | essai, **non requis** : les 3 mêmes specs Cypress rejoués sur **WebKit** (moteur de Safari) avec un viewport d'iPhone 393×852 (`continue-on-error`). Ne remplace pas un test sur iPhone réel (barres rétractables, mémoire, toucher) |
 | `assert-prod-bundle` | Build prod + vérifie que la config debug ne fuit pas dans `dist/` |
 | `security` | gitleaks + `npm audit`. À venir : OWASP dependency-check, SpotBugs |
 

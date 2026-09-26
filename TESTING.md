@@ -57,6 +57,11 @@ Câblés avec la première feature offrant un parcours complet (US03/US04).
 4. **Modes debug/prod** ☐ — provoquer une erreur 409 : en build dev, l'info-bulle de
    détail technique est présente ; en build prod, seule la mention générique.
 
+Job CI **`frontend-e2e-webkit`** (essai, non requis) : rejoue les mêmes specs sur WebKit avec
+un viewport d'iPhone 393×852 pour couvrir la cible iPhone ; sous 833 px la déconnexion
+passe par le menu latéral (`history-menu-btn`, `history-logout-drawer`). Limite : WebKit sous
+Linux, pas iOS (barres rétractables, mémoire, toucher) : passage manuel sur iPhone à prévoir.
+
 Job CI **`frontend-e2e`** : PostgreSQL (service) + MinIO (`ghcr.io/denoyela-4913/silo`, `docker run`) +
 backend (`java -jar`, profil `dev`) + `ng serve` (proxy `/api`) + `cypress run`.
 
