@@ -24,10 +24,11 @@ services:
 
   minio:
     # minio/minio a été retiré de Docker Hub en 10/2025 (MinIO Community est passé
-    # source-only), puis le miroir quay.io/minio est passé privé (401) en 09/2026.
-    # pgsty/minio est le fork communautaire compatible (même binaire, même CLI) ;
-    # tag explicite (pas de "latest") pour rester reproductible.
-    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    # source-only), quay.io/minio est passé privé (401) en 09/2026, et pgsty/minio est gelé
+    # (renommé pgsty/silo le 06/08/2026). Image construite depuis notre fork
+    # denoyela-4913/silo (copie de pgsty/silo) et publiée sur GHCR ; tag explicite (pas de
+    # "latest"). L'entrypoint accepte encore `server` ; MINIO_ROOT_* restent supportées.
+    image: ghcr.io/denoyela-4913/silo:RELEASE.2026-09-16T00-00-00Z
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-datashare}
@@ -38,20 +39,21 @@ services:
     volumes:
       - minio-data:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD", "mcli", "ready", "local"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   createbuckets:
-    image: pgsty/mc:RELEASE.2026-09-16T00-00-00Z
+    # mcli est embarqué dans l'image serveur : plus d'image pgsty/mc séparée.
+    image: ghcr.io/denoyela-4913/silo:RELEASE.2026-09-16T00-00-00Z
     depends_on:
       minio:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "
-      mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-datashare} ${MINIO_ROOT_PASSWORD:-datashare-secret} &&
-      mc mb --ignore-existing local/${DATASHARE_STORAGE_BUCKET:-datashare-files} &&
+      mcli alias set local http://minio:9000 ${MINIO_ROOT_USER:-datashare} ${MINIO_ROOT_PASSWORD:-datashare-secret} &&
+      mcli mb --ignore-existing local/${DATASHARE_STORAGE_BUCKET:-datashare-files} &&
       echo 'bucket ready';
       "
 

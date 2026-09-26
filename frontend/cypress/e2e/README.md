@@ -14,7 +14,7 @@ Scénarios end-to-end critiques (Cypress).
 
 ## Exécution
 
-Le job CI `frontend-e2e` démarre PostgreSQL (service) et MinIO (`pgsty/minio`), lance le
+Le job CI `frontend-e2e` démarre PostgreSQL (service) et MinIO (`silo`, GHCR), lance le
 backend (`java -jar`, profil `dev`), sert le front (`ng serve` + proxy `/api`), puis
 `cypress run`.
 
