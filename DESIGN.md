@@ -97,8 +97,9 @@ Impacts de ces écarts :
   (fond des cartes fichier) avec texte noir. Formes, tailles, fonds et libellés
   inchangés, sauf le fond du lien.
 - **Périmètre** : tous les `ui-button` (primaire, secondaire, tertiaire, désactivé), le
-  bouton « Changer », le callout d'alerte et le lien de partage. Boutons sombre et
-  danger, callouts d'info et d'erreur : inchangés (déjà conformes).
+  bouton « Changer », le callout d'alerte, le lien de partage et la croix de fermeture
+  du menu latéral (noire au lieu de blanche). Boutons sombre et danger, callouts d'info
+  et d'erreur : inchangés (déjà conformes).
 - **Fidélité Figma** : écart assumé. `_tokens.scss` et `design/tokens.reference.json`
   sont `@figma-owned` : **ne pas resynchroniser ces valeurs depuis Figma** sans avoir
   d'abord mis à jour la maquette (voir [`design/HANDOFF.md`](design/HANDOFF.md)).
