@@ -53,6 +53,17 @@ implémentation. Points à instruire :
 - **Message d'erreur inline** pour le mot de passe du fichier trop court (aujourd'hui :
   validé serveur uniquement, erreur affichée en tête de carte via `<app-form-error>`, pas
   sous le champ — aucun validateur client `minLength(6)`).
+- **Message de succès : durée pas toujours celle du dernier upload** (bug constaté en
+  recette, PR à faire) : « Félicitations, ton fichier sera conservé chez nous pendant … ! »
+  n'affiche pas toujours la durée du dernier fichier. En enchaînant trois uploads avec
+  7 j, puis 3 j, puis 1 j, la phrase peut annoncer « une semaine » ou « 3 jours » alors que
+  le dernier fichier a été envoyé avec 1 jour.
+  Piste : `expirationSentence` (`upload.ts`) est un `computed` lu sur le contrôle de
+  formulaire `expiration`, pas sur la durée réellement soumise ni sur la réponse du serveur ;
+  `uploadAnother()` remet le formulaire à `'7'`. À corriger en figeant la durée au submit,
+  ou mieux en la déduisant de `expiresAt` renvoyé par `POST /api/files`.
+  À couvrir par un test d'intégration qui enchaîne 7 j → 3 j → 1 j (voir aussi #53, qui
+  avait déjà corrigé un cas voisin).
 - **Compte supprimé** : un upload avec un token valide dont le compte a disparu échoue en
   500 (violation de clé étrangère `owner_id`) — pourrait être un 401 explicite.
 
