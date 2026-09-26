@@ -17,15 +17,17 @@
   />
 
   <aside class="history__sidebar" aria-label="Navigation">
-    <label for="history-drawer" class="history__drawer-close">
-      <img src="assets/icons/icon-close.svg" width="24" height="24" alt="Fermer le menu" />
-    </label>
+    <div class="history__drawer-head">
+      <label for="history-drawer" class="history__drawer-close">
+        <img src="assets/icons/icon-close.svg" width="24" height="24" alt="Fermer le menu" />
+      </label>
 
-    <div class="history__brand">
-      <p class="history__logo">DataShare</p>
-      @if (user(); as u) {
-        <p class="history__user" data-testid="history-email">{{ u.email }}</p>
-      }
+      <div class="history__brand">
+        <p class="history__logo">DataShare</p>
+        @if (user(); as u) {
+          <p class="history__user" data-testid="history-email">{{ u.email }}</p>
+        }
+      </div>
     </div>
 
     <nav class="history__nav">
