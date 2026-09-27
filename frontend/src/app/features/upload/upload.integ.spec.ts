@@ -46,6 +46,17 @@ describe('Upload (integ)', () => {
     expect(testId(fixture, 'upload-landing')).not.toBeNull();
   });
 
+  it("le sélecteur de fichier est l'icône (plus de bouton « Choisir un fichier »)", () => {
+    const { fixture } = render();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.textContent).not.toContain('Choisir un fichier');
+    expect(testId(fixture, 'upload-landing-choose')).toBeNull();
+    const icon = testId(fixture, 'upload-landing-icon') as HTMLLabelElement;
+    expect(icon.tagName).toBe('LABEL');
+    expect(icon.htmlFor).toBe('file-input-landing');
+    expect(icon.querySelector('input[type="file"]')).not.toBeNull();
+  });
+
   it('sélectionner un fichier passe au formulaire', () => {
     const { fixture } = render();
     fixture.componentInstance.selectedFile.set(fileOfSize(2 * 1_048_576));

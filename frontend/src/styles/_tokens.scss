@@ -20,15 +20,16 @@
   --color-header-btn: #2c2c2c;
   --color-header-btn-text: #f3eeea;
 
-  --color-btn-tertiary-text: #e27f29;
+  // A11y : textes/bordures de boutons assombris vs Figma (WCAG 1.4.3 / 1.4.11), voir DESIGN.md §3.
+  --color-btn-tertiary-text: #9c4a0a; // Figma #e27f29 (2,7:1)
   --color-btn-primary-fill: rgb(255 129 45 / 13%);
   --color-btn-primary-fill-hover: rgb(255 129 45 / 20%);
-  --color-btn-primary-text: #ba681f;
+  --color-btn-primary-text: #8f4a12; // Figma #ba681f (3,5:1)
   --color-btn-primary-stroke: rgb(205 94 20 / 50%);
-  --color-btn-secondary-stroke: #ffa569;
+  --color-btn-secondary-stroke: #d7630b; // Figma #ffa569
   --color-btn-disabled-fill: rgb(183 167 156 / 20%);
   --color-btn-disabled-stroke: rgb(183 167 156 / 20%);
-  --color-btn-disabled-text: #aea49b;
+  --color-btn-disabled-text: #6f6259; // Figma #aea49b (2,0:1)
   --color-btn-dark-disabled-fill: #f4eee9;
 
   // Kit Composants UI 9:113 — Switch (35:301)
@@ -43,7 +44,7 @@
   --color-callout-info-text: #2a3f72;
   --color-callout-alert-bg: #fff5ed;
   --color-callout-alert-stroke: #e6cbb5;
-  --color-callout-alert-text: #aa642b;
+  --color-callout-alert-text: #8f4a12; // Figma #aa642b (4,3:1)
   --color-callout-error-bg: #ffe2e2;
   --color-callout-error-stroke: #e8a6a6;
   --color-callout-error-text: #9c3333;
@@ -62,7 +63,7 @@
   --color-file-size-error: #f14343;
 
   // Bouton Changer : stroke #ffa569 (Figma 56:400 / 10:179)
-  --color-btn-change-stroke: #ffa569;
+  --color-btn-change-stroke: #d7630b; // Figma #ffa569 (Figma 56:400 / 10:179)
 
   // Anneaux icône upload landing : outer #2f190d / inner #100218 (Figma 1:30 / 1:28)
   --color-icon-ring-outer: #2f190d;
@@ -89,11 +90,12 @@
   --color-sidebar-stroke: #62361a;
   --color-drawer-scrim: rgb(0 0 0 / 40%);
 
-  // Bloc URL partagée (succès) : fond #ff5e00, stroke #d7630b, texte #d8640b
+  // Bloc URL partagée (succès). Figma : fond #ff5e00, texte #d8640b (1,2:1, illisible).
+  // Écart assumé (DESIGN.md §3) : fond #ffc191 (fond des cartes fichier), texte #1e1e1e (10,5:1).
   // Figma iPhone 16-3 Frame 19 (15:387) · Desktop-3 Frame 19 (15:340 fond grisé #a49993)
-  --color-link-url-bg: #ff5e00;
+  --color-link-url-bg: #ffc191;
   --color-link-url-stroke: #d7630b;
-  --color-link-url-text: #d8640b;
+  --color-link-url-text: #1e1e1e;
 
   // Polices (familles uniquement — l'échelle est dans _typography.scss)
   --font-display: 'DM Sans', sans-serif;

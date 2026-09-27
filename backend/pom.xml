@@ -32,21 +32,21 @@
 		<java.version>21</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<springdoc.version>3.1.0</springdoc.version>
+		<springdoc.version>3.1.1</springdoc.version>
 		<!-- 8.6.0 corrige CVE-2025-59952 (fuite d'info via substitution XML, GHSA-h7rh-xfpj-hpcm).
 		     Fait passer okhttp en 4.x -> 5.x (okio suit) ; on reste sur la branche 8.x plutôt
 		     que 9.x, dont l'okhttp 5.x plus récent est documenté comme cassant la résolution
 		     Maven pure sans métadonnées Gradle (voir docs/BACKLOG.md). -->
-		<minio.version>8.6.0</minio.version>
+		<minio.version>9.0.3</minio.version>
 		<!-- Classes réelles d'okhttp (le jar "okhttp" plain-Maven est un stub, voir plus bas). -->
-		<okhttp-jvm.version>5.1.0</okhttp-jvm.version>
+		<okhttp-jvm.version>5.5.0</okhttp-jvm.version>
 		<tika.version>4.0.0</tika.version>
 
-		<spotless.version>3.10.1</spotless.version>
+		<spotless.version>3.10.2</spotless.version>
 		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
-		<checkstyle.version>10.26.1</checkstyle.version>
-		<pmd.plugin.version>3.27.0</pmd.plugin.version>
-		<jacoco.version>0.8.13</jacoco.version>
+		<checkstyle.version>14.1.0</checkstyle.version>
+		<pmd.plugin.version>3.28.0</pmd.plugin.version>
+		<jacoco.version>0.8.15</jacoco.version>
 	</properties>
 
 	<dependencies>
