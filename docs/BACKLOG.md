@@ -198,6 +198,22 @@ non requis). Restent :
 - **Job WebKit non requis** : à rendre obligatoire s'il se révèle stable ; les parcours
   s'adaptent au viewport (menu latéral sous 833 px pour la déconnexion).
 
+## Dependabot — PR reportées (cible déjà en fin de vie)
+
+- **#18** `build: bump maven from 3.9-eclipse-temurin-21 to 3-eclipse-temurin-26 in /backend`
+  — **à reporter**. Le JDK 26 est **non-LTS** (GA le 17/03/2026, fin de vie **09/2026**,
+  déjà atteinte). Le tag Maven passe en plus de `3.9` (épinglé) à `3` (flottant), ce qui
+  contredit la règle du projet de toujours épingler un tag précis (cf. l'image MinIO).
+  Reprendre quand une image `maven:*-eclipse-temurin-<LTS>` (21 ou 25) sera proposée, en
+  gardant un tag Maven épinglé.
+- **#62** `build: bump node from 24-alpine to 25-alpine in /frontend`
+  — **à reporter**. Node 24 est LTS ; Node 25 est une version **non-LTS**, déjà en fin de
+  vie depuis le **01/06/2026**. Reprendre à la sortie de Node 26 (LTS, prévue 10/2026), ou
+  rester sur 24 d'ici là.
+
+Cohérent avec la règle déjà appliquée à Spring Boot/Angular (jamais de version hors
+support OSS, voir [`MAINTENANCE.md`](../MAINTENANCE.md)).
+
 ## Conteneurisation complète
 
 `docker-compose.prod.yml` (backend + frontend nginx + db) et les scripts d'installation
