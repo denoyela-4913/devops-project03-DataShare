@@ -265,6 +265,98 @@ jobs:
         if: failure()
         run: docker logs minio || true
 
+  # Essai : mêmes parcours Cypress rejoués sur WebKit (moteur de Safari) avec un viewport
+  # d'iPhone (393x852). Non requis sur master, non bloquant tant que le support WebKit de
+  # Cypress est expérimental. Ne prouve pas le comportement d'iOS (barres, mémoire, toucher).
+  frontend-e2e-webkit:
+    name: frontend-e2e-webkit
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: datashare
+          POSTGRES_USER: datashare
+          POSTGRES_PASSWORD: datashare
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U datashare"
+          --health-interval 5s --health-timeout 5s --health-retries 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Cache Cypress binary
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+      - name: Build backend
+        working-directory: backend
+        run: ./mvnw -B -ntp -q package -DskipTests
+      - name: Start MinIO (stockage objet, requis par l'upload/download)
+        # minio/minio a été retiré de Docker Hub (10/2025), quay.io/minio est passé privé (09/2026)
+        # et pgsty/minio est gelé (renommé pgsty/silo). Image construite depuis notre fork
+        # denoyela-4913/silo et publiée sur GHCR, tag explicite (voir deploy/docker-compose.yml).
+        run: |
+          docker run -d --name minio -p 9000:9000 \
+            -e MINIO_ROOT_USER=datashare \
+            -e MINIO_ROOT_PASSWORD=datashare-secret \
+            ghcr.io/denoyela-4913/silo:RELEASE.2026-09-16T00-00-00Z server /data
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:9000/minio/health/live; then
+              echo "minio up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "minio did not start in time"
+          docker logs minio
+          exit 1
+      - name: Start backend (profil dev)
+        working-directory: backend
+        run: |
+          nohup java -jar target/datashare-backend-*.jar --spring.profiles.active=dev > backend.log 2>&1 &
+          for _ in $(seq 1 60); do
+            if curl -sf http://localhost:8080/actuator/health; then
+              echo "backend up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "backend did not start in time"
+          cat backend.log
+          exit 1
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+      - name: Install WebKit (Playwright) pour Cypress
+        working-directory: frontend
+        run: |
+          npm install --no-save --legacy-peer-deps playwright-webkit
+          npx playwright-webkit install-deps webkit || npx playwright install-deps webkit
+      - name: Cypress WebKit, viewport iPhone (contre ng serve + backend)
+        working-directory: frontend
+        run: |
+          npx start-server-and-test 'npm start' http://localhost:4200 \
+            'npx cypress run --browser webkit --config experimentalWebKitSupport=true,viewportWidth=393,viewportHeight=852'
+      - name: Backend log on failure
+        if: failure()
+        run: cat backend/backend.log || true
+      - name: MinIO log on failure
+        if: failure()
+        run: docker logs minio || true
+
   assert-prod-bundle:
     name: assert-prod-bundle
     runs-on: ubuntu-latest
