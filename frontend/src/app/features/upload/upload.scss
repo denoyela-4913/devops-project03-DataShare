@@ -49,10 +49,22 @@
 }
 
 // Anneaux concentriques : outer = #2f190d / inner = #100218 / r=240 (cercle)
+// Le <label> est le déclencheur du sélecteur de fichier (input caché à l'intérieur).
 .landing__icon-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+
+  &:hover .landing__icon-ring {
+    filter: brightness(1.3);
+  }
+
+  &:focus-within {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 4px;
+  }
 }
 
 .landing__icon-ring {
@@ -218,11 +230,6 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-}
-
-.landing__choose-btn {
-  // label jouant le rôle de bouton pour l'input file caché
-  cursor: pointer;
 }
 
 .form__actions {
