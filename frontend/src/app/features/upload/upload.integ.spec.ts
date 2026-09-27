@@ -11,18 +11,25 @@ function fileOfSize(bytes: number, name = 'doc.pdf'): File {
   return file;
 }
 
+/** Simule la réponse serveur : `expiresAt` = maintenant + la durée réellement soumise. */
+function uploadResponse(expirationDays: number) {
+  return of({
+    downloadUrl: 'http://localhost:8080/d/abc123',
+    token: 'abc123',
+    name: 'doc.pdf',
+    sizeBytes: 10,
+    expiresAt: new Date(Date.now() + expirationDays * 86_400_000).toISOString(),
+  });
+}
+
 describe('Upload (integ)', () => {
   function render() {
     const fileService = {
-      upload: vi.fn().mockReturnValue(
-        of({
-          downloadUrl: 'http://localhost:8080/d/abc123',
-          token: 'abc123',
-          name: 'doc.pdf',
-          sizeBytes: 10,
-          expiresAt: '2026-01-01T00:00:00Z',
-        }),
-      ),
+      upload: vi
+        .fn()
+        .mockImplementation((_file: File, options: { expirationDays: number }) =>
+          uploadResponse(options.expirationDays),
+        ),
     };
     TestBed.configureTestingModule({
       imports: [Upload],
@@ -146,6 +153,37 @@ describe('Upload (integ)', () => {
     expect(fixture.componentInstance.expirationSentence()).toBe('une semaine');
     expect(testId(fixture, 'upload-success-block')?.textContent).toContain('une semaine');
   });
+
+  it(
+    'enchaîne 7 j → 3 j → 1 j : la phrase annonce toujours la durée du dernier fichier ' +
+      'envoyé, pas celle du formulaire (régression, voir #53 et BACKLOG.md)',
+    () => {
+      const { fixture } = render();
+      const component = fixture.componentInstance;
+
+      const uploadWith = (expiration: '7' | '3' | '1') => {
+        component.selectedFile.set(fileOfSize(10 * 1_048_576));
+        component.startUpload();
+        component.form.controls.expiration.setValue(expiration);
+        component.submit();
+        fixture.detectChanges();
+      };
+
+      uploadWith('7');
+      expect(component.expirationSentence()).toBe('une semaine');
+      expect(testId(fixture, 'upload-success-block')?.textContent).toContain('une semaine');
+
+      component.uploadAnother();
+      uploadWith('3');
+      expect(component.expirationSentence()).toBe('3 jours');
+      expect(testId(fixture, 'upload-success-block')?.textContent).toContain('3 jours');
+
+      component.uploadAnother();
+      uploadWith('1');
+      expect(component.expirationSentence()).toBe('une journée');
+      expect(testId(fixture, 'upload-success-block')?.textContent).toContain('une journée');
+    },
+  );
 
   it('une erreur serveur réactive le bouton et affiche le bandeau', () => {
     const { fixture, fileService } = render();
