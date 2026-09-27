@@ -11,6 +11,15 @@ import { UiSelect } from '../../shared/components/ui-select/ui-select';
 /** Bytes — limite Figma iPhone 16-4 : la taille affichée en rouge est > 1 Go. */
 const MAX_FILE_BYTES = 1_073_741_824; // 1 Go
 
+const ONE_DAY_MS = 86_400_000;
+
+/** Cahier des charges : les seules durées possibles (voir `expirationOptions`). */
+const EXPIRATION_SENTENCES: readonly { days: number; sentence: string }[] = [
+  { days: 1, sentence: 'une journée' },
+  { days: 3, sentence: '3 jours' },
+  { days: 7, sentence: 'une semaine' },
+];
+
 export type UploadState = 'landing' | 'form' | 'success';
 
 /**
@@ -39,6 +48,7 @@ export class Upload {
   readonly serverError = signal<ApiError | null>(null);
   readonly shareUrl = signal<string | null>(null);
   readonly copied = signal(false);
+  readonly expiresAt = signal<string | null>(null);
 
   readonly selectedFile = signal<File | null>(null);
   readonly fileTooLarge = computed(() => (this.selectedFile()?.size ?? 0) > MAX_FILE_BYTES);
@@ -62,18 +72,19 @@ export class Upload {
   ];
 
   /**
-   * Version accordée pour l'insérer dans la phrase de succès (data-testid="upload-success-block"),
-   * contrairement aux libellés du menu déroulant ci-dessus, en capitale.
+   * Version accordée pour l'insérer dans la phrase de succès (data-testid="upload-success-block").
+   * Déduite de `expiresAt` (réponse de `POST /api/files`), pas du contrôle de formulaire
+   * `expiration` : ce dernier peut avoir changé de valeur entre le submit et l'affichage
+   * (nouvel upload enchaîné, `uploadAnother()` qui le remet à '7') sans que ça concerne le
+   * fichier réellement déposé.
    */
   readonly expirationSentence = computed(() => {
-    switch (this.form.controls.expiration.value) {
-      case '1':
-        return 'une journée';
-      case '3':
-        return '3 jours';
-      default:
-        return 'une semaine';
-    }
+    const expiresAt = this.expiresAt();
+    if (!expiresAt) return '';
+    const days = (new Date(expiresAt).getTime() - Date.now()) / ONE_DAY_MS;
+    return EXPIRATION_SENTENCES.reduce((closest, candidate) =>
+      Math.abs(candidate.days - days) < Math.abs(closest.days - days) ? candidate : closest,
+    ).sentence;
   });
 
   startUpload(): void {
@@ -105,6 +116,7 @@ export class Upload {
       .subscribe({
         next: (result) => {
           this.shareUrl.set(result.downloadUrl);
+          this.expiresAt.set(result.expiresAt);
           this.state.set('success');
           this.submitting.set(false);
         },
@@ -129,6 +141,7 @@ export class Upload {
   uploadAnother(): void {
     this.selectedFile.set(null);
     this.shareUrl.set(null);
+    this.expiresAt.set(null);
     this.copied.set(false);
     this.form.reset({ password: '', expiration: '7' });
     this.state.set('landing');

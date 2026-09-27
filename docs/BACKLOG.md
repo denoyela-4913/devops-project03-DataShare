@@ -53,17 +53,16 @@ implémentation. Points à instruire :
 - **Message d'erreur inline** pour le mot de passe du fichier trop court (aujourd'hui :
   validé serveur uniquement, erreur affichée en tête de carte via `<app-form-error>`, pas
   sous le champ — aucun validateur client `minLength(6)`).
-- **Message de succès : durée pas toujours celle du dernier upload** (bug constaté en
-  recette, PR à faire) : « Félicitations, ton fichier sera conservé chez nous pendant … ! »
-  n'affiche pas toujours la durée du dernier fichier. En enchaînant trois uploads avec
-  7 j, puis 3 j, puis 1 j, la phrase peut annoncer « une semaine » ou « 3 jours » alors que
-  le dernier fichier a été envoyé avec 1 jour.
-  Piste : `expirationSentence` (`upload.ts`) est un `computed` lu sur le contrôle de
-  formulaire `expiration`, pas sur la durée réellement soumise ni sur la réponse du serveur ;
-  `uploadAnother()` remet le formulaire à `'7'`. À corriger en figeant la durée au submit,
-  ou mieux en la déduisant de `expiresAt` renvoyé par `POST /api/files`.
-  À couvrir par un test d'intégration qui enchaîne 7 j → 3 j → 1 j (voir aussi #53, qui
-  avait déjà corrigé un cas voisin).
+- **Message de succès : durée pas toujours celle du dernier upload — corrigé** (bug
+  constaté en recette après #53) : « Félicitations, ton fichier sera conservé chez nous
+  pendant … ! » pouvait afficher la durée d'un upload précédent plutôt que celle du
+  dernier fichier envoyé, `expirationSentence` (`upload.ts`) étant un `computed` lu sur le
+  contrôle de formulaire `expiration` (que `uploadAnother()` remet à `'7'`) et non sur la
+  réponse serveur. Corrigé en déduisant la phrase de `expiresAt`, renvoyé par
+  `POST /api/files` (`Instant.now().plus(days, ChronoUnit.DAYS)` côté `FileService`) : le
+  nombre de jours restants avant expiration est arrondi et rapproché de la durée proposée
+  la plus proche (1, 3 ou 7 j). Couvert par un test d'intégration qui enchaîne
+  7 j → 3 j → 1 j dans `upload.integ.spec.ts`.
 - **Compte supprimé** : un upload avec un token valide dont le compte a disparu échoue en
   500 (violation de clé étrangère `owner_id`) — pourrait être un 401 explicite.
 
@@ -137,8 +136,33 @@ Job CI `security` : actuellement gitleaks + `npm audit` ; **CodeQL** fait (workf
 - **OWASP dependency-check** (Maven) — CVE des dépendances backend, **bloquant en CI**
   (les alertes Dependabot ne bloquent pas). 1er run long (téléchargement de la base NVD)
   → prévoir le cache / une clé API NVD.
-- **SpotBugs** (`spotbugs-maven-plugin`) — *patterns* de bugs Java. Exige la
-  compilation, d'où sa place dans `security` et non `lint-back`.
+
+**SpotBugs — écarté du MVP, essai fait.** `spotbugs-maven-plugin` exige la compilation
+(donc sa place naturelle serait `security`, pas `lint-back`) ; avant de le câbler, essai
+réel sans toucher au repo : `mvn com.github.spotbugs:spotbugs-maven-plugin:4.8.6.4:spotbugs`
+sur le code compilé en JDK 21 (celui du projet et de la CI). **9 findings, tous priorité 2
+(medium)** :
+
+- **7× `EI_EXPOSE_REP2`** (le constructeur garde une référence directe à un objet mutable
+  reçu) — `RestAuthenticationEntryPoint`, `DownloadController`, `FileController`,
+  `FileProperties`, `FileService`, `ExpiredFilePurger`, `PurgeRunner`.
+- **1× `EI_EXPOSE_REP`** — `FileProperties.blockedExtensions`, un getter renvoie la
+  collection interne mutable (même famille que ci-dessus).
+- **1× `DM_EXIT`** — `PurgeRunner.run` appelle `System.exit(...)`.
+
+`EI_EXPOSE_REP`/`EI_EXPOSE_REP2` (8 findings sur 9, ~89 %) sont un pattern quasi
+systématique sur du Spring en injection par constructeur : un bean injecté est censé être
+partagé, pas copié défensivement — bruit de contexte plutôt qu'un vrai risque ici. Seul
+`DM_EXIT` mérite un vrai coup d'œil manuel, et un signal isolé ne justifie pas d'intégrer
+et maintenir tout un outil (config des exclusions, faux positifs à trier à chaque run,
+etc.) pour le MVP. **Décision : hors MVP** ; à revisiter si le code s'étoffe (plus de
+logique métier = plus de vrais bugs `NPE`/`null` détectables) ou si un jeu de détecteurs
+plus adapté au DI Spring apparaît.
+
+*Note d'environnement* : l'essai a d'abord échoué sous JDK 25 (`Unsupported class file
+major version 69` — le moteur ASM de SpotBugs 4.8.6.4 ne lit pas le bytecode compilé/livré
+par un JDK aussi récent, y compris les classes du JDK lui-même) ; il faut un JDK dont
+SpotBugs supporte la version de class-file, JDK 21 dans notre cas.
 
 ## Durcissement HTTP (prod)
 
