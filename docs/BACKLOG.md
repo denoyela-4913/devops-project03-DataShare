@@ -53,6 +53,17 @@ implémentation. Points à instruire :
 - **Message d'erreur inline** pour le mot de passe du fichier trop court (aujourd'hui :
   validé serveur uniquement, erreur affichée en tête de carte via `<app-form-error>`, pas
   sous le champ — aucun validateur client `minLength(6)`).
+- **Message de succès : durée pas toujours celle du dernier upload** (bug constaté en
+  recette, PR à faire) : « Félicitations, ton fichier sera conservé chez nous pendant … ! »
+  n'affiche pas toujours la durée du dernier fichier. En enchaînant trois uploads avec
+  7 j, puis 3 j, puis 1 j, la phrase peut annoncer « une semaine » ou « 3 jours » alors que
+  le dernier fichier a été envoyé avec 1 jour.
+  Piste : `expirationSentence` (`upload.ts`) est un `computed` lu sur le contrôle de
+  formulaire `expiration`, pas sur la durée réellement soumise ni sur la réponse du serveur ;
+  `uploadAnother()` remet le formulaire à `'7'`. À corriger en figeant la durée au submit,
+  ou mieux en la déduisant de `expiresAt` renvoyé par `POST /api/files`.
+  À couvrir par un test d'intégration qui enchaîne 7 j → 3 j → 1 j (voir aussi #53, qui
+  avait déjà corrigé un cas voisin).
 - **Compte supprimé** : un upload avec un token valide dont le compte a disparu échoue en
   500 (violation de clé étrangère `owner_id`) — pourrait être un 401 explicite.
 
@@ -142,6 +153,26 @@ construite en CI et publiée sur GHCR, `mcli` embarqué), voir [`MAINTENANCE.md`
 Reste à décider à terme : suivre `pgsty/silo` (mises à jour de sécurité manuelles), publier
 aussi `linux/arm64`, ou basculer vers AWS S3 (seul `S3StorageService` à réécrire). Un
 scanner d'images (Trivy/Grype) en CI donnerait la liste réelle des CVE de l'image.
+
+## Cible iPhone (Safari iOS) — limites connues
+
+Cible web responsive (pas d'application native). Traité : hauteur de page `100vh` + `100dvh`,
+champs à 16 px (pas de zoom automatique), job Cypress WebKit `frontend-e2e-webkit` (essai,
+non requis). Restent :
+
+- **Test sur un iPhone réel** : WebKit sous Linux ne reproduit ni les barres rétractables,
+  ni la mémoire d'iOS, ni le toucher. Passage manuel à prévoir avant la soutenance.
+- **Téléchargement en `Blob`** : le fichier est chargé en entier en mémoire de l'onglet
+  (`download.ts`, `saveBlob`). Acceptable pour le MVP ; un gros fichier (proche de 1 Go)
+  peut échouer sur iPhone. Piste : lien natif en flux (`GET`) avec, pour les fichiers
+  protégés, un jeton court à usage unique plutôt que le mot de passe dans l'URL.
+- **Upload long** : iOS suspend l'onglet en arrière-plan (écran verrouillé) et l'envoi peut
+  échouer ; pas de reprise ni de barre de progression.
+- **Zones sûres** (`safe-area-inset`) : sans objet tant qu'on reste dans Safari sans
+  `viewport-fit=cover` ; à traiter si on ajoute un fond plein écran ou une PWA
+  installable (manifeste, icône, mode plein écran).
+- **Job WebKit non requis** : à rendre obligatoire s'il se révèle stable ; les parcours
+  s'adaptent au viewport (menu latéral sous 833 px pour la déconnexion).
 
 ## Conteneurisation complète
 
