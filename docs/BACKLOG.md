@@ -153,6 +153,26 @@ retrait de `minio/minio` (Docker Hub) puis de `quay.io/minio` (privé). Reste à
 terme : conserver ce fork, construire l'image depuis les sources MinIO, ou basculer vers
 AWS S3 (seul `S3StorageService` à réécrire). Suivi : [`MAINTENANCE.md`](../MAINTENANCE.md).
 
+## Cible iPhone (Safari iOS) — limites connues
+
+Cible web responsive (pas d'application native). Traité : hauteur de page `100vh` + `100dvh`,
+champs à 16 px (pas de zoom automatique), job Cypress WebKit `frontend-e2e-webkit` (essai,
+non requis). Restent :
+
+- **Test sur un iPhone réel** : WebKit sous Linux ne reproduit ni les barres rétractables,
+  ni la mémoire d'iOS, ni le toucher. Passage manuel à prévoir avant la soutenance.
+- **Téléchargement en `Blob`** : le fichier est chargé en entier en mémoire de l'onglet
+  (`download.ts`, `saveBlob`). Acceptable pour le MVP ; un gros fichier (proche de 1 Go)
+  peut échouer sur iPhone. Piste : lien natif en flux (`GET`) avec, pour les fichiers
+  protégés, un jeton court à usage unique plutôt que le mot de passe dans l'URL.
+- **Upload long** : iOS suspend l'onglet en arrière-plan (écran verrouillé) et l'envoi peut
+  échouer ; pas de reprise ni de barre de progression.
+- **Zones sûres** (`safe-area-inset`) : sans objet tant qu'on reste dans Safari sans
+  `viewport-fit=cover` ; à traiter si on ajoute un fond plein écran ou une PWA
+  installable (manifeste, icône, mode plein écran).
+- **Job WebKit non requis** : à rendre obligatoire s'il se révèle stable ; les parcours
+  s'adaptent au viewport (menu latéral sous 833 px pour la déconnexion).
+
 ## Conteneurisation complète
 
 `docker-compose.prod.yml` (backend + frontend nginx + db) et les scripts d'installation

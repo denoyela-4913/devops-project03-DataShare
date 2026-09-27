@@ -17,6 +17,12 @@ gestion pour les utilisateurs connectés.
 - **Optionnel** : US07→US10 (upload anonyme, tags, mot de passe fichier,
   expiration automatique).
 
+- **Plateformes** : navigateur de bureau et **iPhone** (Safari iOS), en application web
+  responsive (frames Figma « iPhone 16 », point de rupture 833 px). Pas d'application
+  native. Vérifié par un job Cypress sur WebKit avec un viewport d'iPhone
+  (`frontend-e2e-webkit`, voir [`TESTING.md`](TESTING.md)) ; un passage manuel sur un
+  iPhone réel reste à faire.
+
 Spécifications complètes : voir le PDF fourni par OpenClassrooms.
 
 ## Stack technique
