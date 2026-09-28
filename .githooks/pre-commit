@@ -1,29 +1,41 @@
 #!/usr/bin/env bash
-# Régénère les PDF de learning/build/ quand une fiche (learning/fiches/*.md ou *.html)
-# est ajoutée, modifiée ou supprimée dans le commit, puis les ajoute au commit.
+# Régénère les fichiers de learning/build/ quand une source de learning/ change dans le commit,
+# puis les ajoute au commit :
+#   learning/fiches/*.md et *.html -> learning/build/<nom>.pdf
+#   learning/flashcards/*.md       -> learning/build/<nom>.csv (import Anki)
 # Activation (une fois par clone) : git config core.hooksPath .githooks
 set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-# build.sh ou style.css modifiés : tous les PDF sont concernés.
-if git diff --cached --name-only | grep -qE '^learning/(build\.sh|style\.css)$'; then
+SOURCES='^learning/(fiches/[^/]+\.(md|html)|flashcards/[^/]+\.md)$'
+
+# Fichier généré correspondant à une source.
+built() {
+  case "$1" in
+    learning/flashcards/*) echo "learning/build/$(basename "${1%.*}").csv" ;;
+    *) echo "learning/build/$(basename "${1%.*}").pdf" ;;
+  esac
+}
+
+# build.sh, anki_csv.py ou style.css modifiés : tout est à régénérer.
+if git diff --cached --name-only | grep -qE '^learning/(build\.sh|anki_csv\.py|style\.css)$'; then
   learning/build.sh
-  git add learning/build/*.pdf
+  git add learning/build/*.pdf learning/build/*.csv
   exit 0
 fi
 
-changed=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^learning/fiches/[^/]+\.(md|html)$' || true)
-deleted=$(git diff --cached --name-only --diff-filter=D | grep -E '^learning/fiches/[^/]+\.(md|html)$' || true)
+changed=$(git diff --cached --name-only --diff-filter=ACM | grep -E "$SOURCES" || true)
+deleted=$(git diff --cached --name-only --diff-filter=D | grep -E "$SOURCES" || true)
 
 if [ -n "$changed" ]; then
   # shellcheck disable=SC2086
   learning/build.sh $changed
   for f in $changed; do
-    git add "learning/build/$(basename "${f%.*}").pdf"
+    git add "$(built "$f")"
   done
 fi
 
 for f in $deleted; do
-  git rm -q -f --ignore-unmatch "learning/build/$(basename "${f%.*}").pdf"
+  git rm -q -f --ignore-unmatch "$(built "$f")"
 done

@@ -8,7 +8,7 @@ quizz. Il ne contient aucun code de l'application et n'est lu par aucun build.
 | Dossier | Rôle | Format |
 |---|---|---|
 | [`fiches/`](fiches/) | une fiche par sujet : le concept, un tableau comparatif, le lien avec le code du projet | Markdown (sources) ; la fiche contraste reste en HTML |
-| [`build/`](build/) | PDF des fiches, **générés** : ne pas les modifier à la main | PDF |
+| [`build/`](build/) | fichiers **générés** : ne pas les modifier à la main | PDF (fiches), CSV (flashcards) |
 | [`flashcards/`](flashcards/) | une série de cartes par sujet, pour la mémorisation | Markdown, cartes `Q:` / `R:` séparées par `---` |
 | [`quizz/`](quizz/) | questions à choix, avec correction | à définir |
 
@@ -20,18 +20,27 @@ quizz. Il ne contient aucun code de l'application et n'est lu par aucun build.
   (`FileControllerIT.java`, `TESTING.md`…), pour que le cours reste lié au code.
 - **Markdown d'abord** : il se lit sur GitHub et se compare bien dans git. Les fiches `.md`
   (et le HTML de la fiche contraste) sont les sources ; les PDF de `build/` en dérivent.
-- **Import Anki** : les cartes `Q:` / `R:` se transforment facilement en CSV.
 
-## Génération des PDF
+## Génération des PDF et des CSV Anki
 
-`learning/build.sh [fiche...]` produit les PDF dans `build/` (toutes les fiches sans
-argument). Le `.md` passe par `pandoc` et [`style.css`](style.css), puis Chrome ou Edge en mode
-headless imprime le HTML en PDF. Prérequis : `pandoc` et un navigateur Chrome, Chromium ou
-Edge.
+`learning/build.sh [source...]` produit les fichiers dans `build/` (toutes les sources sans
+argument) :
+
+- une fiche `.md` passe par `pandoc` et [`style.css`](style.css), puis Chrome ou Edge en mode
+  headless imprime le HTML en PDF ; une fiche `.html` est imprimée directement ;
+- un fichier de flashcards devient un CSV par [`anki_csv.py`](anki_csv.py) (`python3`).
+
+Prérequis : `pandoc`, `python3` et un navigateur Chrome, Chromium ou Edge.
+
+**Import dans Anki** : `Fichier > Importer`, puis le CSV de `build/`. Les en-têtes `#...` du
+fichier choisissent le type de note (Basic) et le paquet (`DataShare::<sujet>`), et le code
+entre accents graves devient du `<code>`. Réimporter après une modification met à jour les
+cartes dont la question n'a pas changé.
 
 Le hook `pre-commit` ([`.githooks/pre-commit`](../.githooks/pre-commit)) le fait
-automatiquement : si un commit ajoute, modifie ou supprime une fiche (ou modifie `build.sh` ou
-`style.css`), les PDF concernés sont régénérés et ajoutés au commit. Activation, une fois par
+automatiquement : si un commit ajoute, modifie ou supprime une fiche ou un fichier de flashcards (ou
+modifie `build.sh`, `anki_csv.py` ou `style.css`), les fichiers concernés sont régénérés et
+ajoutés au commit. Activation, une fois par
 clone :
 
 ```bash
@@ -44,5 +53,5 @@ Pour passer outre ponctuellement : `git commit --no-verify`.
 
 | Sujet | Fiche | Flashcards |
 |---|---|---|
-| Tests back : MockMvc, RANDOM_PORT, RestAssured | [fiche](fiches/tests-back-mockmvc-restassured-randomport.md) · [PDF](build/tests-back-mockmvc-restassured-randomport.pdf) | [cartes](flashcards/tests-back-mockmvc.md) |
+| Tests back : MockMvc, RANDOM_PORT, RestAssured | [fiche](fiches/tests-back-mockmvc-restassured-randomport.md) · [PDF](build/tests-back-mockmvc-restassured-randomport.pdf) | [cartes](flashcards/tests-back-mockmvc.md) · [CSV Anki](build/tests-back-mockmvc.csv) |
 | Contraste (accessibilité) | [fiche HTML](fiches/fiche-contraste-v2.html) · [PDF](build/fiche-contraste-v2.pdf) | — |
