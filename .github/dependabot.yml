@@ -49,6 +49,13 @@ updates:
       interval: weekly
     commit-message:
       prefix: build
+    ignore:
+      # Java 24 n'est pas une LTS (fin de support proche) : rester en 21 (LTS) jusqu'à
+      # la prochaine LTS (25), puis retirer ces règles.
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "maven"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directory: /frontend
@@ -56,3 +63,7 @@ updates:
       interval: weekly
     commit-message:
       prefix: build
+    ignore:
+      # Node 26 n'est pas une LTS : rester sur une version paire LTS (24).
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
