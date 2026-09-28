@@ -11,7 +11,7 @@ Plan de tests vivant. Recoupé par [`docs/CI.md`](docs/CI.md) (pipeline) et
 |---|---|---|---|---|
 | **Back — unitaire** | services, validators, mappers, règles de gestion isolées | JUnit 5 + Mockito | aucune | `backend-unit` |
 | **Back — intégration** | repositories, contrôleurs (MockMvc), sécurité, migrations Flyway | Spring Boot Test + Testcontainers | PostgreSQL, MinIO (conteneurs jetables) | `backend-integ` |
-| **Back — fonctionnel** | scénarios API bout en bout (un ou plusieurs endpoints) | Spring Boot Test (`RANDOM_PORT`) + Testcontainers | idem | `backend-integ` |
+| **Back — fonctionnel** | scénarios API bout en bout (un ou plusieurs endpoints) | Spring Boot Test (MockMvc, enchaînement de requêtes) + Testcontainers | idem | `backend-integ` |
 | **Front — unitaire** | pipes, services, guards, `token.store`, logique de composant isolée | Vitest | aucune | `frontend-unit` |
 | **Front — intégration** | composant rendu + template + DI, intercepteur, formulaire + validation | Vitest + Angular `TestBed` + jsdom | `HttpTestingController` (réponses simulées) | `frontend-integ` |
 | **Front — e2e** | 3–4 parcours critiques dans un vrai navigateur | Cypress | PostgreSQL + MinIO (conteneurs) + backend réel + `ng serve` | `frontend-e2e` |
