@@ -194,11 +194,15 @@
 
 	<build>
 		<plugins>
+
+			<!-- Spring Boot plugin : plugin for packaging and running Spring Boot applications -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
+			<!-- Compiler plugin : plugin for compiling the source code
+			     (lombok artifact is for annotation processing) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -330,6 +334,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- Checkstyle plugin : Check for style violations in source code -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
@@ -349,6 +354,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- PMD plugin : static analysis of source code (bad practices, code smells) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
@@ -362,6 +368,42 @@
 					<failOnViolation>true</failOnViolation>
 				</configuration>
 			</plugin>
+
+			<!-- OWASP Dependency-Check : known vulnerabilities (CVE) in dependencies.
+			     Scans the backend dependencies AND frontend/package-lock.json.
+			     Manual run, not bound to the build lifecycle: NVD_API_KEY=<key> ./mvnw dependency-check:check
+			     See MAINTENANCE.md. -->
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>13.0.0</version>
+				<configuration>
+					<!-- Maven does not read NVD_API_KEY by itself: bind it explicitly -->
+					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+					<!-- Fail on high/critical (CVSS >= 7) -->
+					<failBuildOnCVSS>7</failBuildOnCVSS>
+					<!-- No .NET code here: the analyzer needs `dotnet` and only trips on snappy-java's native
+					     snappyjava.dll (a JNI library, not a .NET assembly) -->
+					<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+					<!-- Do NOT set <dataDirectory>: an explicit value bypasses the default location
+					     (~/.m2/repository/org/owasp/dependency-check-data/11.0) and re-downloads the whole NVD -->
+					<!-- Also scan the frontend npm lockfile. Needs frontend/node_modules (npm ci), otherwise the
+					     lockfile is silently skipped (only a WARNING in the log) -->
+					<scanSet>
+						<fileSet>
+							<directory>${project.basedir}/../frontend</directory>
+							<includes>
+								<include>package-lock.json</include>
+							</includes>
+						</fileSet>
+					</scanSet>
+					<!-- Suppressions at the repository root -->
+					<suppressionFiles>
+						<suppressionFile>${project.basedir}/../dependency-check-suppressions.xml</suppressionFile>
+					</suppressionFiles>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 

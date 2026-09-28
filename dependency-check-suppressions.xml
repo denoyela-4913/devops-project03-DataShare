@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OWASP Dependency-Check : faux positifs supprimés. Chaque entrée DOIT être justifiée
+  (CVE visée, raison, date de revue). Fichier commun au back (Maven) et au front (npm) :
+  les filtres par packageUrl (pkg:maven/… ou pkg:npm/…) ne se recoupent pas. Voir MAINTENANCE.md.
+
+  Exemple :
+  <suppress until="2027-01-01Z">
+    <notes>Faux positif : la CVE-XXXX-YYYY concerne le produit A, pas la lib B.</notes>
+    <packageUrl regex="true">^pkg:maven/com\.example/lib-b@.*$</packageUrl>
+    <cve>CVE-XXXX-YYYY</cve>
+  </suppress>
+-->
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+</suppressions>
