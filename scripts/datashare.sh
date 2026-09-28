@@ -8,13 +8,17 @@
 #   ./scripts/status-appli           ==  ./scripts/datashare.sh status-appli
 #
 # Actions :
-#   start-backend-dev    stack Docker au besoin + mvnw spring-boot:run (profil dev, :8080)
-#   start-backend-prod   .env.prod.local + mvnw package + java -jar (profil prod)
-#   start-frontend-dev   npm start  (ng serve, :4200, proxy /api -> :8080)
-#   start-frontend-prod  npm run start:prod  (build prod + budgets + proxy /api)
-#   stop-backend         arrete le backend lance ici (PID) puis par motif / port 8080
-#   stop-frontend        idem frontend (port 4200)
-#   status-appli         tableau OK/NOK : backend, frontend, conteneurs db/minio/adminer
+#   start-backend-dev     stack Docker au besoin + mvnw spring-boot:run (profil dev, :8080)
+#   start-backend-prod    .env.prod.local + mvnw package + java -jar (profil prod)
+#   start-frontend-dev    npm start  (ng serve, :4200, proxy /api -> :8080)
+#   start-frontend-prod   npm run start:prod  (build prod + budgets + proxy /api)
+#   start-frontend-docker build de frontend/Dockerfile (nginx + build prod) + conteneur
+#                         :8082 - mesure perf/Lighthouse proche d'un vrai deploiement,
+#                         contrairement a start-frontend-prod qui reste ng serve
+#   stop-backend          arrete le backend lance ici (PID) puis par motif / port 8080
+#   stop-frontend         idem frontend (port 4200)
+#   stop-frontend-docker  retire le conteneur de start-frontend-docker
+#   status-appli          tableau OK/NOK : backend, frontend, conteneurs db/minio/adminer
 #
 # Options :
 #   --bg          detache le service (PID + log dans scripts/.run/) au lieu du premier plan
@@ -28,6 +32,9 @@ mkdir -p "$run_dir"
 
 backend_url="http://localhost:8080"
 frontend_url="http://localhost:4200"
+frontend_docker_port="${FRONTEND_DOCKER_PORT:-8082}"
+frontend_docker_image="datashare-frontend-docker"
+frontend_docker_container="datashare-frontend-docker"
 compose_file="$repo_root/deploy/docker-compose.yml"
 compose_env="$repo_root/deploy/.env"
 compose_project="datashare-dev"
@@ -245,6 +252,14 @@ status_appli() {
           ;;
       esac
     done
+    # Optionnel (perf/Lighthouse, start-frontend-docker) : absent la plupart du temps,
+    # ne compte pas dans les NOK.
+    st="$(docker ps --filter "name=$frontend_docker_container" --format '{{.Status}}')"
+    if [ -n "$st" ]; then
+      ok "frontend-docker ($st)"
+    else
+      nok "frontend-docker (arrete)"
+    fi
   else
     nok "docker (client absent)"
     fail=$((fail + 1))
@@ -312,6 +327,25 @@ case "$action" in
     node_check
     run_service frontend "$repo_root/frontend" npm run start:prod
     ;;
+  start-frontend-docker)
+    have docker || die "docker introuvable"
+    # L'IP de la VM WSL (pas host.docker.internal : sous Docker Desktop + WSL2, il
+    # resout vers l'hote Windows, pas la VM WSL ou tourne le backend).
+    wsl_ip="$(hostname -I | awk '{print $1}')"
+    [ -n "$wsl_ip" ] || die "impossible de determiner l'IP a passer en --add-host backend"
+    say "build de l'image frontend (nginx + build prod)..."
+    docker build -q -t "$frontend_docker_image" "$repo_root/frontend" >/dev/null
+    docker rm -f "$frontend_docker_container" >/dev/null 2>&1 || true
+    docker run -d --name "$frontend_docker_container" \
+      --add-host "backend:$wsl_ip" \
+      -p "$frontend_docker_port:80" "$frontend_docker_image" >/dev/null
+    if http_up "http://$wsl_ip:8080/actuator/health"; then
+      say "backend detecte sur $wsl_ip:8080"
+    else
+      say "! backend introuvable sur $wsl_ip:8080 - demarrez-le (start-backend-dev/prod)"
+    fi
+    say "frontend (nginx, build prod) : http://localhost:$frontend_docker_port"
+    ;;
   stop-backend)
     kill_pidfile backend
     if [ "$hard" = 1 ]; then
@@ -345,11 +379,17 @@ case "$action" in
     kill_port 4200
     say "frontend arrete"
     ;;
+  stop-frontend-docker)
+    if have docker; then
+      docker rm -f "$frontend_docker_container" >/dev/null 2>&1 || true
+    fi
+    say "frontend docker arrete"
+    ;;
   status-appli | status)
     status_appli
     ;;
   help)
-    sed -n '2,22p' "${BASH_SOURCE[0]}" | sed 's/^#\{1,\} \{0,1\}//'
+    sed -n '2,26p' "${BASH_SOURCE[0]}" | sed 's/^#\{1,\} \{0,1\}//'
     ;;
   *)
     die "action inconnue : $action"
