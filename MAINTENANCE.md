@@ -89,7 +89,7 @@ npm run lint && npm run test:unit && npm run test:integ && npm run build
 
 À lancer à la demande (avant une release, après un avis de sécurité, ou pour vérifier une PR Dependabot).
 
-**Back — OWASP Dependency-Check** (base NVD) :
+**Back + front — OWASP Dependency-Check** (base NVD, plugin Maven) :
 
 ```bash
 cd backend
@@ -97,39 +97,28 @@ export NVD_API_KEY=<clé NVD>          # sans clé, la mise à jour de la base N
 ./mvnw dependency-check:check          # rapport : backend/target/dependency-check-report.html
 ```
 
+- Un seul outil, un seul rapport : le plugin scanne les dépendances Maven du back **et**
+  `frontend/package-lock.json` (`<scanSet>` dans `pom.xml`). Pas de wrapper npm ni de CLI à télécharger.
 - La clé est lue par `pom.xml` via `${env.NVD_API_KEY}` ; ne jamais la committer. Clé gratuite :
   <https://nvd.nist.gov/developers/request-an-api-key>.
-- Le premier lancement télécharge toute la base NVD (long) ; les suivants ne font qu'une mise à jour incrémentale
-  (cache dans `~/.m2/repository/org/owasp/dependency-check-data`).
+- Le premier lancement télécharge toute la base NVD (long, environ 250 Mo) ; les suivants ne font qu'une mise
+  à jour incrémentale (base dans `~/.m2/repository/org/owasp/dependency-check-data/11.0/`).
+- Ne **pas** définir `<dataDirectory>` dans `pom.xml` : une valeur explicite contourne l'emplacement par défaut
+  (`…/dependency-check-data/11.0/`) et déclenche un nouveau téléchargement complet de la NVD.
+- Durée : environ 1 min 30 quand la base est à jour. Bruit attendu dans la sortie : des `dependency skipped:
+  node module … optional and not installed` (paquets natifs optionnels du lockfile) et une erreur
+  « .NET Assembly Analyzer » (pas de `dotnet` installé) qui n'empêche pas le scan.
 - La commande échoue (code ≠ 0) si une vulnérabilité atteint le seuil CVSS 7 (*high*/*critical*),
   fixé par `failBuildOnCVSS` dans `pom.xml`. Autre seuil ponctuel :
   `./mvnw dependency-check:check -DfailBuildOnCVSS=9`.
-- Un faux positif se supprime dans `dependency-check-suppressions.xml` (à la racine, **commun au back
-  et au front**), avec une note qui justifie (CVE visée, raison) et si possible une date de revue (`until`).
-- La base NVD (`~/.m2/repository/org/owasp/dependency-check-data/`) est **partagée avec le front** :
-  ne pas lancer les deux scans en même temps (base H2 verrouillée pendant la mise à jour).
+- Un faux positif se supprime dans `dependency-check-suppressions.xml` (à la racine), avec une note qui
+  justifie (CVE visée, raison) et si possible une date de revue (`until`). Les filtres `pkg:maven/…` et
+  `pkg:npm/…` ne se recoupent pas.
 - Le plugin n'est **pas** rattaché au cycle Maven (`verify` ne le lance pas) et **pas** câblé en CI :
   le seuil ne s'applique qu'aux lancements manuels. Un futur job CI devrait être planifié plutôt que
   *required* (une CVE publiée demain ferait échouer des PR sans rapport).
 
-**Front — OWASP Dependency-Check (wrapper npm) :**
-
-```bash
-cd frontend
-export NVD_API_KEY=<clé NVD>          # lue automatiquement par le wrapper
-npm run security-check                 # rapport : frontend/reports/dependency-check-report.html
-```
-
-- Le wrapper `owasp-dependency-check` télécharge le CLI OWASP depuis GitHub (dans
-  `frontend/dependency-check-bin/`, ignoré par git) : **Java requis** sur la machine.
-- Scanne `package-lock.json` ; échoue à partir de CVSS 7 (`--failOnCVSS 7` dans le script).
-- Réutilise la base NVD du back (`--data`) et le même fichier de suppressions (`--suppression`). Le CLI
-  est épinglé à `v13.0.0` (`--odc-version`), la même version que le plugin Maven : une version
-  différente utiliserait un autre schéma de base (sous-dossier distinct) et retélécharge toute la NVD.
-  Si vous montez la version du plugin dans `pom.xml`, montez aussi `--odc-version` dans `package.json`.
-- Le script utilise `$HOME` : à lancer depuis WSL/Linux (comme la CI), pas depuis `cmd`/PowerShell.
-
-**Front — `npm audit`** (base d'avis GitHub/npm, plus rapide, sans clé ni Java) :
+**Front seul — `npm audit`** (base d'avis GitHub/npm, plus rapide, sans clé ni Java) :
 
 ```bash
 cd frontend

@@ -17,8 +17,7 @@
     "lint:style": "stylelint \"src/**/*.scss\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify:config": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tools/check-config.mjs",
-    "security-check": "owasp-dependency-check --project DataShare --out ./reports --failOnCVSS 7 --odc-version v13.0.0 --data $HOME/.m2/repository/org/owasp/dependency-check-data --suppression ../dependency-check-suppressions.xml"
+    "verify:config": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tools/check-config.mjs"
   },
   "private": true,
   "packageManager": "npm@11.19.0",
@@ -42,7 +41,6 @@
     "cypress": "^16.1.0",
     "eslint": "^10.9.0",
     "jsdom": "^30.1.1",
-    "owasp-dependency-check": "^1.0.1",
     "prettier": "^3.9.8",
     "start-server-and-test": "^3.0.12",
     "stylelint": "^17.14.1",

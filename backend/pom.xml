@@ -370,6 +370,7 @@
 			</plugin>
 
 			<!-- OWASP Dependency-Check : known vulnerabilities (CVE) in dependencies.
+			     Scans the backend dependencies AND frontend/package-lock.json.
 			     Manual run, not bound to the build lifecycle: NVD_API_KEY=<key> ./mvnw dependency-check:check
 			     See MAINTENANCE.md. -->
 			<plugin>
@@ -381,10 +382,18 @@
 					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
 					<!-- Fail on high/critical (CVSS >= 7) -->
 					<failBuildOnCVSS>7</failBuildOnCVSS>
-					<!-- NVD database shared with the frontend (npm run security-check): same directory,
-					     and same ODC version (the frontend script pins v13.0.0 = this plugin's version) -->
-					<dataDirectory>${user.home}/.m2/repository/org/owasp/dependency-check-data</dataDirectory>
-					<!-- Suppressions shared with the frontend, at the repository root -->
+					<!-- Do NOT set <dataDirectory>: an explicit value bypasses the default location
+					     (~/.m2/repository/org/owasp/dependency-check-data/11.0) and re-downloads the whole NVD -->
+					<!-- Also scan the frontend npm lockfile (same NVD database, same suppressions) -->
+					<scanSet>
+						<fileSet>
+							<directory>${project.basedir}/../frontend</directory>
+							<includes>
+								<include>package-lock.json</include>
+							</includes>
+						</fileSet>
+					</scanSet>
+					<!-- Suppressions at the repository root -->
 					<suppressionFiles>
 						<suppressionFile>${project.basedir}/../dependency-check-suppressions.xml</suppressionFile>
 					</suppressionFiles>
