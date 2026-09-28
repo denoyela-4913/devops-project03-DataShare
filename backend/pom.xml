@@ -33,12 +33,15 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<springdoc.version>3.1.1</springdoc.version>
-		<!-- 8.6.0 corrige CVE-2025-59952 (fuite d'info via substitution XML, GHSA-h7rh-xfpj-hpcm).
-		     Fait passer okhttp en 4.x -> 5.x (okio suit) ; on reste sur la branche 8.x plutôt
-		     que 9.x, dont l'okhttp 5.x plus récent est documenté comme cassant la résolution
-		     Maven pure sans métadonnées Gradle (voir docs/BACKLOG.md). -->
+		<!-- >= 8.6.0 corrige CVE-2025-59952 (fuite d'info via substitution XML, GHSA-h7rh-xfpj-hpcm).
+		     Depuis 8.6.0, okhttp passe en 4.x -> 5.x (okio suit) : la résolution Maven pure est
+		     contournée par l'exclusion du stub okhttp + okhttp-jvm redéclaré (voir plus bas
+		     et docs/BACKLOG.md). -->
 		<minio.version>9.0.3</minio.version>
-		<!-- Classes réelles d'okhttp (le jar "okhttp" plain-Maven est un stub, voir plus bas). -->
+		<!-- Classes réelles d'okhttp (le jar "okhttp" plain-Maven est un stub, voir plus bas).
+		     MinIO 9.0.3 déclare okhttp 5.3.2 ; on garde volontairement 5.5.0 (aucun CVE connu),
+		     qui ajoute la limite de 256 KiB d'en-têtes HTTP/2 (5.4.0) et le rejet des hôtes
+		     non canonicalisables par le vérificateur TLS (5.5.0). -->
 		<okhttp-jvm.version>5.5.0</okhttp-jvm.version>
 		<tika.version>4.0.0</tika.version>
 
@@ -105,7 +108,8 @@
 		     com.squareup.okhttp3:okhttp est un stub vide (manifeste + métadonnées KMP), les
 		     classes réelles vivent dans okhttp-jvm — sans redirection dans son POM (contrairement
 		     à okio -> okio-jvm), donc invisible pour une résolution Maven pure. On exclut le stub
-		     et on redéclare okhttp-jvm à la même version. À vérifier à chaque bump de minio.version
+		     et on redéclare okhttp-jvm (>= version déclarée par MinIO, voir okhttp-jvm.version).
+		     À vérifier à chaque bump de minio.version
 		     (mvn dependency:tree -Dincludes=com.squareup.okhttp3:okhttp). -->
 		<dependency>
 			<groupId>io.minio</groupId>
