@@ -120,8 +120,8 @@ jamais purger sa liste.
 
 ## Couverture de tests
 
-- **Back : porte à 70 % active** (PR #0006) — `jacoco:merge` + `jacoco:check` au `verify`.
-- **Front : porte à 70 % active** (PR #0007) — `tools/check-coverage.mjs` dans `frontend-integ`.
+- [x] **Back : porte à 70 % active** (PR #0006) — `jacoco:merge` + `jacoco:check` au `verify`.
+- [x] **Front : porte à 70 % active** (PR #0007) — `tools/check-coverage.mjs` dans `frontend-integ`.
 
 ## Rotation / refresh token JWT
 

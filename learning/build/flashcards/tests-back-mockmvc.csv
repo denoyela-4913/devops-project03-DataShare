@@ -1,0 +1,15 @@
+#separator:comma
+#html:true
+#notetype:Basic
+#deck:DataShare::tests-back-mockmvc
+Qu'est-ce que MockMvc ?,"Un client de test fourni par Spring (<code>spring-test</code>). Il simule des requêtes HTTP en les envoyant directement à la <code>DispatcherServlet</code>, sans serveur ni réseau."
+"Avec MockMvc, qu'est-ce qui passe par Spring et qu'est-ce qui est court-circuité ?","Passent par Spring : routage, désérialisation JSON, validation, sécurité, <code>@ExceptionHandler</code>. Court-circuité : la couche réseau (Tomcat, sockets)."
+Quelle est la valeur par défaut de <code>webEnvironment</code> dans <code>@SpringBootTest</code> ?,"<code>MOCK</code> : un environnement web simulé, sans serveur. C'est le mode à utiliser avec MockMvc."
+Que fait <code>RANDOM_PORT</code> ?,Il démarre un vrai serveur embarqué (Tomcat) sur un port libre choisi au hasard.
+Pourquoi le port est-il aléatoire avec <code>RANDOM_PORT</code> ?,Pour éviter les conflits de port quand plusieurs tests ou builds tournent en parallèle.
+Quelle annotation récupère le port choisi par <code>RANDOM_PORT</code> ?,"<code>@LocalServerPort</code>, sur un champ <code>int port</code>."
+Citez les quatre valeurs de <code>webEnvironment</code>.,"<code>MOCK</code> (défaut), <code>RANDOM_PORT</code>, <code>DEFINED_PORT</code> (port de la configuration) et <code>NONE</code> (pas d'environnement web)."
+RestAssured a-t-il besoin d'un serveur qui tourne ? Que doit-on lui associer ?,"Oui, car il envoie de vraies requêtes HTTP. On l'associe donc à <code>RANDOM_PORT</code>."
+Quel outil choisir pour tester une limite d'upload appliquée par Tomcat ? Pourquoi ?,RestAssured avec <code>RANDOM_PORT</code>. MockMvc court-circuite Tomcat et ne voit donc pas cette limite.
+"Lequel est le plus rapide, MockMvc ou RestAssured + <code>RANDOM_PORT</code> ?","MockMvc : pas de serveur à démarrer, pas de réseau."
+Quel outil les tests d'intégration du back de DataShare utilisent-ils ?,MockMvc en mode <code>MOCK</code> (voir <code>AbstractIntegrationTest</code> et <code>FileControllerIT</code>). RestAssured n'est pas dans le <code>pom.xml</code>.

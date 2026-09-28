@@ -31,7 +31,7 @@ obligatoire**.
 | `frontend-e2e` | Cypress contre la stack complète (Postgres + MinIO `silo` (GHCR) + backend + `ng serve`) — 3 specs : `auth.cy.ts`, `download.cy.ts`, `history.cy.ts` |
 | `frontend-e2e-webkit` | essai, **non requis** : les 3 mêmes specs Cypress rejoués sur **WebKit** (moteur de Safari) avec un viewport d'iPhone 393×852 (`continue-on-error`). Ne remplace pas un test sur iPhone réel (barres rétractables, mémoire, toucher) |
 | `assert-prod-bundle` | Build prod + vérifie que la config debug ne fuit pas dans `dist/` |
-| `security` | gitleaks + `npm audit`. À venir : OWASP dependency-check, SpotBugs |
+| `security` | gitleaks + `npm audit`. À venir : OWASP dependency-check |
 
 Workflow séparé [`.github/workflows/codeql.yml`](../.github/workflows/codeql.yml) :
 **CodeQL** (voir [§ `codeql`](#codeql)).
@@ -118,8 +118,12 @@ mode verbeux.
   vulnérabilité fait échouer le job ; une indisponibilité de l'endpoint d'avis npm
   (503, timeout) est traitée comme non bloquante (message `::warning::`).
 
-À venir (PR dédiée) : OWASP dependency-check (Maven), SpotBugs (*patterns* de bugs
-Java, ex. `NullPointerException` probable sur un chemin d'exécution).
+À venir (PR dédiée) : OWASP dependency-check (Maven).
+
+**SpotBugs** (*patterns* de bugs Java) évalué et **écarté du MVP** : essai réel sur le
+code compilé → 9 findings priorité medium, 8 de bruit (`EI_EXPOSE_REP*`, quasi
+systématique sur du Spring en injection par constructeur) pour 1 seul signal exploitable
+(`DM_EXIT`). Détail et justification complète : [`BACKLOG.md`](BACKLOG.md#scans-de-sécurité-à-câbler).
 
 ## `codeql`
 
