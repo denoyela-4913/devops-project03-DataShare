@@ -46,17 +46,35 @@ et le rendu navigateur.
 | Cible | Warning | Error |
 |---|---|---|
 | Bundle initial | 500 ko | 1 Mo |
-| Style par composant | 4 ko | 8 ko |
+| Style par composant | 6 ko | 10 ko |
 
 Le job `assert-prod-bundle` échoue si le build dépasse l'*error*.
 
-### Mesure actuelle (squelette, build prod)
+### Mesure actuelle (build prod, `npm run build`)
+
+Relevé du 2026-09-28 sur `master` (`acb31b0`, après #80/#81/#83/#84/#88/#92).
 
 | Métrique | Valeur |
 |---|---|
-| Bundle initial (brut) | ~228 ko |
-| Bundle initial (transféré, gzip) | ~64 ko |
-| Feuille de style globale | < 1 ko |
+| Bundle initial (brut) | 281,74 ko (`main` 278,33 ko + `styles` 3,40 ko) |
+| Bundle initial (transféré, gzip) | 76,76 ko (`main` 75,71 ko + `styles` 1,05 ko) |
+| Feuille de style globale | 3,40 ko brut / 1,05 ko transféré |
+| Plus gros style de composant (CSS compilé) | ~4,7 ko (`history`), ~4,1 ko (`upload`) |
+
+Marge : 218 ko sous le warning du bundle initial (500 ko) ; les styles de composant
+restent sous le warning de 6 ko. Aucun avertissement de budget au build.
+
+Chunks *lazy* (chargés à la navigation) :
+
+| Chunk | Brut | Transféré |
+|---|---|---|
+| `history-routes` | 23,46 ko | 5,75 ko |
+| `upload` | 17,58 ko | 4,77 ko |
+| `download` | 7,55 ko | 2,56 ko |
+| `register-routes` | 5,39 ko | 1,71 ko |
+| `login-routes` | 4,43 ko | 1,55 ko |
+| partagé (sans nom) | 47,16 ko | 10,59 ko |
+| autres (5 petits chunks) | ~7,93 ko | ~3,11 ko |
 
 À suivre : évolution à chaque feature ; objectif de rester **sous le warning de 500 ko**
 brut pour l'initial, lazy-loading des features.
@@ -80,6 +98,10 @@ brut pour l'initial, lazy-loading des features.
 | Speed Index | 3,7 s | 1,9 s |
 
 Interprétation détaillée du run hors debug : §6.
+
+> **Captures à rafraîchir** : ces deux runs datent du 22/09, avant #80 (icône d'upload),
+> #81/#84/#92 (contrastes WCAG AA), #83 (menu latéral) et #88 (`100dvh`), qui touchent
+> le rendu de `/upload`. Les scores ci-dessus sont donc indicatifs jusqu'au prochain run.
 
 > **Note méthodo** : le run hors debug a été pris via le dev-server Angular en
 > configuration production, pas via le nginx de `deploy/` — choix assumé pour éviter de
@@ -122,6 +144,10 @@ Accessibilité ≥ 95.
 
 Pour chaque run, renseigner : charge appliquée, p95/p99, taux d'erreur, goulot
 identifié (CPU / IO disque / connexions BDD / GC), action décidée.
+
+> **Effet des évolutions front #80/#81/#83/#84/#88/#92 sur k6** : aucun. k6 mesure l'API ;
+> ces PR ne touchent que `frontend/src` et des docs de design, et ni le backend ni `perf/`
+> n'ont changé depuis les runs du 22/09. Les résultats ci-dessous restent valables.
 
 ### `ping-smoke.js` — premier run
 
