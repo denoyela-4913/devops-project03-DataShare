@@ -180,6 +180,10 @@ Job CI `security` : actuellement gitleaks + `npm audit` ; **CodeQL** fait (workf
 - **OWASP dependency-check** (Maven) — CVE des dépendances backend, **bloquant en CI**
   (les alertes Dependabot ne bloquent pas). 1er run long (téléchargement de la base NVD)
   → prévoir le cache / une clé API NVD.
+  ↳ Run manuel déjà fait (PR #102, 2026-09-28) : 2 CVE ≥ 7 ouvertes côté back —
+  `tomcat-embed-core` 11.0.24 (9 CVE) et `kotlin-stdlib` 2.3.21 (CVE-2026-53914, 9,8).
+  À corriger (montée de version) avant le câblage CI, sinon le premier job échouera
+  immédiatement. Voir [`SECURITY.md`](../SECURITY.md#4-analyse-des-résultats).
 
 **SpotBugs — écarté du MVP, essai fait.** `spotbugs-maven-plugin` exige la compilation
 (donc sa place naturelle serait `security`, pas `lint-back`) ; avant de le câbler, essai

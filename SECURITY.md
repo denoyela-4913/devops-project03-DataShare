@@ -46,9 +46,9 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 |---|---|---|---|
 | **`npm audit --audit-level=high`** | dépendances frontend | `security` | ☑ — **0 vulnérabilité** au dernier run |
 | **gitleaks** | secrets dans l'historique et le diff | `security` | ☑ — aucun secret détecté |
-| **OWASP dependency-check** | dépendances backend (Maven, base NVD) | `security` | ☐ à câbler (PR dédiée — 1er run long : téléchargement NVD) |
+| **OWASP dependency-check** | dépendances backend (Maven, base NVD) | — (lancement manuel) | ☐ CI non câblée ; **run manuel fait** (PR #102, 2026-09-28) → 2 CVE ≥ 7 ouvertes côté back, voir §4 |
 | **CodeQL** (`security-extended`) | SAST Java + TypeScript | `codeql` (workflow `codeql.yml`) : PR, push `master`, hebdo | ☑ actif — résultats dans *Security › Code scanning* |
-| **SpotBugs** | *patterns* de bugs Java (ex. `NullPointerException` probable) | `security` | ☐ à câbler |
+| **SpotBugs** | *patterns* de bugs Java (ex. `NullPointerException` probable) | — (lancement manuel) | ☐ **essai fait** (9 findings, 8 bruit `EI_EXPOSE_REP*`, 1 signal réel `DM_EXIT`) → **écarté du MVP**, voir §4 |
 | **Dependabot** | PR de mise à jour hebdo (maven, npm, actions, docker) | — | ☑ actif — voir [`MAINTENANCE.md`](MAINTENANCE.md) |
 | **Dependabot security alerts** | CVE connues des dépendances (Maven **backend compris**, npm, Actions) — alerte dans *Security › Dependabot* | — (paramètre du dépôt) | ☑ actif — couvre en partie, sans bloquer la CI, le périmètre d'OWASP dependency-check en attendant son câblage |
 
@@ -60,8 +60,13 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
   de dev explicitement factices (`application-dev.yml`, `.env.example`).
 - **Code (Java + TypeScript)** : CodeQL actif ; les alertes éventuelles sont triées dans
   *Security › Code scanning* (correction, ou rejet motivé et daté ici).
-- **Backend (dépendances)** : Dependabot security alerts actives ; analyse OWASP
-  dependency-check / SpotBugs en attente de câblage.
+- **Backend (dépendances)** : Dependabot security alerts actives ; **run manuel OWASP
+  dependency-check fait** (2026-09-28, procédure [`MAINTENANCE.md`](MAINTENANCE.md#audit-de-vulnérabilités-des-dépendances-manuel)) —
+  2 CVE `high`/`critical` ouvertes sur le back : `tomcat-embed-core` 11.0.24 (9 CVE ≥ 7)
+  et `kotlin-stdlib` 2.3.21 (CVE-2026-53914, 9,8). Pas encore corrigées ni de dérogation
+  documentée ⚠️ — non bloquant tant que l'outil n'est pas câblé en CI, mais à traiter avant
+  release. Suivi : [`docs/BACKLOG.md`](docs/BACKLOG.md#scans-de-sécurité-à-câbler).
+  SpotBugs : écarté du MVP (essai fait, voir même section du backlog).
 
 ## 5. Politique
 
