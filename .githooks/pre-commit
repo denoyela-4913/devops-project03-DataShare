@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Régénère les PDF de learning/build/ quand une fiche (learning/fiches/*.md ou *.html)
+# est ajoutée, modifiée ou supprimée dans le commit, puis les ajoute au commit.
+# Activation (une fois par clone) : git config core.hooksPath .githooks
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+# build.sh ou style.css modifiés : tous les PDF sont concernés.
+if git diff --cached --name-only | grep -qE '^learning/(build\.sh|style\.css)$'; then
+  learning/build.sh
+  git add learning/build/*.pdf
+  exit 0
+fi
+
+changed=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^learning/fiches/[^/]+\.(md|html)$' || true)
+deleted=$(git diff --cached --name-only --diff-filter=D | grep -E '^learning/fiches/[^/]+\.(md|html)$' || true)
+
+if [ -n "$changed" ]; then
+  # shellcheck disable=SC2086
+  learning/build.sh $changed
+  for f in $changed; do
+    git add "learning/build/$(basename "${f%.*}").pdf"
+  done
+fi
+
+for f in $deleted; do
+  git rm -q -f --ignore-unmatch "learning/build/$(basename "${f%.*}").pdf"
+done

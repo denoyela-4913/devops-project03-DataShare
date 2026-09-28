@@ -42,3 +42,7 @@ coverage/
 tmp/
 scripts/.run/
 backend/deptree.txt
+
+# --- learning : fichiers temporaires de build.sh (les PDF de learning/build/ sont versionnés) ---
+learning/build/.chrome-*
+learning/build/.tmp-*
