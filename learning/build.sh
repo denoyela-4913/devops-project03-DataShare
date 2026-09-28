@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Génère les PDF des fiches de learning/fiches/ dans learning/build/.
+# Génère les PDF des fiches (learning/build/fiches/) et les CSV Anki des flashcards
+# (learning/build/flashcards/).
 #   - fiches .md   -> pandoc (HTML + style.css), puis Chrome / Edge headless
 #   - fiches .html -> Chrome / Edge headless (le HTML est la source de référence)
 #   - flashcards/*.md -> CSV pour l'import Anki (anki_csv.py, python3)
@@ -9,7 +10,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 OUT=build
-mkdir -p "$OUT"
+mkdir -p "$OUT/fiches" "$OUT/flashcards"
 
 if [ "$#" -gt 0 ]; then
   files=("$@")
@@ -67,13 +68,13 @@ for f in "${files[@]}"; do
   name=$(basename "${f%.*}")
   case "$f" in
     flashcards/*.md)
-      out="$OUT/$name.csv"
+      out="$OUT/flashcards/$name.csv"
       python3 anki_csv.py "$f" "$out" ;;
     fiches/*.md)
-      out="$OUT/$name.pdf"
+      out="$OUT/fiches/$name.pdf"
       md_to_pdf "$f" "$out" ;;
     fiches/*.html)
-      out="$OUT/$name.pdf"
+      out="$OUT/fiches/$name.pdf"
       html_to_pdf "$f" "$out" ;;
     *) echo "format ignoré : $f" >&2; continue ;;
   esac

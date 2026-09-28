@@ -8,7 +8,8 @@ quizz. Il ne contient aucun code de l'application et n'est lu par aucun build.
 | Dossier | Rôle | Format |
 |---|---|---|
 | [`fiches/`](fiches/) | une fiche par sujet : le concept, un tableau comparatif, le lien avec le code du projet | Markdown (sources) ; la fiche contraste reste en HTML |
-| [`build/`](build/) | fichiers **générés** : ne pas les modifier à la main | PDF (fiches), CSV (flashcards) |
+| [`build/fiches/`](build/fiches/) | PDF des fiches, **générés** : ne pas les modifier à la main | PDF |
+| [`build/flashcards/`](build/flashcards/) | CSV d'import Anki, **générés** : idem | CSV |
 | [`flashcards/`](flashcards/) | une série de cartes par sujet, pour la mémorisation | Markdown, cartes `Q:` / `R:` séparées par `---` |
 | [`quizz/`](quizz/) | questions à choix, avec correction | à définir |
 
@@ -19,11 +20,11 @@ quizz. Il ne contient aucun code de l'application et n'est lu par aucun build.
 - **Ancrage dans le projet** : chaque fiche renvoie vers les fichiers réels
   (`FileControllerIT.java`, `TESTING.md`…), pour que le cours reste lié au code.
 - **Markdown d'abord** : il se lit sur GitHub et se compare bien dans git. Les fiches `.md`
-  (et le HTML de la fiche contraste) sont les sources ; les PDF de `build/` en dérivent.
+  (et le HTML de la fiche contraste) sont les sources ; les fichiers de `build/` en dérivent.
 
 ## Génération des PDF et des CSV Anki
 
-`learning/build.sh [source...]` produit les fichiers dans `build/` (toutes les sources sans
+`learning/build.sh [source...]` produit les fichiers dans `build/fiches/` (PDF) et `build/flashcards/` (CSV) (toutes les sources sans
 argument) :
 
 - une fiche `.md` passe par `pandoc` et [`style.css`](style.css), puis Chrome ou Edge en mode
@@ -32,7 +33,7 @@ argument) :
 
 Prérequis : `pandoc`, `python3` et un navigateur Chrome, Chromium ou Edge.
 
-**Import dans Anki** : `Fichier > Importer`, puis le CSV de `build/`. Les en-têtes `#...` du
+**Import dans Anki** : `Fichier > Importer`, puis le CSV de `build/flashcards/`. Les en-têtes `#...` du
 fichier choisissent le type de note (Basic) et le paquet (`DataShare::<sujet>`), et le code
 entre accents graves devient du `<code>`. Réimporter après une modification met à jour les
 cartes dont la question n'a pas changé.
@@ -53,5 +54,5 @@ Pour passer outre ponctuellement : `git commit --no-verify`.
 
 | Sujet | Fiche | Flashcards |
 |---|---|---|
-| Tests back : MockMvc, RANDOM_PORT, RestAssured | [fiche](fiches/tests-back-mockmvc-restassured-randomport.md) · [PDF](build/tests-back-mockmvc-restassured-randomport.pdf) | [cartes](flashcards/tests-back-mockmvc.md) · [CSV Anki](build/tests-back-mockmvc.csv) |
-| Contraste (accessibilité) | [fiche HTML](fiches/fiche-contraste-v2.html) · [PDF](build/fiche-contraste-v2.pdf) | — |
+| Tests back : MockMvc, RANDOM_PORT, RestAssured | [fiche](fiches/tests-back-mockmvc-restassured-randomport.md) · [PDF](build/fiches/tests-back-mockmvc-restassured-randomport.pdf) | [cartes](flashcards/tests-back-mockmvc.md) · [CSV Anki](build/flashcards/tests-back-mockmvc.csv) |
+| Contraste (accessibilité) | [fiche HTML](fiches/fiche-contraste-v2.html) · [PDF](build/fiches/fiche-contraste-v2.pdf) | — |
