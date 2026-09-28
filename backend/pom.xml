@@ -381,8 +381,12 @@
 					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
 					<!-- Fail on high/critical (CVSS >= 7) -->
 					<failBuildOnCVSS>7</failBuildOnCVSS>
+					<!-- NVD database shared with the frontend (npm run security-check): same directory,
+					     and same ODC version (the frontend script pins v13.0.0 = this plugin's version) -->
+					<dataDirectory>${user.home}/.m2/repository/org/owasp/dependency-check-data</dataDirectory>
+					<!-- Suppressions shared with the frontend, at the repository root -->
 					<suppressionFiles>
-						<suppressionFile>${project.basedir}/dependency-check-suppressions.xml</suppressionFile>
+						<suppressionFile>${project.basedir}/../dependency-check-suppressions.xml</suppressionFile>
 					</suppressionFiles>
 				</configuration>
 			</plugin>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   OWASP Dependency-Check : faux positifs supprimés. Chaque entrée DOIT être justifiée
-  (CVE visée, raison, date de revue). Voir MAINTENANCE.md.
+  (CVE visée, raison, date de revue). Fichier commun au back (Maven) et au front (npm) :
+  les filtres par packageUrl (pkg:maven/… ou pkg:npm/…) ne se recoupent pas. Voir MAINTENANCE.md.
 
   Exemple :
   <suppress until="2027-01-01Z">

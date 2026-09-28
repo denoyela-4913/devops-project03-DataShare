@@ -18,7 +18,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify:config": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tools/check-config.mjs",
-    "security-check": "owasp-dependency-check --project DataShare --out ./reports --failOnCVSS 7"
+    "security-check": "owasp-dependency-check --project DataShare --out ./reports --failOnCVSS 7 --odc-version v13.0.0 --data $HOME/.m2/repository/org/owasp/dependency-check-data --suppression ../dependency-check-suppressions.xml"
   },
   "private": true,
   "packageManager": "npm@11.19.0",
