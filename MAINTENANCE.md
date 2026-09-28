@@ -92,6 +92,7 @@ npm run lint && npm run test:unit && npm run test:integ && npm run build
 **Back + front — OWASP Dependency-Check** (base NVD, plugin Maven) :
 
 ```bash
+(cd frontend && npm ci)                # prérequis : voir ci-dessous
 cd backend
 export NVD_API_KEY=<clé NVD>          # sans clé, la mise à jour de la base NVD est très lente / limitée
 ./mvnw dependency-check:check          # rapport : backend/target/dependency-check-report.html
@@ -99,6 +100,9 @@ export NVD_API_KEY=<clé NVD>          # sans clé, la mise à jour de la base N
 
 - Un seul outil, un seul rapport : le plugin scanne les dépendances Maven du back **et**
   `frontend/package-lock.json` (`<scanSet>` dans `pom.xml`). Pas de wrapper npm ni de CLI à télécharger.
+- **`frontend/node_modules` doit exister** (`npm ci`) : sans lui, le plugin n'analyse pas `package-lock.json`
+  et ne le signale que par un `[WARNING] … the node_modules directory does not exist`. Le scan passe alors
+  « vert » sans avoir regardé le front. Vérifier que le rapport contient des paquets `pkg:npm/…`.
 - La clé est lue par `pom.xml` via `${env.NVD_API_KEY}` ; ne jamais la committer. Clé gratuite :
   <https://nvd.nist.gov/developers/request-an-api-key>.
 - Le premier lancement télécharge toute la base NVD (long, environ 250 Mo) ; les suivants ne font qu'une mise
@@ -106,8 +110,8 @@ export NVD_API_KEY=<clé NVD>          # sans clé, la mise à jour de la base N
 - Ne **pas** définir `<dataDirectory>` dans `pom.xml` : une valeur explicite contourne l'emplacement par défaut
   (`…/dependency-check-data/11.0/`) et déclenche un nouveau téléchargement complet de la NVD.
 - Durée : environ 1 min 30 quand la base est à jour. Bruit attendu dans la sortie : des `dependency skipped:
-  node module … optional and not installed` (paquets natifs optionnels du lockfile) et une erreur
-  « .NET Assembly Analyzer » (pas de `dotnet` installé) qui n'empêche pas le scan.
+  node module … optional and not installed` (paquets natifs optionnels du lockfile). L'analyseur .NET est
+  désactivé (`assemblyAnalyzerEnabled`) : sans code .NET, il ne fait que se plaindre de l'absence de `dotnet`.
 - La commande échoue (code ≠ 0) si une vulnérabilité atteint le seuil CVSS 7 (*high*/*critical*),
   fixé par `failBuildOnCVSS` dans `pom.xml`. Autre seuil ponctuel :
   `./mvnw dependency-check:check -DfailBuildOnCVSS=9`.

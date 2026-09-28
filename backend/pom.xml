@@ -382,9 +382,13 @@
 					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
 					<!-- Fail on high/critical (CVSS >= 7) -->
 					<failBuildOnCVSS>7</failBuildOnCVSS>
+					<!-- No .NET code here: the analyzer needs `dotnet` and only trips on snappy-java's native
+					     snappyjava.dll (a JNI library, not a .NET assembly) -->
+					<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
 					<!-- Do NOT set <dataDirectory>: an explicit value bypasses the default location
 					     (~/.m2/repository/org/owasp/dependency-check-data/11.0) and re-downloads the whole NVD -->
-					<!-- Also scan the frontend npm lockfile (same NVD database, same suppressions) -->
+					<!-- Also scan the frontend npm lockfile. Needs frontend/node_modules (npm ci), otherwise the
+					     lockfile is silently skipped (only a WARNING in the log) -->
 					<scanSet>
 						<fileSet>
 							<directory>${project.basedir}/../frontend</directory>
