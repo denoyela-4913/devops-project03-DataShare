@@ -41,6 +41,11 @@ esac
 c_ok=$'\033[32m'
 c_no=$'\033[31m'
 c_off=$'\033[0m'
+# Test sans coloration (KO le 28/09/2026)
+c_ok=''
+c_no=''
+c_off=''
+
 say() { printf '%s\n' "$*"; }
 ok() { printf '  %sOK %s %s\n' "$c_ok" "$c_off" "$*"; }
 nok() { printf '  %sNOK%s %s\n' "$c_no" "$c_off" "$*"; }
