@@ -35,6 +35,13 @@ updates:
         patterns:
           - "vitest"
           - "@vitest/*"
+    ignore:
+      # @angular/build (peerOptional vitest ^4.0.8) ne supporte pas vitest 5 : rester en 4.x
+      # jusqu'à ce qu'@angular/build élargisse sa peer, puis retirer cette règle.
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitest/*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directory: /backend
