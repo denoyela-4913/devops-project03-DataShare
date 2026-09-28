@@ -214,7 +214,13 @@ non requis). Restent :
 Cohérent avec la règle déjà appliquée à Spring Boot/Angular (jamais de version hors
 support OSS, voir [`MAINTENANCE.md`](../MAINTENANCE.md)).
 
-## Conteneurisation complète
+## Conteneurisation complète — hors périmètre MVP
 
 `docker-compose.prod.yml` (backend + frontend nginx + db) et les scripts d'installation
-complets : PR ultérieure dédiée au déploiement.
+complets : PR ultérieure dédiée au déploiement. **Hors périmètre MVP** : le MVP (US01→US06)
+porte sur les fonctionnalités, pas le déploiement ; les deux `Dockerfile` (backend,
+frontend) existent déjà individuellement et sont utilisables tels quels, seule
+l'orchestration manque. `deploy/` (Postgres + MinIO dev) suffit aux tests d'intégration
+(Testcontainers, indépendants de ce compose) et aux scénarios e2e. Recoupé par la section
+« Durcissement HTTP (prod) » ci-dessus (CORS, en-têtes de sécurité), également différée à
+cette même PR.
