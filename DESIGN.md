@@ -9,11 +9,14 @@ Vue produit / architecture. Le **processus** de passation Figma ⇄ code est dan
 |---|---|---|---|---|---|
 | US03 — création de compte | `/register` | `features/auth/register` + `field-error` | `POST /api/auth/register` | `RegisterRequest` → `TokenResponse` | ☑ (front + back, e2e) |
 | US04 — connexion | `/login` | `features/auth/login` + `field-error` | `POST /api/auth/login` | `LoginRequest` → `TokenResponse` | ☑ |
-| US01 — upload (compte) | `/upload` (garde `authGuard`) | `features/upload` (landing/form/succès) + `field-error` | `POST /api/files` (multipart, JWT requis) | `file` + `password?` + `expirationDays` → `UploadResponse` | ☑ (front + back ; US07 anonyme relâchera la garde) |
+| US01 — upload (compte) | `/upload` (garde `authGuard`) | `features/upload` (landing/form/succès) + `field-error` | `POST /api/files` (multipart, JWT requis) | `file` + `password?` + `expirationDays` → `UploadResponse` | ☑ (front + back ; voir US07 ci-dessous) |
+| US07 — upload anonyme | `/upload` (relâche la garde `authGuard`, réutilise US01) | `features/upload` (réutilisé) | `POST /api/files` (sans JWT) | `file` + `password?` + `expirationDays` → `UploadResponse` | ☐ (non traité, hors MVP) |
 | US02 — téléchargement | `/d/:token` (public) | `features/download` | `GET`/`POST /api/d/{token}` | `FileMetadata` | ☑ (front + back, e2e ; visuel Figma livré, expiration relative) |
+| US09 — mot de passe fichier | `/upload`, `/d/:token` (réutilise US01/US02) | `features/upload` (champ `upload-password-input`) + `features/download` (invite `download-password-input`) | `POST /api/files` (`password?`) ; `GET`/`POST /api/d/{token}` (403 si mdp invalide) | `UploadResponse` / `FileMetadata.passwordProtected` | ☑ (front + back, e2e `download.cy.ts`) |
 | US05 — historique | `/history` (garde `authGuard`, `/` y redirige) | `features/history` + `file-card` + `ui-switch`, pipes `expiryStatus`/`fileSize` | `GET /api/files` (+ `GET /api/me` pour l'email) | `FileSummary[]` | ☑ (front + back, e2e ; visuel Figma livré) |
 | US06 — suppression | `/history` | `file-card` + `confirm-dialog` (`<dialog>` natif) | `DELETE /api/files/{id}` → `204` | — | ☑ (front + back, e2e) |
 | US08 — tags | `/history`, `/upload` | `tag-chip`, filtrage | endpoints tags (`V2`) | `Tag[]` | ☐ |
+| US10 — expiration auto | — (job serveur, pas de route front) | `ExpiredFilePurger` (`com.datashare.maintenance`), `PurgeWrapper` (`deploy/purge-expired.sh`) | — | — | ◐ purge testée, déclenchement manuel (`@Scheduled` à câbler) |
 | Transverse — erreurs | toutes | `form-error` (dans la carte), `form-notice` (succès), `error-toast` (filet réseau) | — | `ErrorResponse` | ☑ |
 
 ## 2. Système visuel (design system)
