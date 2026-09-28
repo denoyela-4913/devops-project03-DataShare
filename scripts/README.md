@@ -16,8 +16,10 @@ déduite de leur nom.
 | Backend prod | `./scripts/start-backend-prod` | `.\scripts\start-backend-prod.ps1` | `scripts\start-backend-prod.cmd` |
 | Frontend dev (`:4200`) | `./scripts/start-frontend-dev` | `.\scripts\start-frontend-dev.ps1` | `scripts\start-frontend-dev.cmd` |
 | Frontend prod | `./scripts/start-frontend-prod` | `.\scripts\start-frontend-prod.ps1` | `scripts\start-frontend-prod.cmd` |
+| Frontend « prod » en conteneur nginx (perf/Lighthouse, `:8082`) | `./scripts/start-frontend-docker` | — | — |
 | Stopper le backend | `./scripts/stop-backend` | `.\scripts\stop-backend.ps1` | `scripts\stop-backend.cmd` |
 | Stopper le frontend | `./scripts/stop-frontend` | `.\scripts\stop-frontend.ps1` | `scripts\stop-frontend.cmd` |
+| Stopper le frontend docker | `./scripts/stop-frontend-docker` | — | — |
 | Statut OK/NOK | `./scripts/status-appli` | `.\scripts\status-appli.ps1` | `scripts\status-appli.cmd` |
 
 Équivalent en sous-commande : `./scripts/datashare.sh <action>` /
@@ -46,9 +48,19 @@ déduite de leur nom.
   Avertit si la version de Node ≠ `frontend/.nvmrc`.
 - **start-frontend-prod** — `npm run start:prod` (`ng serve --configuration
   production` : build prod, budgets, `/styleguide` retiré, même proxy `/api`).
+  Reste le dev-server Angular, pas un vrai déploiement.
+- **start-frontend-docker** — construit `frontend/Dockerfile` (build prod servi par
+  nginx : gzip, cache des assets hashés) et lance le conteneur sur `:8082` (port
+  configurable via `FRONTEND_DOCKER_PORT`), relié au backend lancé en dehors de Docker
+  via `--add-host backend:<IP de la VM WSL>` — `host.docker.internal`/`host-gateway`
+  résout vers l'hôte Windows sous Docker Desktop + WSL2, pas vers la VM où tourne le
+  backend, d'où ce contournement. Sert à mesurer perf/Lighthouse dans des conditions
+  proches d'un vrai déploiement (voir `PERF.md`). Bash/WSL + Docker Desktop pour
+  l'instant, pas de `.ps1`/`.cmd`.
 - **stop-backend** / **stop-frontend** — tuent le process du `.pid` (arbre
   complet), puis par motif (`spring-boot:run`, `datashare-backend` / `ng serve`)
   et enfin ce qui écoute sur `8080` / `4200`.
+- **stop-frontend-docker** — retire le conteneur (`docker rm -f`).
 - **status-appli** — tableau `OK/NOK` : backend (`/actuator/health`), frontend
   (`:4200`), conteneurs `datashare-dev-{db,minio,adminer}-1`. Code de sortie =
   nombre de `NOK`.
