@@ -110,6 +110,47 @@ jamais purger sa liste.
 - **Filtre Tous/Actifs/Expiré côté client** : appliqué sur la liste déjà chargée, pas de
   paramètre serveur. Cohérent avec l'absence de pagination.
 
+## Lien de partage (`/d/{token}`) — construction côté client
+
+**Constat** (recette manuelle Lighthouse/perf, 2026-09-28) : le lien affiché après un
+upload et dans la carte de l'historique (« Accéder ») est construit **côté backend**
+(`FileService.toSummary` / `FileService.upload`, `properties.baseDownloadUrl() + "/" +
+token`), à partir de `DATASHARE_DOWNLOAD_BASE_URL` — variable dont la valeur par défaut
+(`http://localhost:4200/d`, `application.yml`) suppose que le front tourne sur `:4200`
+(`ng serve`). Dès qu'on sert le front autrement (ex. conteneur nginx sur un autre port,
+comme pour un run Lighthouse « proche prod »), le lien pointe vers le mauvais port tant
+qu'on n'a pas resynchronisé la variable à la main — piège identique pour
+`start-backend-prod`, qui génère `deploy/.env.prod.local` avec le même défaut `:4200`
+au premier lancement.
+**Contournement en place** : fixer `DATASHARE_DOWNLOAD_BASE_URL` à la bonne valeur avant
+de démarrer le backend (`export` en dev, éditer `deploy/.env.prod.local` en prod locale).
+Fonctionne mais demande de s'en souvenir à chaque changement de port/domaine.
+
+**Correctif proposé (PR dédiée)** : reconstruire le lien **côté front**, à partir de
+`window.location.origin` (l'origine réellement chargée par le navigateur) plutôt que de
+recopier tel quel le `downloadUrl` renvoyé par l'API :
+
+- un helper partagé, ex. `shareUrl(token) = \`${window.location.origin}/d/${token}\`` ;
+- écran d'upload (`upload.ts`) : `UploadResponse` a déjà un champ `token`, aucun
+  changement backend nécessaire ;
+- carte de l'historique (`file-card.html`) : `FileSummary`/`FileSummaryResponse` n'exposent
+  aujourd'hui que `downloadUrl` déjà construit — ajouter un champ `token` (la donnée existe
+  déjà sur l'entité, `file.getDownloadToken()`) plutôt que de parser le token depuis
+  `downloadUrl` côté front (coupler le front à la forme de l'URL serveur serait fragile).
+- tests à ajuster : `upload.integ.spec.ts` (assertion sur `shareUrl()`), `file-card.spec.ts`
+  (assertion sur `href`), côté backend `FileServiceTest`/`FileControllerIT` si le DTO gagne
+  un champ `token`.
+- `downloadUrl` peut être conservé côté API pour d'éventuels consommateurs externes, ou
+  retiré avec `DATASHARE_DOWNLOAD_BASE_URL` si on juge qu'il ne sert plus à rien — à
+  trancher au moment de la PR.
+
+**Non concerné** : les appels `/api/...` du front sont en chemin relatif (`apiUrl: '/api'`),
+proxifiés par nginx vers `backend:8080` en dur (`proxy_pass`) — cette variable n'a jamais
+influencé quel port backend est contacté, seulement quelle page s'ouvre au clic sur
+« Accéder ».
+
+**Statut : non planifié**, priorité maintenance/config de test plutôt que fonctionnelle.
+
 ## Affichage des erreurs / notifications — différé
 
 - **Token de succès (vert)** : `form-notice` utilise pour l'instant les tokens Callout
