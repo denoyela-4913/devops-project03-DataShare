@@ -3,9 +3,11 @@
 Méthodologie, budgets et résultats. Recoupé par [`docs/CI.md`](docs/CI.md).
 
 > Mesures serveur (k6) : `ping`, `upload` et `download` faits, résultats et interprétation en §6.
-> Mesure navigateur (Lighthouse) : run debug (Performance 56) et run hors debug via
-> `ng serve --configuration production` (Performance 77) faits, résultats et interprétation
-> en §6 (tableau comparatif en §3). Les budgets front et la méthodo sont définitifs.
+> Mesure navigateur (Lighthouse) : run debug (Performance 56), run hors debug via
+> `ng serve --configuration production` (Performance 77) et run **frontend-docker + backend-prod**
+> (nginx + build prod réel, Performance 99, config de déploiement la plus proche de la prod) faits,
+> résultats et interprétation en §6 (tableau comparatif en §3). Les budgets front et la méthodo
+> sont définitifs.
 
 ## 1. Endpoints critiques
 
@@ -81,34 +83,40 @@ brut pour l'initial, lazy-loading des features.
 
 ### Navigateur
 
-☑ Lighthouse (Performance, Accessibilité, Bonnes pratiques, SEO) — deux runs sur
-`/upload` : **mode debug** (référence) et **run hors debug** via
-`ng serve --configuration production` :
+☑ Lighthouse (Performance, Accessibilité, Bonnes pratiques, SEO) — trois runs sur
+`/upload` : **mode debug** (référence), **run hors debug** via
+`ng serve --configuration production`, et **run frontend-docker + backend-prod**
+(nginx servant le build `ng build --configuration production` réel, via
+`scripts/start-frontend-docker`, + backend en profil `prod` via
+`scripts/start-backend-prod`) :
 
-| Métrique | Run debug | Run hors debug (`ng serve --configuration production`) |
-|---|---|---|
-| Performance | 56 | 77 |
-| Accessibilité | 100 | 96 |
-| Bonnes pratiques | 100 | 100 |
-| SEO | 91 | 91 |
-| First Contentful Paint | 3,2 s | 1,9 s |
-| Largest Contentful Paint | 6,6 s | 2,5 s |
-| Total Blocking Time | 100 ms | 30 ms |
-| Cumulative Layout Shift | 0,052 | 0,024 |
-| Speed Index | 3,7 s | 1,9 s |
+| Métrique | Run debug | Run hors debug (`ng serve --configuration production`) | Run frontend-docker + backend-prod (nginx, build prod réel) |
+|---|---|---|---|
+| Performance | 56 | 77 | 99 |
+| Accessibilité | 100 | 96 | 100 |
+| Bonnes pratiques | 100 | 100 | 100 |
+| SEO | 91 | 91 | 82 |
+| First Contentful Paint | 3,2 s | 1,9 s | 1,3 s |
+| Largest Contentful Paint | 6,6 s | 2,5 s | 2,2 s |
+| Total Blocking Time | 100 ms | 30 ms | 10 ms |
+| Cumulative Layout Shift | 0,052 | 0,024 | 0 |
+| Speed Index | 3,7 s | 1,9 s | 1,3 s |
 
-Interprétation détaillée du run hors debug : §6.
+Interprétation détaillée des runs hors debug et frontend-docker + backend-prod : §6.
 
-> **Captures à rafraîchir** : ces deux runs datent du 22/09, avant #80 (icône d'upload),
-> #81/#84/#92 (contrastes WCAG AA), #83 (menu latéral) et #88 (`100dvh`), qui touchent
-> le rendu de `/upload`. Les scores ci-dessus sont donc indicatifs jusqu'au prochain run.
+> **Captures à rafraîchir** : les deux premiers runs (debug, hors debug) datent du
+> 22/09, avant #80 (icône d'upload), #81/#84/#92 (contrastes WCAG AA), #83 (menu
+> latéral) et #88 (`100dvh`), qui touchent le rendu de `/upload` — leurs scores restent
+> indicatifs. Le run frontend-docker + backend-prod, lui, a été capturé le 28/09 sur
+> `master` après ces PR (et après #99→#112) : c'est la mesure la plus représentative de
+> l'état actuel et de la prod réelle.
 >
 > **Note méthodo** : le run hors debug a été pris via le dev-server Angular en
-> configuration production, pas via le nginx de `deploy/` — choix assumé pour éviter de
-> monter tout le conteneur juste pour une capture, disclosé ici. Le dev-server est plus
-> pénalisant que nginx (pas de minification/compression HTTP aussi poussées qu'un vrai
-> `ng build --configuration production` servi statiquement), donc le score réel en
-> déploiement devrait être meilleur que 77.
+> configuration production, pas via le nginx de `deploy/` — choix assumé à l'époque pour
+> éviter de monter tout le conteneur juste pour une capture, disclosé ici. Le dev-server
+> est plus pénalisant que nginx (pas de minification/compression HTTP aussi poussées
+> qu'un vrai `ng build --configuration production` servi statiquement) : le run
+> frontend-docker + backend-prod confirme cette hypothèse (99 vs 77 prédit meilleur).
 
 Pages restantes à couvrir au fil des écrans livrés. Cible indicative : Performance ≥ 90,
 Accessibilité ≥ 95.
@@ -131,13 +139,22 @@ Accessibilité ≥ 95.
 
 - `k6-ping.png`, `k6-upload.png`, `k6-download.png` — captures des sorties du premier
   run pour chaque script (☑ disponibles, interprétation en §6).
-- `lighthouse-upload.png` (scores), `lighthouse-upload-details-part1-stats.png`,
-  `lighthouse-upload-details-part2-diags.png` — run hors debug
+- `lighthouse-upload-prod.png` (scores) et
+  `detailled/lighthouse-upload-prod-all_details.pdf` (rapport complet) — run
+  **frontend-docker + backend-prod** (nginx, build prod réel) sur `/upload`
+  (☑ disponibles, interprétation en §6).
+- `lighthouse-download-prod.png` et
+  `detailled/lighthouse-download-prod-all_details.pdf` — même config, page `/d/:token`
+  (lien réel protégé par mot de passe, run capturé séparément le même jour) (☑
+  disponibles, interprétation et comparaison avec `/upload` en §6).
+- `detailled/dev/lighthouse-upload-dev_v1_no DEBUG.png` (+
+  `-details-part1-stats.png`/`-part2-diags.png`) — run hors debug
   (`ng serve --configuration production`) sur `/upload` (☑ disponibles, interprétation
-  en §6).
-- `lighthouse-upload(DEBUG).png`, `lighthouse-upload(DEBUG)-details-part1-stats.png`,
-  `lighthouse-upload(DEBUG)-details-part2-diags.png` — premier run **mode debug**,
-  conservé en annexe pour comparaison (☑ disponibles, non représentatif — voir §3).
+  en §6 ; déplacés depuis la racine par #109).
+- `detailled/dev/lighthouse-upload-dev_v1.png` (+ `-details-part1-stats.png`/
+  `-part2-diags.png`) — premier run **mode debug**, conservé en annexe pour
+  comparaison (☑ disponibles, non représentatif — voir §3 ; déplacés depuis la racine
+  par #109).
 - logs serveur / métriques Actuator pertinents (⏳)
 
 ## 6. Interprétation
@@ -215,3 +232,104 @@ identifié (CPU / IO disque / connexions BDD / GC), action décidée.
   rassurant plutôt qu'un point faible à cacher. Si le temps le permet : (1) un run via un
   vrai build + `deploy/` (nginx) pour confirmer le score réel de prod ; (2) creuser
   l'écart Accessibilité 96/100.
+
+### Lighthouse — run frontend-docker + backend-prod (nginx, build prod réel)
+
+- **Contexte** : run pris via `scripts/start-frontend-docker` (build de
+  `frontend/Dockerfile`, nginx servant le vrai `ng build --configuration production`,
+  port 8082) avec le backend en profil `prod` via `scripts/start-backend-prod` (port
+  8080) — la config la plus proche d'un déploiement réel testée à ce jour, répondant au
+  point ouvert du run précédent. Capturé le 28/09/2026 22:12 sur `/upload`, Lighthouse
+  13.4.1, Moto G Power émulé, throttling Slow 4G, page unique (même méthodo mobile que
+  les deux runs précédents).
+- **Résultat** : Performance 99 (+22 pts vs 77 en `ng serve` prod, +43 pts vs 56 en
+  debug), Accessibilité 100 (retour au niveau du run debug, +4 pts vs 96), Bonnes
+  pratiques 100 (stable), SEO 82 (-9 pts vs 91 — nouvelle régression, cf. ci-dessous).
+  Core Web Vitals meilleurs sur toute la ligne : FCP 1,3 s (vs 1,9 s), LCP 2,2 s
+  (vs 2,5 s), TBT 10 ms (vs 30 ms), CLS 0 (vs 0,024), Speed Index 1,3 s (vs 1,9 s).
+- **Lecture** : confirme l'hypothèse de la note méthodo du run précédent — un vrai
+  `ng build --configuration production` servi par nginx (minification, compression HTTP,
+  pas de dev-server) fait nettement mieux qu'un `ng serve` en configuration production.
+  Poids total transféré 123 KiB (vs ~1701 Kio de JS estimés « à économiser » sur le run
+  dev-server) ; JS inutilisé résiduel 33 KiB seulement (vs 142 Kio). Ce run valide la
+  chaîne de déploiement (`frontend/Dockerfile` + nginx) comme fidèle à la prod réelle.
+- **Goulot restant (perf)** : quasi aucun à ce niveau — TBT 10 ms, CLS 0, 1 seule tâche
+  longue sur le thread principal (56 ms, `main-KFKO6TW5.js`), JS inutilisé résiduel 33
+  KiB sur ce même bundle (83,8 KiB transférés), latence max de la chaîne de dépendances
+  réseau 62 ms (`/upload` → `main.js` → 5 chunks lazy en cascade). Rien qui justifie une
+  action avant la cible de 90 — déjà dépassée (99).
+- **Régression SEO (82, -9 pts)** : deux audits en échec. (1) Pas de meta description —
+  connu, présent sur les 3 runs, jamais corrigé. (2) `robots.txt` invalide, 13 erreurs —
+  **nouveau**, spécifique à cette config : le fallback SPA de nginx renvoie `index.html`
+  (200) sur `/robots.txt` au lieu d'un 404 ou d'un vrai fichier, et Lighthouse tente de
+  parser ce HTML comme un robots.txt (échec sur chaque ligne). Absent des deux runs
+  précédents (dev-server), où `/robots.txt` renvoyait une 404 non auditée de la même
+  façon par ce contrôle.
+- **Bonnes pratiques — points non comptés dans le score** : CSP absente (mode
+  enforcement), pas de HSTS, pas de COOP, pas de contrôle de frame (XFO/CSP
+  `frame-ancestors`), pas de Trusted Types — tous listés « High severity » par Lighthouse
+  mais sur des audits **non scorés** (n'affectent pas le 100/100). Relève d'un
+  durcissement des en-têtes HTTP nginx, hors périmètre perf — à évaluer côté
+  [SECURITY.md](SECURITY.md) si prévu.
+- **Action** : (1) ajouter une meta description dans `index.html` — corrige le seul
+  audit SEO commun aux 3 runs ; (2) servir un vrai `robots.txt` statique (200, syntaxe
+  valide) depuis le nginx du conteneur plutôt que de laisser le fallback SPA le
+  capturer — corrige la régression propre à ce run ; (3) ce run devient la référence
+  « prod » de PERF.md ; les deux runs précédents restent en historique (effet du retrait
+  du flag debug, puis effet d'un vrai build + serveur de prod).
+
+### Lighthouse — run frontend-docker + backend-prod : téléchargement (`/d/:token`)
+
+- **Contexte** : même config que le run précédent (nginx build prod réel, port 8082 +
+  backend `prod`, port 8080), même méthodo (Lighthouse 13.4.1, Moto G Power émulé, Slow
+  4G, page unique), mais capturé séparément le 28/09/2026 20:11 (2 h avant le run
+  `/upload` du même jour) sur un lien réel **protégé par mot de passe** (`DESIGN.pdf`,
+  0,1 Mo, expire dans 3 jours — comportement US09).
+- **Scores et métriques, comparés au run `/upload`** :
+
+  | Métrique | `/upload` | `/d/:token` (download) | Écart |
+  |---|---|---|---|
+  | Performance | 99 | 97 | -2 |
+  | Accessibilité | 100 | 100 | = |
+  | Bonnes pratiques | 100 | 100 | = |
+  | SEO | 82 | 83 | +1 |
+  | First Contentful Paint | 1,3 s | 1,5 s | +0,2 s |
+  | Largest Contentful Paint | 2,2 s | 2,2 s | = |
+  | Total Blocking Time | 10 ms | 10 ms | = |
+  | Cumulative Layout Shift | 0 | 0,076 | +0,076 |
+  | Speed Index | 1,3 s | 1,5 s | +0,2 s |
+  | Poids total transféré | 123 KiB | 124 KiB | +1 KiB |
+  | JS inutilisé (bundle principal) | 33 KiB | 26 KiB | -7 KiB |
+  | Latence max chaîne critique réseau | 62 ms | 114 ms | +52 ms |
+  | Éléments DOM | 24 | 38 | +14 |
+  | Tâches longues (thread principal) | 1 (56 ms) | 2 (83 ms × 2) | +1 tâche |
+
+- **Lecture** : les deux pages partagent le même bundle principal
+  (`main-KFKO6TW5.js`, ~84 KiB) et plusieurs chunks lazy identiques (`chunk-CnLuz6zt.js`,
+  `chunk-DxjXrnL9.js`) — attendu, même app Angular. Poids total et JS inutilisé du même
+  ordre de grandeur ; download a même moins de JS inutilisé (26 vs 33 KiB), sa vue
+  affichant plus d'éléments dynamiques (info fichier, bannière d'expiration, champ mot
+  de passe) qui consomment une part du code déjà chargé.
+- **Écart notable — CLS 0,076 (vs 0 sur upload)** : culprit identifié par Lighthouse,
+  le composant `app-download`. Cause probable, visible dans la chaîne de dépendances
+  réseau : l'appel métadonnées (`GET /api/d/{token}`) est chaîné **derrière** le
+  chargement du bundle JS (`/d/{token}` → `main.js` → 4 chunks → **rappel de
+  `/d/{token}`** à 114 ms) plutôt que lancé en parallèle — la bannière d'expiration et
+  le champ mot de passe n'apparaissent donc qu'une fois cette réponse reçue, décalant
+  la mise en page après le premier rendu. Cohérent avec l'« Element render delay » du
+  LCP, plus élevé ici (100 ms vs 70 ms sur upload).
+- **Écart notable — latence max de la chaîne critique quasi doublée (114 ms vs
+  62 ms)** : directement lié au point précédent, un maillon de plus dans la chaîne
+  (le rappel vers l'API de métadonnées). Sans conséquence sur les Core Web Vitals ici
+  (page toujours sous les seuils), mais un axe d'optimisation si la page grossit :
+  paralléliser l'appel métadonnées plutôt que de le faire dépendre du bundle JS
+  complet.
+- **SEO (83 vs 82)** : mêmes deux causes que sur `/upload` — pas de meta description,
+  `robots.txt` invalide à cause du fallback SPA nginx (confirmé identique sur cette
+  page). L'écart d'1 point n'est pas significatif (pondération des audits, pas un
+  audit supplémentaire en jeu).
+- **Action** : les deux correctifs SEO déjà proposés pour `/upload` (meta description,
+  `robots.txt` statique) corrigent aussi ce run — un seul chantier, pas deux. Si le
+  temps le permet, enquêter sur le séquencement JS → appel métadonnées de `/d/:token`
+  (déclencher l'appel API en parallèle du bootstrap Angular plutôt qu'après) pour
+  supprimer le CLS résiduel et rapprocher `/d/:token` du score de `/upload`.
