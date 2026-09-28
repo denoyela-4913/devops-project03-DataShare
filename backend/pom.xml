@@ -194,11 +194,15 @@
 
 	<build>
 		<plugins>
+
+			<!-- Spring Boot plugin : plugin for packaging and running Spring Boot applications -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
+			<!-- Compiler plugin : plugin for compiling the source code
+			     (lombok artifact is for annotation processing) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -330,6 +334,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- Checkstyle plugin : Check for style violations in source code -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
@@ -349,6 +354,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- PMD plugin : static analysis of source code (bad practices, code smells) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
@@ -362,6 +368,25 @@
 					<failOnViolation>true</failOnViolation>
 				</configuration>
 			</plugin>
+
+			<!-- OWASP Dependency-Check : known vulnerabilities (CVE) in dependencies.
+			     Manual run, not bound to the build lifecycle: NVD_API_KEY=<key> ./mvnw dependency-check:check
+			     See MAINTENANCE.md. -->
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>13.0.0</version>
+				<configuration>
+					<!-- Maven does not read NVD_API_KEY by itself: bind it explicitly -->
+					<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+					<!-- Fail on high/critical (CVSS >= 7) -->
+					<failBuildOnCVSS>7</failBuildOnCVSS>
+					<suppressionFiles>
+						<suppressionFile>${project.basedir}/dependency-check-suppressions.xml</suppressionFile>
+					</suppressionFiles>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 

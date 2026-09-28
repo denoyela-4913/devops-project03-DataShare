@@ -85,6 +85,54 @@ npm run lint && npm run test:unit && npm run test:integ && npm run build
 3. `./mvnw verify` ; corriger les ruptures (starters renommés, API retirées).
 4. Vérifier les versions gérées par le BOM (Testcontainers, etc.).
 
+### Audit de vulnérabilités des dépendances (manuel)
+
+À lancer à la demande (avant une release, après un avis de sécurité, ou pour vérifier une PR Dependabot).
+
+**Back — OWASP Dependency-Check** (base NVD) :
+
+```bash
+cd backend
+export NVD_API_KEY=<clé NVD>          # sans clé, la mise à jour de la base NVD est très lente / limitée
+./mvnw dependency-check:check          # rapport : backend/target/dependency-check-report.html
+```
+
+- La clé est lue par `pom.xml` via `${env.NVD_API_KEY}` ; ne jamais la committer. Clé gratuite :
+  <https://nvd.nist.gov/developers/request-an-api-key>.
+- Le premier lancement télécharge toute la base NVD (long) ; les suivants ne font qu'une mise à jour incrémentale
+  (cache dans `~/.m2/repository/org/owasp/dependency-check-data`).
+- La commande échoue (code ≠ 0) si une vulnérabilité atteint le seuil CVSS 7 (*high*/*critical*),
+  fixé par `failBuildOnCVSS` dans `pom.xml`. Autre seuil ponctuel :
+  `./mvnw dependency-check:check -DfailBuildOnCVSS=9`.
+- Un faux positif se supprime dans `backend/dependency-check-suppressions.xml`, avec une note qui
+  justifie (CVE visée, raison) et si possible une date de revue (`until`).
+- Le plugin n'est **pas** rattaché au cycle Maven (`verify` ne le lance pas) et **pas** câblé en CI :
+  le seuil ne s'applique qu'aux lancements manuels. Un futur job CI devrait être planifié plutôt que
+  *required* (une CVE publiée demain ferait échouer des PR sans rapport).
+
+**Front — OWASP Dependency-Check (wrapper npm) :**
+
+```bash
+cd frontend
+export NVD_API_KEY=<clé NVD>          # lue automatiquement par le wrapper
+npm run security-check                 # rapport : frontend/reports/dependency-check-report.html
+```
+
+- Le wrapper `owasp-dependency-check` télécharge le CLI OWASP depuis GitHub (dans
+  `frontend/dependency-check-bin/`, ignoré par git) : **Java requis** sur la machine.
+- Scanne `package-lock.json` ; échoue à partir de CVSS 7 (`--failOnCVSS 7` dans le script).
+
+**Front — `npm audit`** (base d'avis GitHub/npm, plus rapide, sans clé ni Java) :
+
+```bash
+cd frontend
+npm audit --audit-level=high           # échoue (code ≠ 0) à partir de « high » ; même commande que le job CI `security`
+npm audit fix                          # applique les correctifs compatibles (semver), puis relancer les tests
+```
+
+Différence avec la CI : le job `security` traite une panne du service d'avis npm comme non
+bloquante (warning) ; la commande manuelle échoue dans ce cas.
+
 ## 2. Exploitation (runbook)
 
 ### Lancer

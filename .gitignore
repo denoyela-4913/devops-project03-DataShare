@@ -36,6 +36,10 @@ frontend/cypress/screenshots/
 backend/**/jacoco.exec
 coverage/
 *.lcov
+# OWASP Dependency-Check (front) : rapports + CLI téléchargé par le wrapper npm
+frontend/reports/
+frontend/dependency-check-bin/
+frontend/dependency-check-reports/
 
 # --- Build / misc ---
 *.log
