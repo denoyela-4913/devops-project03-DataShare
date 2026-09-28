@@ -214,6 +214,23 @@ CORS restreint à l'origine du front, en-têtes de sécurité via nginx (CSP,
 X-Frame-Options, X-Content-Type-Options, Referrer-Policy), HTTPS au reverse-proxy.
 À traiter avec la PR de déploiement.
 
+## nginx — gzip + cache des assets (PR #108, non mergée)
+
+PR prête (CI verte), **mise de côté : Lighthouse est déjà à 99/100 sans elle**, donc
+non requise pour le MVP. Branche conservée : `perf/nginx-gzip-cache`.
+
+Contenu, pour reprise après MVP :
+
+- `gzip on` sur JS/CSS/JSON/SVG (`main.js` : 278 ko → ~86 ko transférés).
+- JS/CSS du build (noms hashés, `outputHashing: all`) : `Cache-Control: public,
+  max-age=31536000, immutable`.
+- `index.html` : `Cache-Control: no-cache` (reprend les nouveaux noms hashés à chaque
+  déploiement).
+- `location /api/` passée en `location ^~ /api/`, pour ne pas être captée par la
+  nouvelle règle de cache `.js`/`.css`.
+
+**Statut : non planifié**, priorité perf/exploitation plutôt que fonctionnelle.
+
 ## Image MinIO (fork `silo`)
 
 **Fait** : MinIO tourne sur `ghcr.io/denoyela-4913/silo` (notre fork de `pgsty/silo`, image
