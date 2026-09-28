@@ -12,13 +12,22 @@ produire au fil des PR de features.
 | `k6-ping.png` | synthèse d'un run k6 sur `GET /api/ping` (référence) | **maintenant** (disponible) | `PERF.md` |
 | `k6-upload.png` | synthèse d'un run k6 sur `POST /api/files` | **maintenant** (disponible) | `PERF.md` |
 | `k6-download.png` | synthèse d'un run k6 sur `GET /api/d/{token}` | **maintenant** (disponible) | `PERF.md` |
-| `lighthouse-home.png` | rapport Lighthouse de la page d'accueil | PR features front | `PERF.md` |
-| `lighthouse-upload.png` | rapport Lighthouse page d'upload — scores, run hors debug (`ng serve --configuration production`) | **maintenant** (disponible) | `PERF.md` |
-| `lighthouse-upload-details-part1-stats.png` | rapport Lighthouse page d'upload — statistiques détaillées, run hors debug (1/2) | **maintenant** (disponible) | `PERF.md` |
-| `lighthouse-upload-details-part2-diags.png` | rapport Lighthouse page d'upload — diagnostics détaillés, run hors debug (2/2) | **maintenant** (disponible) | `PERF.md` |
-| `lighthouse-upload(DEBUG).png` | rapport Lighthouse page d'upload — scores, run **mode debug** (annexe, non représentatif) | **maintenant** (disponible) | `PERF.md` |
-| `lighthouse-upload(DEBUG)-details-part1-stats.png` | rapport Lighthouse page d'upload — statistiques détaillées, run mode debug (1/2, annexe) | **maintenant** (disponible) | `PERF.md` |
-| `lighthouse-upload(DEBUG)-details-part2-diags.png` | rapport Lighthouse page d'upload — diagnostics détaillés, run mode debug (2/2, annexe) | **maintenant** (disponible) | `PERF.md` |
+| `lighthouse-upload-prod.png` | rapport Lighthouse page d'upload — scores, run **mode prod** | **maintenant** (disponible) | `PERF.md` |
+| `lighthouse-download-prod.png` | rapport Lighthouse page de download — scores, run **mode prod** | **maintenant** (disponible) | `PERF.md` |
+
+
+# docs/screenshots/detailled
+| `lighthouse-upload-prod-all_details.png` | rapport complet pdf Lighthouse page d'upload — scores, run **mode prod** | **maintenant** (disponible) | `PERF.md` |
+| `lighthouse-download-prod-all_details.png` | rapport complet pdf Lighthouse page de download — scores, run **mode prod** | **maintenant** (disponible) | `PERF.md` |
+| `lighthouse-upload-dev.png` | rapport Lighthouse page d'upload — scores, run **mode dev** (annexe, non représentatif) | **maintenant** (disponible) | `PERF.md` |
+| `lighthouse-download-dev.png` | rapport Lighthouse page de download — scores, run **mode dev** (annexe, non représentatif) | **maintenant** (disponible) | `PERF.md` |
+| `lighthouse-upload-dev-all_details.pdf` | rapport complet pdf Lighthouse page d'upload — scores, run **mode dev** (annexe, non représentatif) | **maintenant** (disponible) | `PERF.md` |
+| `lighthouse-download-dev-all_details.pdf` | rapport complet pdf Lighthouse page de download — scores, run **mode dev** (annexe, non représentatif) | **maintenant** (disponible) | `PERF.md` |
+# docs/screenshots/detailled/dev
+| `lighthouse-upload-dev_vX_no DEBUG.png` | rapport Lighthouse page d'upload — scores, run dev-no_debug (`ng serve --configuration production`) | **maintenant** (disponible) | `PERF.md` |
+# docs/screenshots/detailled/prod
+| `lighthouse-upload-prod_vX.png` | rapports Lighthouse page d'upload — scores, runs **mode prod** | **maintenant** (disponible) | `PERF.md` |
+| `lighthouse-download-prod_vX.png` | rapports Lighthouse page de download — scores, runs **mode prod** | **maintenant** (disponible) | `PERF.md` |
 
 ## Comment produire
 
