@@ -102,7 +102,7 @@ Interprétation détaillée du run hors debug : §6.
 > **Captures à rafraîchir** : ces deux runs datent du 22/09, avant #80 (icône d'upload),
 > #81/#84/#92 (contrastes WCAG AA), #83 (menu latéral) et #88 (`100dvh`), qui touchent
 > le rendu de `/upload`. Les scores ci-dessus sont donc indicatifs jusqu'au prochain run.
-
+>
 > **Note méthodo** : le run hors debug a été pris via le dev-server Angular en
 > configuration production, pas via le nginx de `deploy/` — choix assumé pour éviter de
 > monter tout le conteneur juste pour une capture, disclosé ici. Le dev-server est plus
