@@ -84,7 +84,7 @@ implémentation. Points à instruire :
 - **Lien à usage unique / compteur de téléchargements** : le lien reste valide jusqu'à
   expiration (téléchargements multiples), comme un lien WeTransfer.
 
-## Expiration des fichiers (US10) — planifié
+## Expiration des fichiers (US10) — hors périmètre MVP
 
 Un fichier expiré reste en base et dans MinIO jusqu'à suppression. Aujourd'hui :
 
@@ -96,7 +96,10 @@ Un fichier expiré reste en base et dans MinIO jusqu'à suppression. Aujourd'hui
 un profil `prod` actif) qui appelle `ExpiredFilePurger.purge()` périodiquement.
 La logique existe déjà et est testée (`ExpiredFilePurgerIT`) — US10 n'ajoute que le
 déclencheur. Nécessaire pour les comptes abandonnés dont le propriétaire ne revient
-jamais purger sa liste.
+jamais purger sa liste. **Hors périmètre MVP** : la purge manuelle via
+`deploy/purge-expired.sh` suffit pour une évaluation ; à câbler avec la PR de
+déploiement/exploitation (cf. « Durcissement HTTP (prod) », « Conteneurisation
+complète »).
 
 ## Historique / suppression de fichiers (US05/US06) — améliorations différées
 
@@ -240,8 +243,13 @@ Contenu, pour reprise après MVP :
 **Fait** : MinIO tourne sur `ghcr.io/denoyela-4913/silo` (notre fork de `pgsty/silo`, image
 construite en CI et publiée sur GHCR, `mcli` embarqué), voir [`MAINTENANCE.md`](../MAINTENANCE.md).
 Reste à décider à terme : suivre `pgsty/silo` (mises à jour de sécurité manuelles), publier
-aussi `linux/arm64`, ou basculer vers AWS S3 (seul `S3StorageService` à réécrire). Un
-scanner d'images (Trivy/Grype) en CI donnerait la liste réelle des CVE de l'image.
+aussi `linux/arm64`, ou basculer vers AWS S3 (seul `S3StorageService` à réécrire).
+
+**Scanner d'image — fait** : Trivy dans le job `security` (voir [`docs/CI.md`](CI.md#security)),
+scan par référence du tag épinglé. **Non bloquant** (`silo` ne sert qu'en dev/CI/tests) :
+4 CVE `HIGH` ouvertes sans correctif au premier run (`pcre2`, `github.com/minio/minio`
+CVE-2026-39414), documentées dans [`SECURITY.md`](../SECURITY.md#2-journal-des-décisions).
+À repasser bloquant si l'image sert un jour en prod.
 
 ## Cible iPhone (Safari iOS) — limites connues
 

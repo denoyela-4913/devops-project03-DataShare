@@ -39,6 +39,7 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 | Profil **prod** durci (erreurs, Swagger, Actuator) | limiter la reconnaissance et la fuite d'info | ☑ |
 | `owner_id` **nullable** (upload anonyme) + FK `ON DELETE CASCADE` | US07 ; suppression de compte propre | ☑ (schéma) |
 | Uploads **streamés** (`file-size-threshold: 2MB` → disque temp) puis vers le stockage sans bufferisation intégrale | éviter l'OOM sur fichier 1 Go | ☑ |
+| Scan Trivy de l'image `silo` **non bloquant** (2026-09-29) : 4 CVE `HIGH` ouvertes sans correctif (`pcre2` CVE-2026-86145 `will_not_fix`, CVE-2026-89161 ; `github.com/minio/minio` CVE-2026-39414, DoS S3 Select CSV) | `silo` ne sert qu'en dev/CI/tests (pas de `docker-compose.prod.yml`) ; bloquer sur du non-corrigeable rendrait le job rouge indéfiniment | ☐ à repasser bloquant si l'image sert un jour en prod, ou dès qu'un correctif existe ; voir §4 |
 
 ## 3. Scan de dépendances et d'analyse statique
 
@@ -46,6 +47,7 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 |---|---|---|---|
 | **`npm audit --audit-level=high`** | dépendances frontend | `security` | ☑ — **0 vulnérabilité** au dernier run |
 | **gitleaks** | secrets dans l'historique et le diff | `security` | ☑ — aucun secret détecté |
+| **Trivy** | CVE OS/libs de l'image MinIO `silo` (GHCR, tag épinglé) | `security` | ☑ actif, **non bloquant** — `silo` ne sert qu'en dev/CI/tests (pas de prod) ; 4 CVE `HIGH` ouvertes sans correctif, voir §4 |
 | **OWASP dependency-check** | dépendances backend (Maven, base NVD) | — (lancement manuel) | ☐ CI non câblée ; **run manuel fait** (PR #102, 2026-09-28) → 2 CVE ≥ 7 ouvertes côté back, voir §4 |
 | **CodeQL** (`security-extended`) | SAST Java + TypeScript | `codeql` (workflow `codeql.yml`) : PR, push `master`, hebdo | ☑ actif — résultats dans *Security › Code scanning* |
 | **SpotBugs** | *patterns* de bugs Java (ex. `NullPointerException` probable) | — (lancement manuel) | ☐ **essai fait** (9 findings, 8 bruit `EI_EXPOSE_REP*`, 1 signal réel `DM_EXIT`) → **écarté du MVP**, voir §4 |
@@ -58,6 +60,15 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
   l'arbre de dépendances Angular 22 actuel. Aucune décision de dérogation nécessaire.
 - **Secrets** : gitleaks ne détecte rien ; les seuls secrets du dépôt sont des valeurs
   de dev explicitement factices (`application-dev.yml`, `.env.example`).
+- **Image MinIO (`silo`)** : Trivy actif en CI depuis le 2026-09-29 (scan par
+  référence du tag épinglé). **Non bloquant** — 4 CVE `HIGH` ouvertes au premier run,
+  aucune avec correctif disponible : `pcre2`/`pcre2-syntax` CVE-2026-86145
+  (statut `will_not_fix` côté RHEL 9) et CVE-2026-89161 (`affected`), et
+  `github.com/minio/minio` CVE-2026-39414 (`affected`, DoS par allocation mémoire
+  non bornée sur S3 Select CSV). `silo` ne sert qu'en dev/CI/tests dans ce projet
+  (pas de `docker-compose.prod.yml`), donc pas de dérogation formelle nécessaire ;
+  à repasser bloquant si l'image est utilisée en prod, ou dès qu'un correctif sort
+  (à revérifier à chaque mise à jour du tag, [`MAINTENANCE.md`](MAINTENANCE.md)).
 - **Code (Java + TypeScript)** : CodeQL actif ; les alertes éventuelles sont triées dans
   *Security › Code scanning* (correction, ou rejet motivé et daté ici).
 - **Backend (dépendances)** : Dependabot security alerts actives ; **run manuel OWASP

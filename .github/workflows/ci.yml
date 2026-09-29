@@ -417,3 +417,23 @@ jobs:
             fi
             exit "$code"
           fi
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      - name: Cache Trivy DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: trivy-db-${{ steps.date.outputs.date }}
+          restore-keys: |
+            trivy-db-
+      - name: Trivy — image MinIO (silo)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/denoyela-4913/silo:RELEASE.2026-09-16T00-00-00Z
+          format: table
+          severity: HIGH,CRITICAL
+          # Non bloquant : silo ne sert qu'en dev/CI/tests (pas de docker-compose.prod.yml).
+          # CVE ouvertes sans correctif documentées dans SECURITY.md §4 ; à repasser
+          # bloquant (exit-code 1) si l'image est un jour utilisée en prod.
+          exit-code: "0"
