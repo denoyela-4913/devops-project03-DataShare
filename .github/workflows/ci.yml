@@ -428,7 +428,7 @@ jobs:
           restore-keys: |
             trivy-db-
       - name: Trivy — image MinIO (silo)
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/denoyela-4913/silo:RELEASE.2026-09-16T00-00-00Z
           format: table
