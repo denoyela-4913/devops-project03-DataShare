@@ -25,6 +25,23 @@ describe('Historique', () => {
     cy.get('[data-testid="upload-share-url"]').should('be.visible');
   }
 
+  /**
+   * Clique « Supprimer » sur la première carte. En mobile (≤ 833 px) l'action est dans
+   * le menu « ⋮ » : on l'ouvre d'abord quand il est affiché (desktop : bouton visible).
+   */
+  function clickDeleteOnFirstCard() {
+    cy.get('[data-testid="file-card"]')
+      .first()
+      .within(() => {
+        cy.get('[data-testid="file-card-menu"]').then(($menu) => {
+          if ($menu.is(':visible')) {
+            cy.wrap($menu).click();
+          }
+        });
+        cy.get('[data-testid="file-card-delete"]').click();
+      });
+  }
+
   it('liste les fichiers, filtre Tous/Actifs/Expiré, supprime avec confirmation', () => {
     signUp();
     upload('alpha.txt');
@@ -38,10 +55,7 @@ describe('Historique', () => {
     cy.get('[data-testid="ui-switch-all"]').click();
     cy.get('[data-testid="history-list"] app-file-card').should('have.length', 2);
 
-    cy.get('[data-testid="history-list"] app-file-card')
-      .first()
-      .find('[data-testid="file-card-delete"]')
-      .click();
+    clickDeleteOnFirstCard();
     cy.get('[data-testid="confirm-dialog"]').should('be.visible');
     cy.get('[data-testid="confirm-dialog-confirm"]').click();
 
@@ -58,7 +72,7 @@ describe('Historique', () => {
         const path = new URL(shareUrl.trim()).pathname;
 
         cy.visit('/history');
-        cy.get('[data-testid="file-card-delete"]').first().click();
+        clickDeleteOnFirstCard();
         cy.get('[data-testid="confirm-dialog-confirm"]').click();
         cy.get('[data-testid="history-empty"]').should('be.visible');
 

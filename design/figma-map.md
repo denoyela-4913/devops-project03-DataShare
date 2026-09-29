@@ -14,7 +14,7 @@ Statuts : ☐ à faire · ◐ généré, à réviser · ☑ validé (voir DoD da
 | Header | 24:440 | `shared/components/ui-header` | `ui-header.html`, `ui-header.scss` | ☑ (coquille : « Se connecter » / « Mon espace ») |
 | Switch Component | 35:301 | `shared/components/ui-switch` | `ui-switch.html`, `ui-switch.scss` | ☑ (filtre de `/history`) |
 | Callout Component | 56:1078 | `shared/components/ui-callout` | `ui-callout.html`, `ui-callout.scss` | ☑ (`/download`, `/history`) |
-| Mon espace · cartes (Desktop-4) | 15:390 | `shared/components/file-card` | `file-card.html`, `file-card.scss` | ☑ (« Accéder » lien nouvel onglet, « Supprimer ») |
+| Mon espace · cartes (Desktop-4) | 15:390 | `shared/components/file-card` | `file-card.html`, `file-card.scss` | ☑ (« Accéder » lien nouvel onglet, « Supprimer » ; mobile ≤ 833 px : actions dans le menu « ⋮ », iPhone 16 - 5 27:338) |
 | _à créer_ | — | `shared/components/confirm-dialog` | `confirm-dialog.html`, `confirm-dialog.scss` | ◐ (placeholder fonctionnel `<dialog>` natif, consommé dans `/history` ; pas de frame Figma dédiée) |
 | DataShare_local · Login 55:333 + Header 24:440 + Desktop-5 | 55:333 / 16:186 | coquille appli | `app/app.html`, `app/app.scss` | ☑ (en-tête `ui-header` + pied ; chrome masqué sur `/history`) |
 | Composants UI 9:113 | 9:113 | `features/styleguide` | `styleguide.html`, `styleguide.scss` | ◐ |

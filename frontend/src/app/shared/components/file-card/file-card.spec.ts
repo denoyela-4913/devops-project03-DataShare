@@ -57,6 +57,7 @@ describe('FileCard', () => {
     expect(link.getAttribute('href')).toBe(BASE.downloadUrl);
     expect(link.getAttribute('target')).toBe('_blank');
     expect(link.getAttribute('rel')).toContain('noopener');
+    expect(link.querySelector('.sr-only')?.textContent).toContain('nouvel onglet');
   });
 
   it('affiche un badge Protégé quand le fichier a un mot de passe', () => {
@@ -70,5 +71,114 @@ describe('FileCard', () => {
     const { fixture, host } = render();
     (testId(host, 'file-card-delete') as HTMLElement).querySelector('button')!.click();
     expect(fixture.componentInstance.removed).toBe(true);
+  });
+
+  describe('menu « ⋮ » (mobile)', () => {
+    const menu = (host: HTMLElement) => testId(host, 'file-card-menu') as HTMLButtonElement;
+    const panel = (host: HTMLElement) => testId(host, 'file-card-actions') as HTMLElement;
+
+    it('expose un bouton nommé, replié par défaut, relié au panneau des actions', () => {
+      const { host } = render();
+      expect(menu(host).getAttribute('aria-label')).toBe('Actions pour rapport-annuel.pdf');
+      expect(menu(host).getAttribute('aria-expanded')).toBe('false');
+      expect(menu(host).getAttribute('aria-controls')).toBe(panel(host).id);
+      expect(panel(host).classList).not.toContain('file-card__actions--open');
+    });
+
+    it('n’existe pas sur un fichier expiré', () => {
+      const { fixture, host } = render();
+      fixture.componentInstance.file.set({ ...BASE, expiresAt: '2000-01-01T00:00:00Z' });
+      fixture.detectChanges();
+      expect(testId(host, 'file-card-menu')).toBeNull();
+    });
+
+    it('s’ouvre et se referme au clic sur « ⋮ »', () => {
+      const { fixture, host } = render();
+      menu(host).click();
+      fixture.detectChanges();
+      expect(menu(host).getAttribute('aria-expanded')).toBe('true');
+      expect(panel(host).classList).toContain('file-card__actions--open');
+      menu(host).click();
+      fixture.detectChanges();
+      expect(menu(host).getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('se ferme avec Échap et rend le focus au bouton « ⋮ »', () => {
+      const { fixture, host } = render();
+      document.body.appendChild(host);
+      menu(host).click();
+      fixture.detectChanges();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      fixture.detectChanges();
+      expect(menu(host).getAttribute('aria-expanded')).toBe('false');
+      expect(document.activeElement).toBe(menu(host));
+      host.remove();
+    });
+
+    it('se ferme au clic en dehors de la carte', () => {
+      const { fixture, host } = render();
+      menu(host).click();
+      fixture.detectChanges();
+      document.body.click();
+      fixture.detectChanges();
+      expect(menu(host).getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('se ferme quand le focus quitte la carte', () => {
+      const { fixture, host } = render();
+      menu(host).click();
+      fixture.detectChanges();
+      const outside = document.createElement('button');
+      document.body.appendChild(outside);
+      menu(host).dispatchEvent(
+        new FocusEvent('focusout', { bubbles: true, relatedTarget: outside }),
+      );
+      fixture.detectChanges();
+      expect(menu(host).getAttribute('aria-expanded')).toBe('false');
+      outside.remove();
+    });
+
+    it('reste ouvert quand le focus passe à une action du panneau', () => {
+      const { fixture, host } = render();
+      menu(host).click();
+      fixture.detectChanges();
+      const open = testId(host, 'file-card-open') as HTMLElement;
+      menu(host).dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: open }));
+      fixture.detectChanges();
+      expect(menu(host).getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('s’ouvre vers le bas quand la place suffit, vers le haut sinon', async () => {
+      const rect = (top: number, height: number) =>
+        ({ top, bottom: top + height, height }) as DOMRect;
+      const viewport = 800;
+      vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(viewport);
+      const { fixture, host } = render();
+      const card = host.querySelector('app-file-card') as HTMLElement;
+      vi.spyOn(card, 'getBoundingClientRect').mockReturnValue(rect(10, 80));
+      vi.spyOn(panel(host), 'getBoundingClientRect').mockReturnValue(rect(0, 100));
+      menu(host).click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(panel(host).classList).not.toContain('file-card__actions--up');
+
+      menu(host).click();
+      fixture.detectChanges();
+      vi.spyOn(card, 'getBoundingClientRect').mockReturnValue(rect(viewport - 90, 80));
+      menu(host).click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(panel(host).classList).toContain('file-card__actions--up');
+    });
+
+    it('se ferme après « Supprimer » (et émet remove)', () => {
+      const { fixture, host } = render();
+      menu(host).click();
+      fixture.detectChanges();
+      (testId(host, 'file-card-delete') as HTMLElement).querySelector('button')!.click();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.removed).toBe(true);
+      expect(menu(host).getAttribute('aria-expanded')).toBe('false');
+    });
   });
 });

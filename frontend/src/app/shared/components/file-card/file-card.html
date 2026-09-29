@@ -37,11 +37,33 @@
   }
 
   @if (!expired) {
-    <div class="file-card__actions">
+    <!-- Sous 833 px : les actions sont dans le menu ouvert par ce bouton « ⋮ »
+         (Figma iPhone 16 - 5). Masqué en desktop (voir file-card.scss). -->
+    <button
+      #moreButton
+      type="button"
+      class="file-card__more"
+      [attr.aria-label]="'Actions pour ' + file().name"
+      aria-haspopup="true"
+      [attr.aria-expanded]="menuOpen()"
+      [attr.aria-controls]="actionsId()"
+      (click)="toggleMenu()"
+      data-testid="file-card-menu"
+    >
+      <img src="assets/icons/icon-more.svg" width="16" height="16" alt="" />
+    </button>
+    <div
+      #actions
+      class="file-card__actions"
+      [class.file-card__actions--open]="menuOpen()"
+      [class.file-card__actions--up]="openUp()"
+      [id]="actionsId()"
+      data-testid="file-card-actions"
+    >
       <app-ui-button
         variant="secondary"
         size="small"
-        (pressed)="remove.emit()"
+        (pressed)="onRemove()"
         data-testid="file-card-delete"
       >
         <img src="assets/icons/icon-trash.svg" width="16" height="16" alt="" />
@@ -52,9 +74,10 @@
         [href]="file().downloadUrl"
         target="_blank"
         rel="noopener noreferrer"
+        (click)="closeMenu()"
         data-testid="file-card-open"
       >
-        Accéder
+        Accéder<span class="sr-only"> (nouvel onglet)</span>
         <img src="assets/icons/icon-arrow-right.svg" width="16" height="16" alt="" />
       </a>
     </div>
