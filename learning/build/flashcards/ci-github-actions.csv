@@ -1,0 +1,16 @@
+#separator:comma
+#html:true
+#notetype:Basic
+#deck:DataShare::ci-github-actions
+Sur quels événements la CI de DataShare se déclenche-t-elle ?,"<code>pull_request</code> (sans filtre, toute PR) et <code>push</code> vers <code>master</code> uniquement."
+Un push sur une branche de travail sans PR ouverte déclenche-t-il la CI ?,Non. <code>push</code> n'est configuré que pour <code>branches: [master]</code>.
+Que fait <code>concurrency.group: ci-${{ github.ref }}</code> avec <code>cancel-in-progress: true</code> ?,Un nouveau push sur la même branche annule automatiquement le run CI en cours sur cette branche.
+Les jobs du pipeline dépendent-ils les uns des autres (<code>needs:</code>) ?,"Non, aucun <code>needs:</code> n'est utilisé : tous les jobs tournent en parallèle."
+Que vérifie exactement le job <code>commitlint</code> ?,"Le titre de la Pull Request au format Conventional Commits, via l'action <code>amannn/action-semantic-pull-request</code>. Il ne lit aucun commit individuel."
+Quels types Conventional Commits sont autorisés dans le titre de PR ?,"<code>feat, fix, docs, test, chore, ci, refactor, perf, build, style</code>."
+Pourquoi le job <code>commitlint</code> a-t-il <code>if: github.event_name == 'pull_request'</code> ?,Parce qu'un push vers <code>master</code> n'a pas de « titre de PR » à valider.
+"Pourquoi valider le titre de PR suffit-il, sans vérifier chaque commit de la branche ?","<code>master</code> impose un merge squash uniquement : GitHub utilise le titre de la PR comme message du commit final sur <code>master</code>, donc les commits intermédiaires disparaissent au squash."
+Y a-t-il un fichier <code>commitlint.config.js</code> ou un hook Husky <code>commit-msg</code> dans ce dépôt ?,"Non. La convention de commit n'est contrôlée qu'en CI, sur le titre de PR, via une action GitHub tierce."
+Quelles règles de protection s'appliquent à la branche <code>master</code> ?,"PR obligatoire, historique linéaire, pas de force-push ni de suppression, merge squash uniquement, CI verte obligatoire."
+Que faut-il faire manuellement après avoir ajouté un nouveau job au workflow CI ?,"L'ajouter à la liste des *required status checks* de <code>master</code>, une fois qu'il a tourné au moins une fois (GitHub n'expose son nom qu'après un run)."
+"Quel workflow séparé fait de l'analyse statique de sécurité (SAST), et à quelle fréquence tourne-t-il en plus des PR et push master ?","<code>codeql.yml</code> (CodeQL), en plus chaque lundi 04:17 UTC pour rejouer les nouvelles règles sur du code inchangé."

@@ -73,3 +73,4 @@ faut passer par le navigateur.
 |---|---|---|
 | Tests back : MockMvc, RANDOM_PORT, RestAssured | [fiche](fiches/tests-back-mockmvc-restassured-randomport.md) · [PDF](build/fiches/tests-back-mockmvc-restassured-randomport.pdf) | [cartes](flashcards/tests-back-mockmvc.md) · [CSV Anki](build/flashcards/tests-back-mockmvc.csv) |
 | Contraste (accessibilité) | [fiche HTML](fiches/fiche-contraste-v2.html) · [PDF](build/fiches/fiche-contraste-v2.pdf) | — |
+| CI GitHub Actions : déclencheurs, jobs, commitlint | [fiche](fiches/ci-github-actions.md) · [PDF](build/fiches/ci-github-actions.pdf) | [cartes](flashcards/ci-github-actions.md) · [CSV Anki](build/flashcards/ci-github-actions.csv) |
