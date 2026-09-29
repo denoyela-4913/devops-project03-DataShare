@@ -246,7 +246,10 @@ Reste à décider à terme : suivre `pgsty/silo` (mises à jour de sécurité ma
 aussi `linux/arm64`, ou basculer vers AWS S3 (seul `S3StorageService` à réécrire).
 
 **Scanner d'image — fait** : Trivy dans le job `security` (voir [`docs/CI.md`](CI.md#security)),
-scan par référence du tag épinglé, bloquant sur `HIGH`/`CRITICAL`.
+scan par référence du tag épinglé. **Non bloquant** (`silo` ne sert qu'en dev/CI/tests) :
+4 CVE `HIGH` ouvertes sans correctif au premier run (`pcre2`, `github.com/minio/minio`
+CVE-2026-39414), documentées dans [`SECURITY.md`](../SECURITY.md#2-journal-des-décisions).
+À repasser bloquant si l'image sert un jour en prod.
 
 ## Cible iPhone (Safari iOS) — limites connues
 

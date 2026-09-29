@@ -119,9 +119,12 @@ mode verbeux.
   (503, timeout) est traitée comme non bloquante (message `::warning::`).
 - **Trivy** (`aquasecurity/trivy-action`) — CVE OS/libs de l'image MinIO `silo`
   (tag épinglé, le même que [`deploy/docker-compose.yml`](../deploy/docker-compose.yml)).
-  Scan par référence (pas de build), `severity: HIGH,CRITICAL`, échoue le job si
-  trouvé. Base de vulnérabilités mise en cache (`~/.cache/trivy`, clé datée
-  quotidiennement) pour éviter un re-téléchargement à chaque run.
+  Scan par référence (pas de build), `severity: HIGH,CRITICAL`, **non bloquant**
+  (`exit-code: 0`) : `silo` ne sert qu'en dev/CI/tests, pas de prod — voir
+  [`SECURITY.md`](../SECURITY.md#3-scan-de-dépendances-et-danalyse-statique) pour
+  les CVE actuellement ouvertes sans correctif. Base de vulnérabilités mise en
+  cache (`~/.cache/trivy`, clé datée quotidiennement) pour éviter un
+  re-téléchargement à chaque run.
 
 À venir (PR dédiée) : OWASP dependency-check (Maven).
 
