@@ -78,15 +78,57 @@
   width: auto;
 }
 
+// « ⋮ » : uniquement en mobile. Bordure --color-btn-tertiary-text (≈3,9:1 sur la carte,
+// WCAG 1.4.11) ; cible tactile 44×44.
+.file-card__more {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid var(--color-btn-tertiary-text);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
 @media (max-width: 833px) {
   .file-card {
-    flex-wrap: wrap;
+    position: relative;
   }
 
+  .file-card__more {
+    display: inline-flex;
+  }
+
+  // `display: none` retire les actions de la tabulation et de l'arbre d'accessibilité
+  // tant que le menu est fermé.
   .file-card__actions {
-    flex-basis: 100%;
+    display: none;
+    position: absolute;
+    top: calc(100% - 4px);
+    right: 8px;
+    z-index: var(--z-menu);
     margin-left: 0;
     flex-direction: column;
     align-items: stretch;
+    max-width: calc(100vw - 32px);
+    padding: 8px;
+    border: 1px solid var(--color-btn-tertiary-text);
+    border-radius: var(--radius-sm);
+    background: var(--color-workspace);
+    box-shadow: var(--shadow-card);
+  }
+
+  .file-card__actions--open {
+    display: flex;
+  }
+
+  .file-card__actions > * {
+    min-height: 44px;
+    justify-content: flex-start;
   }
 }
