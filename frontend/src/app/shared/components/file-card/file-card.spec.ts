@@ -57,6 +57,7 @@ describe('FileCard', () => {
     expect(link.getAttribute('href')).toBe(BASE.downloadUrl);
     expect(link.getAttribute('target')).toBe('_blank');
     expect(link.getAttribute('rel')).toContain('noopener');
+    expect(link.querySelector('.sr-only')?.textContent).toContain('nouvel onglet');
   });
 
   it('affiche un badge Protégé quand le fichier a un mot de passe', () => {
