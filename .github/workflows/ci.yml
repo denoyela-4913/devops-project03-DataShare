@@ -417,3 +417,20 @@ jobs:
             fi
             exit "$code"
           fi
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      - name: Cache Trivy DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: trivy-db-${{ steps.date.outputs.date }}
+          restore-keys: |
+            trivy-db-
+      - name: Trivy — image MinIO (silo)
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: ghcr.io/denoyela-4913/silo:RELEASE.2026-09-16T00-00-00Z
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: "1"

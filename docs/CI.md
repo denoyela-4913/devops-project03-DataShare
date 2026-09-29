@@ -31,7 +31,7 @@ obligatoire**.
 | `frontend-e2e` | Cypress contre la stack complète (Postgres + MinIO `silo` (GHCR) + backend + `ng serve`) — 3 specs : `auth.cy.ts`, `download.cy.ts`, `history.cy.ts` |
 | `frontend-e2e-webkit` | essai, **non requis** : les 3 mêmes specs Cypress rejoués sur **WebKit** (moteur de Safari) avec un viewport d'iPhone 393×852 (`continue-on-error`). Ne remplace pas un test sur iPhone réel (barres rétractables, mémoire, toucher) |
 | `assert-prod-bundle` | Build prod + vérifie que la config debug ne fuit pas dans `dist/` |
-| `security` | gitleaks + `npm audit`. À venir : OWASP dependency-check |
+| `security` | gitleaks + `npm audit` + Trivy (image MinIO `silo`). À venir : OWASP dependency-check |
 
 Workflow séparé [`.github/workflows/codeql.yml`](../.github/workflows/codeql.yml) :
 **CodeQL** (voir [§ `codeql`](#codeql)).
@@ -117,6 +117,11 @@ mode verbeux.
 - **`npm audit --audit-level=high`** — CVE des dépendances frontend. Une vraie
   vulnérabilité fait échouer le job ; une indisponibilité de l'endpoint d'avis npm
   (503, timeout) est traitée comme non bloquante (message `::warning::`).
+- **Trivy** (`aquasecurity/trivy-action`) — CVE OS/libs de l'image MinIO `silo`
+  (tag épinglé, le même que [`deploy/docker-compose.yml`](../deploy/docker-compose.yml)).
+  Scan par référence (pas de build), `severity: HIGH,CRITICAL`, échoue le job si
+  trouvé. Base de vulnérabilités mise en cache (`~/.cache/trivy`, clé datée
+  quotidiennement) pour éviter un re-téléchargement à chaque run.
 
 À venir (PR dédiée) : OWASP dependency-check (Maven).
 

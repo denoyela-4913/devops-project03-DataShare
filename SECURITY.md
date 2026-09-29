@@ -46,6 +46,7 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 |---|---|---|---|
 | **`npm audit --audit-level=high`** | dépendances frontend | `security` | ☑ — **0 vulnérabilité** au dernier run |
 | **gitleaks** | secrets dans l'historique et le diff | `security` | ☑ — aucun secret détecté |
+| **Trivy** | CVE OS/libs de l'image MinIO `silo` (GHCR, tag épinglé) | `security` | ☑ actif — bloque sur `HIGH`/`CRITICAL` |
 | **OWASP dependency-check** | dépendances backend (Maven, base NVD) | — (lancement manuel) | ☐ CI non câblée ; **run manuel fait** (PR #102, 2026-09-28) → 2 CVE ≥ 7 ouvertes côté back, voir §4 |
 | **CodeQL** (`security-extended`) | SAST Java + TypeScript | `codeql` (workflow `codeql.yml`) : PR, push `master`, hebdo | ☑ actif — résultats dans *Security › Code scanning* |
 | **SpotBugs** | *patterns* de bugs Java (ex. `NullPointerException` probable) | — (lancement manuel) | ☐ **essai fait** (9 findings, 8 bruit `EI_EXPOSE_REP*`, 1 signal réel `DM_EXIT`) → **écarté du MVP**, voir §4 |
@@ -58,6 +59,9 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
   l'arbre de dépendances Angular 22 actuel. Aucune décision de dérogation nécessaire.
 - **Secrets** : gitleaks ne détecte rien ; les seuls secrets du dépôt sont des valeurs
   de dev explicitement factices (`application-dev.yml`, `.env.example`).
+- **Image MinIO (`silo`)** : Trivy actif en CI depuis le 2026-09-29 (scan par
+  référence du tag épinglé, `HIGH`/`CRITICAL` bloquant) — résultat à confirmer au
+  premier run.
 - **Code (Java + TypeScript)** : CodeQL actif ; les alertes éventuelles sont triées dans
   *Security › Code scanning* (correction, ou rejet motivé et daté ici).
 - **Backend (dépendances)** : Dependabot security alerts actives ; **run manuel OWASP
