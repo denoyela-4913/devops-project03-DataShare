@@ -4,6 +4,9 @@ Projet 3 — OpenClassrooms DevOps. Application de transfert de fichiers via lie
 de téléchargement temporaires (type WeTransfer), avec options de protection et de
 gestion pour les utilisateurs connectés.
 
+> 👤 Utilisateur plutôt que développeur ? Voir [`GUIDE_UTILISATEUR.md`](GUIDE_UTILISATEUR.md)
+> (créer un compte, envoyer un fichier, le protéger, le partager).
+
 > ✅ MVP obligatoire (US01→US06) livré et testé (unitaire + intégration + e2e).
 > US09 livré, US10 partiel (purge écrite et testée, déclenchement manuel),
 > US07/US08 non traités (voir [Périmètre](#périmètre) et

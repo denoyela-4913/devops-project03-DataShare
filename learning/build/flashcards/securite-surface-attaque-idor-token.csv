@@ -1,0 +1,21 @@
+#separator:comma
+#html:true
+#notetype:Basic
+#deck:DataShare::securite-surface-attaque-idor-token
+Que signifie IDOR ?,"Insecure Direct Object Reference : accéder à la ressource d'un autre utilisateur en modifiant un identifiant (id) dans la requête, faute de contrôle de propriété."
+Que signifie JWT ?,"JSON Web Token : un jeton signé qui transporte l'identité de l'utilisateur de façon vérifiable, sans session stockée côté serveur."
+Que signifie TTL ?,"Time To Live : durée de vie d'une donnée ou d'un jeton avant expiration. Ici, l'access token JWT vit 1 h."
+Que signifie OWASP ?,Open Worldwide Application Security Project : communauté qui publie des références de sécurité applicative (Top 10) et l'outil <code>dependency-check</code>.
+Que signifie CVE ?,Common Vulnerabilities and Exposures : identifiant public unique d'une vulnérabilité connue (ex. CVE-2026-39414).
+Que signifie SAST ?,Static Application Security Testing : analyse du code source sans l'exécuter pour trouver des failles. DataShare utilise CodeQL.
+Que signifie DoS ?,"Denial of Service : attaque qui rend un service indisponible, par exemple en saturant le disque avec des fichiers énormes."
+Que signifie BCrypt ?,"Fonction de hachage de mots de passe volontairement lente et salée, qui résiste au bruteforce hors-ligne. DataShare l'utilise pour les mots de passe de compte et de fichier."
+Pourquoi le token de téléchargement fait-il 192 bits et non séquentiel ?,Le lien est une capacité : qui le connaît télécharge. 192 bits d'aléa <code>SecureRandom</code> rendent le devinage et l'énumération infaisables ; des ids séquentiels permettraient de deviner les voisins.
+Comment <code>DownloadTokens.generate()</code> produit-il le token ?,"24 octets (192 bits) tirés d'un <code>SecureRandom</code>, encodés en base64url sans padding : 32 caractères utilisables dans une URL. La colonne est <code>UNIQUE</code>."
+Pourquoi <code>SecureRandom</code> et pas <code>java.util.Random</code> ?,"<code>SecureRandom</code> est cryptographiquement sûr ; <code>java.util.Random</code> est prédictible à partir de quelques sorties, donc inadapté à un secret."
+Pourquoi le fichier d'un autre utilisateur répond-il 404 et non 403 ?,"Un 403 confirmerait que l'id existe. Avec 404, un fichier d'autrui est indiscernable d'un id inconnu : on ne révèle pas l'existence des ressources d'autrui."
+Comment le code garantit-il qu'on ne supprime que ses propres fichiers ?,"<code>FileService.delete</code> appelle <code>findByIdAndOwnerId(id, ownerId)</code> : le filtre est dans la requête, le fichier d'autrui n'est jamais chargé, et <code>ownerId</code> vient du sujet du JWT."
+D'où vient l'<code>owner_id</code> d'un fichier uploadé ?,"Du sujet (<code>sub</code>) du JWT, jamais d'un paramètre fourni par le client : pas d'usurpation de propriétaire."
+Pourquoi l'upload combine-t-il liste noire d'extensions et détection par octets ?,"La liste noire seule est contournée en renommant un <code>.exe</code> en <code>.txt</code>. <code>tika-core</code> détecte le type réel par signature ; le <code>Content-Type</code> servi vient de cette détection, jamais du client."
+Quelle limite de la détection <code>tika-core</code> SECURITY.md reconnaît-il ?,"Elle ne détecte pas <code>.msi</code>, <code>.jar</code> ni les scripts texte sans signature (<code>ps1</code>, <code>vbs</code>, <code>js</code>). Pour ceux-là, seule la liste noire par nom protège."
+Pourquoi le message de connexion est-il identique pour un email inconnu et un mot de passe faux ?,Pour empêcher l'énumération de comptes : un message différent révélerait quels emails sont inscrits. La vraie cause n'est visible que dans <code>debug</code>.

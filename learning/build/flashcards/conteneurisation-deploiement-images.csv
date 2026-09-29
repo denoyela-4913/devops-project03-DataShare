@@ -1,0 +1,19 @@
+#separator:comma
+#html:true
+#notetype:Basic
+#deck:DataShare::conteneurisation-deploiement-images
+Que signifie GHCR ?,"GitHub Container Registry : le registre d'images de conteneurs de GitHub (<code>ghcr.io</code>), où est publiée l'image <code>silo</code> de DataShare."
+Que signifie S3 (dans « stockage compatible S3 ») ?,Simple Storage Service : le service de stockage objet d'Amazon dont l'API est devenue un standard. MinIO/<code>silo</code> l'implémente.
+Que signifie JRE ?,"Java Runtime Environment : l'environnement qui exécute du Java, sans les outils de compilation du JDK. L'image finale du back n'embarque que lui."
+Que signifie AGPL ?,Affero General Public License : licence copyleft qui oblige à publier les sources même pour un service utilisé via le réseau. Le fork public de <code>silo</code> publie donc ses sources.
+Que signifie CVE ?,Common Vulnerabilities and Exposures : identifiant public unique d'une vulnérabilité connue. Trivy en remonte 4 de niveau <code>HIGH</code> sur <code>silo</code>.
+Quels services contient <code>deploy/docker-compose.yml</code> ?,"<code>db</code> (PostgreSQL 16), <code>minio</code> (stockage S3, image <code>silo</code>), <code>createbuckets</code> (crée le bucket) et <code>adminer</code> (interface de base, dev). Ni le backend ni le frontend."
+"Où tournent le backend et le frontend, si ce n'est dans le compose ?","Le back en dev via <code>./mvnw spring-boot:run</code>, en prod via <code>java -jar</code> (profil <code>prod</code>). Le front via <code>npm start</code> en dev, ou l'image <code>frontend/Dockerfile</code> (nginx) en prod."
+Pourquoi <code>createbuckets</code> utilise-t-il <code>condition: service_healthy</code> ?,"<code>depends_on</code> seul attend le démarrage du conteneur, pas sa disponibilité. Le <code>healthcheck</code> de <code>minio</code> (<code>mcli ready local</code>) doit réussir avant de créer le bucket."
+"Quel est l'intérêt d'un Dockerfile multi-étapes, comme celui du backend ?","Une étape de build (Maven, JDK, sources) compile ; l'image finale ne garde que le JRE et le jar, sous un utilisateur non root : plus petite, moins de surface d'attaque."
+"Que couvre Dependabot pour Docker dans DataShare, et que ne couvre-t-il pas ?","Seulement les <code>Dockerfile</code> de <code>backend/</code> et <code>frontend/</code>. Les images d'infrastructure du compose (<code>postgres</code>, <code>silo</code>, <code>adminer</code>) sont suivies à la main."
+À quels trois endroits une image d'infrastructure doit-elle rester alignée ?,"<code>deploy/docker-compose.yml</code>, <code>.github/workflows/ci.yml</code> (job <code>frontend-e2e</code>) et Testcontainers (<code>MinioTestcontainersConfiguration</code>). Sinon les tests tournent sur une version différente de celle du dev."
+Pourquoi MinIO a-t-il changé d'image plusieurs fois ?,"<code>minio/minio</code> a quitté Docker Hub (10/2025), <code>quay.io/minio</code> est devenu privé (09/2026), <code>pgsty/minio</code> a été gelé et renommé <code>pgsty/silo</code> (06/08/2026). Le projet a donc forké <code>silo</code>."
+Pourquoi publier un fork de <code>silo</code> sur GHCR avec un tag épinglé ?,"Le fork garde le code même si l'amont disparaît, et un tag explicite (jamais <code>latest</code>) rend le build reproductible."
+Comment met-on à jour l'image MinIO/<code>silo</code> ?,"Sync du fork, workflow *Publish GHCR image (DataShare)* avec le tag <code>RELEASE.*</code> voulu, report du tag aux trois endroits, puis CI et merge. À faire après chaque avis de sécurité de SILO."
+Quelle image du compose n'est pas épinglée ?,"<code>adminer:latest</code>, toléré car outil de développement uniquement (non utilisé en CI ni en tests)."

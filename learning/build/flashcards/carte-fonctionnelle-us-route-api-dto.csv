@@ -1,0 +1,21 @@
+#separator:comma
+#html:true
+#notetype:Basic
+#deck:DataShare::carte-fonctionnelle-us-route-api-dto
+Que signifie US ?,"User Story : une exigence écrite du point de vue de l'utilisateur (« en tant que… je veux… pour… »). Dans DataShare, US01 à US10."
+Que signifie DTO ?,"Data Transfer Object : un objet qui décrit uniquement les données échangées à travers une frontière (ici HTTP), distinct de l'entité de base de données."
+Que signifie JWT ?,"JSON Web Token : un jeton signé qui transporte l'identité de l'utilisateur de façon vérifiable, sans session stockée côté serveur."
+Que signifie API ?,Application Programming Interface : l'ensemble des endpoints HTTP (<code>/api/...</code>) que le back expose et que le front appelle.
+Que signifie UUID ?,Universally Unique Identifier : un identifiant de 128 bits pratiquement impossible à deviner ou à dupliquer. Il sert d'<code>id</code> d'utilisateur et de fichier.
+Que signifie MVP ?,Minimum Viable Product : la plus petite version utilisable du produit. US07 (upload anonyme) est déclarée hors MVP.
+Quelles colonnes contient la carte fonctionnelle de <code>DESIGN.md</code> ?,"US, route Angular, composants, endpoint API, DTO, statut."
+Pourquoi l'US09 (mot de passe fichier) n'a-t-elle ni route ni endpoint propre ?,"Elle réutilise ceux d'US01 et US02 : un champ optionnel <code>password</code> à l'upload (<code>POST /api/files</code>) et une invite au téléchargement (<code>/d/:token</code>, <code>403</code> si invalide)."
+Quelles routes Angular sont protégées par <code>authGuard</code> ?,"<code>/upload</code> et <code>/history</code> (et <code>/</code> qui redirige vers <code>/history</code>). <code>/login</code>, <code>/register</code> et <code>/d/:token</code> sont publiques."
+Que fait <code>authGuard</code> quand l'utilisateur n'est pas authentifié ?,Il redirige vers <code>/login?redirect=&lt;url demandée&gt;</code>. Il ne fait qu'une vérification ergonomique côté client : il lit <code>exp</code> du JWT sans vérifier la signature.
+Pourquoi le garde Angular ne suffit-il pas à protéger les données ?,"Il s'exécute dans le navigateur, donc contournable. La protection réelle est côté back : la chaîne de sécurité <code>@Order(2)</code> impose <code>anyRequest().authenticated()</code> et vérifie le JWT."
+Comment le back sait-il quel utilisateur possède un fichier lors d'un upload ?,"Via <code>@AuthenticationPrincipal Jwt jwt</code> : <code>UUID.fromString(jwt.getSubject())</code>. L'identité vient du jeton, jamais d'un paramètre envoyé par le client."
+Quels endpoints sont publics (sans JWT) et comment le front le gère-t-il ?,"<code>POST /api/auth/register</code>, <code>POST /api/auth/login</code>, <code>GET</code> et <code>POST /api/d/*</code>. Le <code>jwtInterceptor</code> n'ajoute pas l'en-tête <code>Authorization</code> à <code>/auth/*</code> ni <code>/d/*</code>."
+Pourquoi le mot de passe d'un fichier est-il envoyé par <code>POST /api/d/{token}</code> et non dans l'URL du <code>GET</code> ?,"Dans le corps de la requête (<code>DownloadRequest</code>), il n'apparaît ni dans les journaux d'accès ni dans l'historique du navigateur. Le <code>GET</code> ne sert qu'aux métadonnées."
+Pourquoi <code>DESIGN.md</code> parle de <code>FileMetadata</code> alors que le back a <code>FileMetadataResponse</code> ?,"<code>FileMetadata</code> est le nom de l'interface TypeScript (front), <code>FileMetadataResponse</code> celui du <code>record</code> Java (back). Même contrat, deux noms ; rien ne les synchronise automatiquement."
+Où trouve-t-on le DTO d'inscription côté back et quelles règles porte-t-il ?,"<code>auth/dto/RegisterRequest.java</code> : <code>email</code> (<code>@NotBlank @Email</code>, max 320) et <code>password</code> (<code>@NotBlank</code>, 8 à 100 caractères), validés par <code>@Valid</code> dans <code>AuthController</code>."
+"Où en sont US07, US08 et US10 ?",US07 (upload anonyme) et US08 (tags) ne sont pas traitées ; US10 (expiration auto) a une purge testée (<code>ExpiredFilePurger</code>) mais aucun <code>@Scheduled</code> ne la déclenche encore.

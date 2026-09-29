@@ -1,0 +1,20 @@
+#separator:comma
+#html:true
+#notetype:Basic
+#deck:DataShare::strategie-de-test-pyramide-couverture
+Que signifie e2e ?,"End-to-end : test qui parcourt l'application de bout en bout, du navigateur jusqu'à la base, comme un vrai utilisateur. Ici avec Cypress."
+Que signifie CI ?,Continuous Integration : exécution automatique du build et des tests à chaque changement de code (ici GitHub Actions).
+Que signifie JaCoCo ?,Java Code Coverage : outil qui mesure la part du code Java exécutée par les tests.
+Que signifie DI (dans « câblage DI ») ?,Dependency Injection : le framework fournit à une classe ses dépendances au lieu qu'elle les crée. <code>TestBed</code> la reproduit côté Angular.
+Que signifie Flyway ?,"Un outil de migration de schéma de base de données : il applique des scripts SQL versionnés (<code>V1</code>, <code>V2</code>…) dans l'ordre."
+Quelles couches de test le back de DataShare a-t-il ?,"Trois : unitaire (JUnit 5 + Mockito, <code>backend-unit</code>), intégration (Spring Boot Test + Testcontainers, <code>backend-integ</code>) et fonctionnel (scénarios API enchaînés, <code>backend-integ</code>)."
+Quelles couches de test le front a-t-il ?,"Trois : unitaire (Vitest, <code>frontend-unit</code>), intégration (Vitest + <code>TestBed</code> + jsdom, <code>frontend-integ</code>) et e2e (Cypress, <code>frontend-e2e</code>)."
+"Où place-t-on une règle de gestion, un endpoint, un parcours critique ?",Règle de gestion → test unitaire ; endpoint → test d'intégration ; parcours utilisateur critique → test e2e.
+Qu'est-ce que Testcontainers ?,"Une bibliothèque qui démarre de vrais conteneurs Docker jetables (PostgreSQL, MinIO) pendant les tests."
+Pourquoi Testcontainers plutôt qu'un mock pour un repository ?,"Un mock renvoie ce qu'on lui dit ; le conteneur exécute vraiment le schéma, les migrations Flyway et les requêtes JPA, donc prouve qu'elles marchent. Justification déduite de la répartition de <code>TESTING.md</code>."
+Que fait <code>@ServiceConnection</code> dans <code>TestcontainersConfiguration</code> ?,"Il branche automatiquement l'URL du conteneur PostgreSQL dans la configuration Spring, sans propriétés à écrire à la main."
+Où les mocks (Mockito) restent-ils pertinents dans DataShare ?,"Dans <code>backend-unit</code> pour les services et règles isolées : rapides, sans Docker, sans infrastructure à valider."
+Quel est le seuil de couverture et comment est-il imposé côté back ?,"70 % de lignes. <code>jacoco:merge</code> fusionne unit et integ, puis <code>jacoco:check</code> (BUNDLE, <code>COVEREDRATIO</code> ≥ 0.70) échoue au <code>verify</code>, dans le job <code>backend-integ</code>."
+Comment le seuil de 70 % est-il imposé côté front ?,"Par <code>tools/check-coverage.mjs</code> (<code>THRESHOLD = 70</code>), lancé après les tests avec couverture dans le job <code>frontend-integ</code>."
+Pourquoi fusionner les couvertures unit et integ côté back ?,Les contrôleurs et repositories ne sont exercés que par les tests d'intégration ; mesurer les unitaires seuls sous-estimerait la couverture réelle.
+À quoi sert le job <code>assert-prod-bundle</code> ?,À vérifier par build et <code>grep</code> que la configuration debug ne fuit pas dans le bundle de production.
