@@ -53,8 +53,10 @@
       <img src="assets/icons/icon-more.svg" width="16" height="16" alt="" />
     </button>
     <div
+      #actions
       class="file-card__actions"
       [class.file-card__actions--open]="menuOpen()"
+      [class.file-card__actions--up]="openUp()"
       [id]="actionsId()"
       data-testid="file-card-actions"
     >

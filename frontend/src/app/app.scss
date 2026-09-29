@@ -65,6 +65,10 @@
 @media (max-width: 833px) {
   .page {
     position: relative;
+
+    // Contexte d'empilement propre : sans lui, le ::before (z-index: -1) passe sous le
+    // fond de .page et le dégradé est masqué par --color-canvas-mobile (fond blanc).
+    isolation: isolate;
     background: var(--color-canvas-mobile);
   }
 

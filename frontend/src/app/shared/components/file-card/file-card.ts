@@ -1,8 +1,10 @@
 import {
+  afterNextRender,
   Component,
   computed,
   ElementRef,
   inject,
+  Injector,
   input,
   output,
   signal,
@@ -33,18 +35,40 @@ export class FileCard {
   readonly remove = output<void>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
+  private readonly actions = viewChild<ElementRef<HTMLElement>>('actions');
   private readonly moreButton = viewChild<ElementRef<HTMLButtonElement>>('moreButton');
 
   /** Menu « ⋮ » (affiché sous 833 px uniquement, cf. file-card.scss). */
   readonly menuOpen = signal(false);
+  /** Le panneau s'ouvre vers le haut quand il ne tient pas sous la carte. */
+  readonly openUp = signal(false);
   readonly actionsId = computed(() => `file-card-actions-${this.file().id}`);
 
   toggleMenu(): void {
-    this.menuOpen.update((open) => !open);
+    if (this.menuOpen()) {
+      this.closeMenu();
+      return;
+    }
+    this.menuOpen.set(true);
+    // Le panneau n'est mesurable qu'une fois affiché.
+    afterNextRender(() => this.placeMenu(), { injector: this.injector });
   }
 
   closeMenu(): void {
     this.menuOpen.set(false);
+    this.openUp.set(false);
+  }
+
+  private placeMenu(): void {
+    const panel = this.actions()?.nativeElement;
+    if (!panel) {
+      return;
+    }
+    const card = this.host.nativeElement.getBoundingClientRect();
+    const needed = panel.getBoundingClientRect().height;
+    const below = document.documentElement.clientHeight - card.bottom;
+    this.openUp.set(below < needed && card.top > below);
   }
 
   onRemove(): void {

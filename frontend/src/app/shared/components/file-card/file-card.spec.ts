@@ -147,6 +147,29 @@ describe('FileCard', () => {
       expect(menu(host).getAttribute('aria-expanded')).toBe('true');
     });
 
+    it('s’ouvre vers le bas quand la place suffit, vers le haut sinon', async () => {
+      const rect = (top: number, height: number) =>
+        ({ top, bottom: top + height, height }) as DOMRect;
+      const viewport = 800;
+      vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(viewport);
+      const { fixture, host } = render();
+      const card = host.querySelector('app-file-card') as HTMLElement;
+      vi.spyOn(card, 'getBoundingClientRect').mockReturnValue(rect(10, 80));
+      vi.spyOn(panel(host), 'getBoundingClientRect').mockReturnValue(rect(0, 100));
+      menu(host).click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(panel(host).classList).not.toContain('file-card__actions--up');
+
+      menu(host).click();
+      fixture.detectChanges();
+      vi.spyOn(card, 'getBoundingClientRect').mockReturnValue(rect(viewport - 90, 80));
+      menu(host).click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(panel(host).classList).toContain('file-card__actions--up');
+    });
+
     it('se ferme après « Supprimer » (et émet remove)', () => {
       const { fixture, host } = render();
       menu(host).click();

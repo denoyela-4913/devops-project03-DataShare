@@ -127,6 +127,12 @@
     display: flex;
   }
 
+  // Carte proche du bas de l'écran : le panneau s'ouvre vers le haut.
+  .file-card__actions--up {
+    top: auto;
+    bottom: calc(100% - 4px);
+  }
+
   .file-card__actions > * {
     min-height: 44px;
     justify-content: flex-start;
