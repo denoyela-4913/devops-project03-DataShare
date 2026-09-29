@@ -2,7 +2,7 @@
      « Accéder » ouvre la page de téléchargement (route publique /d/:token) dans un
      nouvel onglet — un vrai <a href target="_blank">, à préserver comme lien.
      À PRÉSERVER : data-testid, le <a> « Accéder » (href + target), l'<app-ui-button>
-     Supprimer + (pressed), les pipes fileSize et expiryStatus.
+     Supprimer + (pressed), les pipes expiryLabel et expiryStatus.
      Frames: DataShare_local · Mon espace 32:516 · Desktop - 4 (15:390) · iPhone 16 - 5 (27:338)
      · voir design/figma-map.md -->
 @let expired = (file().expiresAt | expiryStatus) === 'expired';
@@ -13,17 +13,12 @@
     <span class="file-card__name" data-testid="file-card-name" [title]="file().name">
       {{ file().name }}
     </span>
-    <span class="file-card__meta">
-      <span class="file-card__size" data-testid="file-card-size">{{
-        file().sizeBytes | fileSize
-      }}</span>
-      <span
-        class="file-card__status"
-        [class.file-card__status--expired]="expired"
-        data-testid="file-card-status"
-      >
-        {{ expired ? 'Expiré' : 'Actif' }}
-      </span>
+    <span
+      class="file-card__status"
+      [class.file-card__status--expired]="expired"
+      data-testid="file-card-status"
+    >
+      {{ file().expiresAt | expiryLabel }}
     </span>
     @if (expired) {
       <p class="file-card__expired-copy">Ce fichier a expiré, il n'est plus stocké chez nous</p>

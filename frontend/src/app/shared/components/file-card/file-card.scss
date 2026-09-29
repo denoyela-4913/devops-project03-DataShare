@@ -40,14 +40,11 @@
   white-space: nowrap;
 }
 
-.file-card__meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.file-card__status {
   font-family: var(--type-small-font);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
-  color: var(--color-label);
+  color: var(--color-black);
 }
 
 .file-card__status--expired {

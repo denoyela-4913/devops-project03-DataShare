@@ -33,11 +33,11 @@ describe('FileCard', () => {
 
   const testId = (host: HTMLElement, id: string) => host.querySelector(`[data-testid="${id}"]`);
 
-  it('affiche le nom, la taille et l’état actif', () => {
+  it('affiche le nom et le libellé d’expiration (sans la taille)', () => {
     const { host } = render();
     expect(testId(host, 'file-card-name')?.textContent).toContain('rapport-annuel.pdf');
-    expect(testId(host, 'file-card-size')?.textContent).toContain('5');
-    expect(testId(host, 'file-card-status')?.textContent).toContain('Actif');
+    expect(testId(host, 'file-card-size')).toBeNull();
+    expect(testId(host, 'file-card-status')?.textContent).toContain('Expire dans');
   });
 
   it('marque un fichier expiré et retire les actions', () => {
