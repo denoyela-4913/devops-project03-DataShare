@@ -10,6 +10,7 @@ import { FormError } from '../../shared/components/form-error/form-error';
 import { UiButton } from '../../shared/components/ui-button/ui-button';
 import { UiCallout, type UiCalloutType } from '../../shared/components/ui-callout/ui-callout';
 import { UiInput } from '../../shared/components/ui-input/ui-input';
+import { calendarDaysUntil } from '../../shared/utils/expiry-days';
 
 export type DownloadState = 'loading' | 'ready' | 'not-found' | 'expired';
 
@@ -64,19 +65,7 @@ export class Download {
     if (remainingMs <= 0) {
       return null;
     }
-    // Comparaison de dates « nues » (sans l'heure) : combien de minuits séparent
-    // aujourd'hui du jour d'expiration ?
-    const startOfDay = (d: Date): number => {
-      const copy = new Date(d);
-      copy.setHours(0, 0, 0, 0);
-      return copy.getTime();
-    };
-
-    // Math.round (et non ceil/floor) : les jours de changement d'heure durent 23 h
-    // ou 25 h, la division ne tombe alors pas pile sur un entier.
-    const days = Math.round(
-      (startOfDay(new Date(meta.expiresAt)) - startOfDay(new Date())) / 86_400_000,
-    );
+    const days = calendarDaysUntil(meta.expiresAt) ?? 0;
 
     // days >= 0 ici (remainingMs > 0 => expiration dans le futur).
     if (days === 0) {
