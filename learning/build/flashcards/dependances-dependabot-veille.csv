@@ -1,0 +1,19 @@
+#separator:comma
+#html:true
+#notetype:Basic
+#deck:DataShare::dependances-dependabot-veille
+Que signifie LTS ?,Long Term Support : version maintenue (correctifs de sécurité) pendant une longue période. Java 21 et Node 24 sont les LTS retenues.
+Que signifie CVE ?,Common Vulnerabilities and Exposures : identifiant public unique d'une vulnérabilité connue.
+Que signifie EOL ?,"End Of Life : date à partir de laquelle une version n'est plus maintenue, sans correctif de sécurité. <code>MAINTENANCE.md</code> demande de ne jamais rester sur une version hors support."
+Que signifie OSS ?,Open Source Software : logiciel dont le code source est public. « Support OSS » désigne la période où la communauté publie encore des correctifs.
+Qu'est-ce que Dependabot ?,"Un outil de GitHub qui ouvre automatiquement des PR de mise à jour de dépendances (et des alertes de sécurité), configuré dans <code>.github/dependabot.yml</code>."
+Quelle fréquence et quels écosystèmes Dependabot couvre-t-il ?,"Chaque semaine, pour <code>github-actions</code> (<code>/</code>), <code>maven</code> (<code>/backend</code>), <code>npm</code> (<code>/frontend</code>) et <code>docker</code> (<code>/backend</code> et <code>/frontend</code>)."
+Quels préfixes de commit Dependabot utilise-t-il ?,"<code>ci</code> pour les actions GitHub ; <code>build</code> pour Maven, npm et Docker ; <code>chore</code> pour les dépendances de développement (Maven et npm) via <code>prefix-development</code>."
+Pourquoi configurer les préfixes de commit de Dependabot ?,"Les titres de PR sont contrôlés par <code>commitlint</code> (Conventional Commits) : sans préfixe valide, les PR Dependabot seraient rejetées."
+Pourquoi le groupe <code>angular</code> dans <code>dependabot.yml</code> ?,"Les paquets <code>@angular/*</code> exigent tous la même version (peer dependencies strictes). Montés un par un, chaque PR échouait sur <code>ERESOLVE</code> (#22, #26, #34, #36). Un groupe les monte ensemble."
+Pourquoi ignorer les versions majeures de <code>vitest</code> ?,"<code>@angular/build</code> ne supporte pas encore vitest 5 dans sa peer dependency. Le projet reste en 4.x jusqu'à ce qu'elle s'élargisse, puis retire la règle."
+Pourquoi ignorer les majeures de <code>eclipse-temurin</code> et <code>node</code> dans les Dockerfile ?,"Pour rester sur des versions LTS : Java 21 (24 n'est pas LTS) et Node 24 (version paire LTS, Node 26 ne l'est pas)."
+Quelles images Docker Dependabot ne surveille-t-il pas dans DataShare ?,"Celles de <code>deploy/docker-compose.yml</code> (<code>postgres</code>, <code>silo</code>, <code>adminer</code>) : il ne lit que les <code>Dockerfile</code> de <code>backend/</code> et <code>frontend/</code>. Elles sont suivies à la main."
+"Comment audite-t-on les CVE des dépendances du back, et pourquoi à la main ?","<code>./mvnw dependency-check:check</code> (OWASP dependency-check), lancé manuellement : il n'est pas câblé en CI, car une CVE publiée demain ferait échouer des PR sans rapport."
+Comment traite-t-on une montée de version majeure d'un framework ?,"PR dédiée, avec <code>ng update</code> ou le guide de migration Spring, planifiée et jamais dans l'urgence. Patch et minor sont mergés si la CI est verte."
+Où vérifier la date de fin de support avant une montée majeure ?,"Sur endoflife.date (Spring Boot, Angular, Node), comme le liste <code>MAINTENANCE.md</code>. Dependabot propose des versions mais ne donne pas les dates de fin de vie."

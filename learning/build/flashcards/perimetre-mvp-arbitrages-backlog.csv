@@ -1,0 +1,19 @@
+#separator:comma
+#html:true
+#notetype:Basic
+#deck:DataShare::perimetre-mvp-arbitrages-backlog
+Que signifie MVP ?,Minimum Viable Product : la plus petite version du produit qui remplit le besoin de base. Pour DataShare : US01 à US06.
+Que signifie US ?,User Story : une exigence formulée du point de vue de l'utilisateur. DataShare en compte dix (US01 à US10).
+Que signifie JWT ?,"JSON Web Token : un jeton signé qui transporte l'identité de l'utilisateur de façon vérifiable, sans session côté serveur."
+Que signifie JWKS ?,JSON Web Key Set : un endpoint qui publie les clés publiques de vérification des JWT. Il permet une rotation propre de clés avec RS256.
+Que signifie <code>kid</code> dans un JWT ?,Key ID : identifiant de la clé de signature utilisée. Il permet de gérer un jeu de clés à validité recouvrante pendant une rotation.
+Quel est le périmètre du MVP obligatoire ?,"US01 à US06 : upload avec compte, téléchargement via lien, création de compte, connexion, historique et suppression."
+Quelles US sont optionnelles et où en sont-elles ?,"US07 upload anonyme (non traité), US08 tags (non traité), US09 mot de passe fichier (livré), US10 expiration automatique (partiel : purge testée, déclenchement manuel)."
+Que manque-t-il exactement pour finir US10 ?,Un <code>@Scheduled</code> qui appelle <code>ExpiredFilePurger.purge()</code>. La logique existe et est testée (<code>ExpiredFilePurgerIT</code>) ; seul le déclencheur manque.
+Pourquoi US10 a-t-elle été mise hors MVP ?,"La purge manuelle (<code>deploy/purge-expired.sh</code>) suffit pour une évaluation. Elle deviendrait nécessaire pour les comptes abandonnés, et sera câblée avec la PR de déploiement."
+Pourquoi la rotation de la clé JWT toutes les 24 h a-t-elle été écartée ?,"Elle invalide tous les tokens en cours (sauf jeu de clés <code>kid</code>) ; avec des tokens courts et sans refresh token, elle déconnecte souvent les utilisateurs. Un secret stable bien géré suffit pour un MVP."
+Quelles alternatives à la rotation quotidienne le backlog cite-t-il ?,Un secret stable géré par variable d'environnement ou gestionnaire de secrets ; ou RS256 avec un endpoint JWKS et une rotation propre (ancienne clé conservée le temps du recouvrement).
+Comment se comporte aujourd'hui le secret JWT en production ?,Il vient de la variable <code>DATASHARE_JWT_SECRET</code> (aucune valeur par défaut). Le changer invalide tous les jetons et déconnecte tout le monde.
+Pourquoi SpotBugs a-t-il été écarté du MVP ?,"Essai fait : 9 findings, dont 8 de bruit (<code>EI_EXPOSE_REP*</code>, injection par constructeur Spring) et un seul signal réel (<code>DM_EXIT</code>). Cela ne justifie pas de maintenir l'outil."
+Pourquoi la PR nginx gzip + cache (#108) est-elle restée non mergée ?,"Elle est prête et verte, mais Lighthouse était déjà à 99/100 sans elle : non requise pour le MVP. La branche <code>perf/nginx-gzip-cache</code> est conservée."
+Quel schéma suivre pour justifier un choix de scope à l'oral ?,"Nommer ce qui n'est pas fait, donner la raison, montrer le filet actuel, dire le déclencheur qui ferait passer le sujet en priorité."
