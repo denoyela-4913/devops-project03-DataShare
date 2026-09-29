@@ -27,6 +27,7 @@ sont plus rapides que cette valeur : plus parlant qu'une moyenne, qui masque les
 | `GET /api/ping` | référence à vide | 11 ms | < 300 ms | 0,01 % |
 
 Points à savoir dire :
+
 - Charge modeste (5 VUs pour upload/download, 10 pour ping) : les résultats prouvent l'absence de
   problème à ce niveau, pas la tenue à forte charge. `PERF.md` le dit : goulot « non identifié ».
 - Le download est plus lent que l'upload (556 vs 386 ms) : écart signalé **à comprendre**, non
