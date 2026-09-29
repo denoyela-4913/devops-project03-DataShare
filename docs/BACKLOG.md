@@ -112,6 +112,14 @@ complète »).
   suffirait à nettoyer.
 - **Filtre Tous/Actifs/Expiré côté client** : appliqué sur la liste déjà chargée, pas de
   paramètre serveur. Cohérent avec l'absence de pagination.
+- **Icônes de fichier par type** : la carte de l'historique affiche toujours l'icône
+  « image » (`icon-file.svg`), comme la maquette iPhone. La maquette desktop (Mon espace,
+  Desktop - 4) distingue image / musique / vidéo. Cosmétique, sans impact fonctionnel ni
+  a11y (icône décorative, `alt=""`). Piste : exporter `icon-file-audio.svg` et
+  `icon-file-video.svg` depuis Figma, déduire le type de l'**extension** du nom (l'API ne
+  renvoie pas de type MIME) via un helper `fileIconFor(name)`, icône générique pour tous
+  les autres types. Bloquant : seules les icônes image/musique/vidéo existent côté design ;
+  l'icône des autres types (PDF, archive…) reste à définir.
 
 ## Lien de partage (`/d/{token}`) — construction côté client
 
