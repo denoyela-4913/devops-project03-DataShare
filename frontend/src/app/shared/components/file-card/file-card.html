@@ -20,9 +20,6 @@
     >
       {{ file().expiresAt | expiryLabel }}
     </span>
-    @if (expired) {
-      <p class="file-card__expired-copy">Ce fichier a expiré, il n'est plus stocké chez nous</p>
-    }
   </div>
 
   @if (file().passwordProtected) {
