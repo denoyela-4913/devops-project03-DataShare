@@ -195,13 +195,6 @@
   gap: 16px;
 }
 
-.field__hint {
-  font-family: var(--type-small-font);
-  font-size: var(--type-small-size);
-  line-height: var(--type-small-line);
-  color: var(--color-placeholder);
-}
-
 // ── Boutons ──────────────────────────────────────────────────────────────────
 // <label> de sélection de fichier ("Choisir un fichier", "Changer") : pas des
 // <button>, donc ne peuvent pas passer par app-ui-button. Cf. _buttons.scss.
