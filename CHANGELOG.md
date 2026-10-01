@@ -24,7 +24,7 @@ volontairement différés restent dans [docs/BACKLOG.md](docs/BACKLOG.md).
 
 - **Frontend (nginx)** : compression gzip des ressources texte (JS/CSS/JSON/SVG) et cache d'un an
   (`immutable`) sur les JS/CSS hashés ; `index.html` reste en `no-cache` pour que les
-  déploiements soient pris en compte immédiatement. Ajouté le 01/10/2026. (#108)
+  déploiements soient pris en compte immédiatement. Ajouté le 01/10/2026. (#128, reprise de #108)
 
 ### Sécurité
 
