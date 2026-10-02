@@ -19,6 +19,9 @@ volontairement différés restent dans [docs/BACKLOG.md](docs/BACKLOG.md).
 - **Accessibilité** : `index.html` déclarait `lang="en"` alors que l'interface est en français
   (lecteurs d'écran) ; passé à `fr`. Le titre par défaut « DatashareFrontend » devient
   « DataShare – Partage de fichiers sécurisé ». Corrigé le 01/10/2026. (#127)
+- **Accessibilité** : le texte d'aide « Laissez vide pour un lien public » du champ mot de passe
+  (page d'upload) n'est plus affiché, conformément au frame Figma. Il reste lu par les
+  lecteurs d'écran (`sr-only` + `aria-describedby`). Corrigé le 01/10/2026. (#129)
 
 ### Performance
 
