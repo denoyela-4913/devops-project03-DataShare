@@ -18,5 +18,8 @@ pre code { background: none; padding: 0; }
 table { border-collapse: collapse; width: 100%; font-size: 12px; margin: 12px 0; break-inside: avoid; }
 th { text-align: left; border-bottom: 1px solid var(--ink); padding: 6px 8px; color: var(--mute); }
 td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+/* Bulles de vulgarisation (citations Markdown), à part du corps de la fiche. */
+blockquote { margin: 14px 0 14px 12px; padding: 10px 14px; background: #fff7e8; border: 2px solid var(--acc); border-radius: 14px; break-inside: avoid; }
+blockquote p { margin: 4px 0; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 a { color: var(--acc); }
