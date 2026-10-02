@@ -12,7 +12,7 @@ volontairement différés restent dans [docs/BACKLOG.md](docs/BACKLOG.md).
   exports PDF / CSV Anki — *nginx reverse proxy* (`location ^~ /api/`, streaming, limites) et
   *PostgreSQL dans Docker* (explorer la base, lire et supprimer des tuples, depuis le terminal
   ou l'onglet Exec de Docker Desktop). Le style des fiches gagne les « bulles » de vulgarisation
-  (citations Markdown). Ajouté le 02/10/2026.
+  (citations Markdown). Ajouté le 02/10/2026. (#131)
 
 ## [1.0.1] — 02/10/2026 (depuis `DATASHARE_1.0.0`)
 
