@@ -102,7 +102,7 @@ npm run test:integ    # Vitest + TestBed — *.integ.spec.ts
 npm run verify:config # garde prod != debug
 ```
 
-Rapport de couverture : `frontend/coverage/index.html`.
+Rapport de couverture : `frontend/coverage/datashare-frontend/index.html`.
 
 ### e2e
 
