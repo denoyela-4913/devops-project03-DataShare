@@ -6,6 +6,15 @@ volontairement différés restent dans [docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## [Non publié] — depuis `DATASHARE_1.0.1`
 
+### Sécurité
+
+- **Dépendances frontend** : `npm audit fix` (source-map-js, joi, postcss-selector-parser,
+  stylelint). Reste `braces` (GHSA-vfj7-8cjw-p6xm, outils de développement uniquement), sans
+  correctif publié : **exception temporaire** dans `frontend/audit-allowlist.json`, expirant à
+  `reviewBy` (7 jours) et réévaluée chaque semaine par le workflow `audit-weekly`. Le job
+  `security` passe par `frontend/tools/audit-check.mjs` au lieu de `npm audit` direct.
+  Décidé le 07/10/2026. (#143)
+
 ### Documentation
 
 - **Fiches d'apprentissage** (`learning/`) : deux nouvelles fiches avec leurs flashcards et

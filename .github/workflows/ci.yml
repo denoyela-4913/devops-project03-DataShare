@@ -403,20 +403,10 @@ jobs:
           node-version-file: frontend/.nvmrc
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+      # npm audit --audit-level=high, avec exceptions temporaires datées (frontend/audit-allowlist.json).
       - name: npm audit (frontend)
         working-directory: frontend
-        run: |
-          set +e
-          out=$(npm audit --audit-level=high 2>&1)
-          code=$?
-          echo "$out"
-          if [ "$code" -ne 0 ]; then
-            if echo "$out" | grep -qiE 'Service Unavailable|endpoint returned an error|ENOTFOUND|ETIMEDOUT|ECONNRESET'; then
-              echo "::warning::npm audit could not reach the advisory endpoint — traité comme non bloquant"
-              exit 0
-            fi
-            exit "$code"
-          fi
+        run: node tools/audit-check.mjs
       - name: Get current date
         id: date
         run: echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"

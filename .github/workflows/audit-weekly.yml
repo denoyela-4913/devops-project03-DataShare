@@ -1,0 +1,29 @@
+name: audit-weekly
+
+# Réévaluation hebdomadaire des exceptions de `npm audit` (frontend/audit-allowlist.json) :
+# la CI ne tourne que sur PR/push, donc sans ce passage une exception pourrait expirer sans
+# que personne ne le voie. Échec = exception expirée ou nouvel avis ; correctif devenu
+# disponible = avertissement. Voir docs/CI.md (job `security`).
+
+on:
+  schedule:
+    - cron: "43 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  npm-audit:
+    name: npm audit (hebdo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: npm audit (frontend)
+        working-directory: frontend
+        run: node tools/audit-check.mjs

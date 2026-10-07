@@ -45,7 +45,7 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 
 | Outil | Périmètre | Job CI | État |
 |---|---|---|---|
-| **`npm audit --audit-level=high`** | dépendances frontend | `security` | ☑ — **0 vulnérabilité** au dernier run |
+| **`npm audit --audit-level=high`** | dépendances frontend | `security` + `audit-weekly` (lundi) | ☑ — 1 exception temporaire (`braces`, sans correctif), voir §4 |
 | **gitleaks** | secrets dans l'historique et le diff | `security` | ☑ — aucun secret détecté |
 | **Trivy** | CVE OS/libs de l'image MinIO `silo` (GHCR, tag épinglé) | `security` | ☑ actif, **non bloquant** — `silo` ne sert qu'en dev/CI/tests (pas de prod) ; 4 CVE `HIGH` ouvertes sans correctif, voir §4 |
 | **OWASP dependency-check** | dépendances backend (Maven, base NVD) | — (lancement manuel) | ☐ CI non câblée ; **run manuel fait** (PR #102, 2026-09-28) → 2 CVE ≥ 7 ouvertes côté back, voir §4 |
@@ -56,8 +56,14 @@ analyse. Recoupé par [`docs/CI.md`](docs/CI.md).
 
 ## 4. Analyse des résultats
 
-- **Frontend** : `npm audit` ne remonte aucune vulnérabilité `high`/`critical` sur
-  l'arbre de dépendances Angular 22 actuel. Aucune décision de dérogation nécessaire.
+- **Frontend** : une seule vulnérabilité `high` ouverte, **`braces`**
+  ([GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), déni de service
+  par motifs imbriqués), **sans correctif publié** au 07/10/2026. Elle n'arrive que par
+  la chaîne d'outils de développement (`stylelint → globby → fast-glob → micromatch →
+  braces`), absente du bundle livré, et ne touche donc pas les utilisateurs. **Dérogation
+  temporaire** décidée le 07/10/2026 dans `frontend/audit-allowlist.json`, **réévaluée chaque
+  semaine** : l'exception expire à `reviewBy` (7 jours) et la CI échoue ensuite, le workflow
+  `audit-weekly` signale l'échéance même sans PR. Retrait dès qu'un correctif existe.
 - **Secrets** : gitleaks ne détecte rien ; les seuls secrets du dépôt sont des valeurs
   de dev explicitement factices (`application-dev.yml`, `.env.example`).
 - **Image MinIO (`silo`)** : Trivy actif en CI depuis le 2026-09-29 (scan par
