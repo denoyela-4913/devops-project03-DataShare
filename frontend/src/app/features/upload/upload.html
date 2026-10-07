@@ -1,7 +1,8 @@
 <!-- @figma-owned — style/structure visuelle maintenus depuis Figma via Cursor.
      À PRÉSERVER : les data-testid, (change)="onFileChange($event)", (ngSubmit),
      [class.field--error], <app-form-error> (erreur serveur), [disabled], aria-*,
-     routerLink, {{ expirationSentence() }} (durée déduite d'`expiresAt` côté serveur, pas
+     routerLink, le libellé du bouton « Copier » (copied() / copyFailed()) et la zone
+     <span role="status" aria-live> qui annonce le résultat de la copie, {{ expirationSentence() }} (durée déduite d'`expiresAt` côté serveur, pas
      de texte en dur ni du contrôle de formulaire). Champs et boutons consomment les composants partagés
      `app-ui-input` / `app-ui-select` /
      `app-ui-button` (shared/components) — hors <label> de sélection de fichier,
@@ -309,8 +310,16 @@
             stroke-width="1.5"
           />
         </svg>
-        {{ copied() ? 'Lien copié !' : 'Copier le lien' }}
+        {{ copied() ? 'Lien copié !' : copyFailed() ? 'Copie impossible' : 'Copier le lien' }}
       </app-ui-button>
+      <!-- Annonce le résultat de la copie aux lecteurs d'écran (le libellé du bouton change aussi). -->
+      <span class="sr-only" role="status" aria-live="polite">{{
+        copied()
+          ? 'Lien copié dans le presse-papiers'
+          : copyFailed()
+            ? 'La copie a échoué : sélectionne le lien pour le copier à la main'
+            : ''
+      }}</span>
 
       <app-ui-button
         type="button"

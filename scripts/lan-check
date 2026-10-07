@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# Diagnostic de l'acces DataShare depuis le reseau local (mobile sur le meme Wi-Fi).
+# A lancer dans WSL (mode networkingMode=mirrored), depuis la racine du depot.
+#
+#   ./scripts/lan-check                 verifie IP, ecoute des ports, reponse via l'IP LAN
+#   ./scripts/lan-check --serve         lance en plus un serveur de test temporaire sur :4200
+#                                       (a utiliser quand l'appli ne tourne pas) ; Ctrl+C l'arrete
+#   ./scripts/lan-check --ping <ip>     ping d'un appareil (ex. l'IP du mobile)
+#
+# Le pare-feu Windows / Hyper-V se regle cote Windows : .\scripts\lan-setup.ps1 enable
+set -uo pipefail
+
+port=4200
+serve=0
+ping_ip=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --serve) serve=1 ;;
+    --ping)
+      ping_ip="${2:-}"
+      shift
+      ;;
+    --port)
+      port="${2:-4200}"
+      shift
+      ;;
+    -h | --help)
+      sed -n '2,10p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    *)
+      echo "option inconnue : $1" >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+ok() { printf '  OK  %s\n' "$*"; }
+nok() { printf '  NOK %s\n' "$*"; }
+code() { curl -s -o /dev/null -m 3 -w '%{http_code}' "$1" 2>/dev/null; }
+
+echo "DataShare - diagnostic reseau local"
+
+ip="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i = 1; i <= NF; i++) if ($i == "src") print $(i + 1)}')"
+if [ -z "$ip" ]; then
+  nok "IP LAN introuvable (pas de route par defaut ?)"
+  exit 1
+fi
+case "$ip" in
+  172.* | 10.255.*) echo "  ! IP $ip : WSL semble en mode NAT, pas mirrored (voir .wslconfig)" ;;
+esac
+ok "IP LAN du PC : $ip"
+
+if [ -n "$ping_ip" ]; then
+  if ping -c 2 -W 2 "$ping_ip" >/dev/null 2>&1; then
+    ok "ping $ping_ip"
+  else
+    nok "ping $ping_ip (isolation Wi-Fi ? mobile sur un autre reseau/VPN ?)"
+  fi
+fi
+
+if [ "$serve" = 1 ]; then
+  echo "serveur de test sur 0.0.0.0:$port - ouvrir http://$ip:$port sur le mobile (Ctrl+C pour arreter)"
+  exec python3 -m http.server "$port" --bind 0.0.0.0
+fi
+
+fail=0
+for p in 4200 8080 8082; do
+  line="$(ss -tln 2>/dev/null | awk -v p=":$p" '$4 ~ p"$" {print $4}' | head -1)"
+  if [ -z "$line" ]; then
+    echo "  --  :$p  rien n'ecoute (service non lance)"
+    continue
+  fi
+  case "$line" in
+    127.0.0.1:* | "[::1]:"*)
+      nok ":$p  n'ecoute que sur localhost ($line) - relancer avec --host 0.0.0.0"
+      fail=$((fail + 1))
+      continue
+      ;;
+  esac
+  c="$(code "http://$ip:$p")"
+  if [ "$c" = 000 ]; then
+    nok ":$p  ecoute ($line) mais pas de reponse via $ip"
+    fail=$((fail + 1))
+  else
+    ok ":$p  ecoute ($line), HTTP $c via $ip"
+  fi
+done
+
+if [ "$(code "http://$ip:4200/api/ping")" = 200 ]; then
+  ok "proxy /api via le frontend ($ip:4200/api/ping)"
+fi
+
+echo
+echo "URL a ouvrir sur le mobile : http://$ip:4200"
+echo "Liens de partage : DATASHARE_DOWNLOAD_BASE_URL=http://$ip:4200/d (variable du backend)"
+if command -v qrencode >/dev/null 2>&1; then
+  qrencode -t ANSIUTF8 "http://$ip:4200"
+fi
+echo "Pare-feu : .\\scripts\\lan-setup.ps1 status (cote Windows)"
+exit "$fail"

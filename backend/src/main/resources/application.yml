@@ -37,8 +37,10 @@ datashare:
     max-expiration-days: 7
     blocked-extensions: exe,bat,cmd,com,scr,msi,sh,ps1,vbs,vbe,js,jse,jar,dll,app,deb,rpm
     # Préfixe des liens de partage — l'URL de la page /d/:token du FRONTEND (pas du back).
-    # Dev : le serveur ng. Prod : l'origine publique du front (fournie par l'environnement).
-    base-download-url: ${DATASHARE_DOWNLOAD_BASE_URL:http://localhost:4200/d}
+    # Optionnel. Vide (dev) : le lien est relatif (/d/<token>) et le frontend y ajoute l'origine
+    # du navigateur (localhost, IP du réseau local, tunnel...). Défini (prod) : lien absolu imposé,
+    # ex. https://datashare.example/d
+    base-download-url: ${DATASHARE_DOWNLOAD_BASE_URL:}
 
 server:
   error:

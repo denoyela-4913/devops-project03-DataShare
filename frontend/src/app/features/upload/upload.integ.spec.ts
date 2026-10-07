@@ -107,6 +107,52 @@ describe('Upload (integ)', () => {
     expect(testId(fixture, 'upload-share-url')).not.toBeNull();
   });
 
+  describe('copie du lien', () => {
+    function renderSuccess() {
+      const ctx = render();
+      ctx.fixture.componentInstance.selectedFile.set(fileOfSize(10 * 1_048_576));
+      ctx.fixture.componentInstance.startUpload();
+      ctx.fixture.componentInstance.submit();
+      ctx.fixture.detectChanges();
+      return ctx;
+    }
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      Reflect.deleteProperty(navigator, 'clipboard');
+    });
+
+    it('affiche « Lien copié ! » et annonce le résultat quand la copie réussit', async () => {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText: vi.fn().mockResolvedValue(undefined) },
+        configurable: true,
+      });
+      const { fixture } = renderSuccess();
+
+      fixture.componentInstance.copyLink();
+      await vi.waitFor(() => expect(fixture.componentInstance.copied()).toBe(true));
+      fixture.detectChanges();
+
+      expect(testId(fixture, 'upload-copy-btn')?.textContent).toContain('Lien copié !');
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector('[role="status"]')?.textContent,
+      ).toContain('Lien copié');
+    });
+
+    it('affiche « Copie impossible » quand aucune méthode de copie ne fonctionne', async () => {
+      Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+      document.execCommand = vi.fn().mockReturnValue(false);
+      const { fixture } = renderSuccess();
+
+      fixture.componentInstance.copyLink();
+      await vi.waitFor(() => expect(fixture.componentInstance.copyFailed()).toBe(true));
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.copied()).toBe(false);
+      expect(testId(fixture, 'upload-copy-btn')?.textContent).toContain('Copie impossible');
+    });
+  });
+
   it('annonce « une journée » pour une expiration à 1 jour', () => {
     const { fixture, fileService } = render();
     fixture.componentInstance.selectedFile.set(fileOfSize(10 * 1_048_576));

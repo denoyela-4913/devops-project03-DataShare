@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Lanceur WSL -> Windows : execute scripts/lan-setup.ps1 avec powershell.exe (interop WSL).
+#   ./scripts/lan-setup enable|disable|status
+# wslpath -w convertit le chemin Linux en chemin Windows (powershell.exe est un programme
+# Windows) ; -ExecutionPolicy Bypass ne vaut que pour ce lancement.
+if ! command -v powershell.exe >/dev/null 2>&1; then
+  echo "erreur: powershell.exe introuvable (interop WSL desactive ? voir [interop] dans /etc/wsl.conf)" >&2
+  exit 1
+fi
+exec powershell.exe -NoProfile -ExecutionPolicy Bypass \
+  -File "$(wslpath -w "$(dirname "${BASH_SOURCE[0]}")/lan-setup.ps1")" "$@"

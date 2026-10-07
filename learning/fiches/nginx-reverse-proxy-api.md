@@ -146,9 +146,10 @@ d'origine.
 ⚠️ **Ce que DataShare en fait réellement** : *rien pour l'instant*. Une recherche dans
 `backend/src/main` ne trouve ni lecture de `X-Forwarded-*` ni `forward-headers-strategy`. Les
 en-têtes sont envoyés, prêts à servir (journaux, limitation de débit, HTTPS), mais le backend
-ne s'en sert pas aujourd'hui. De même, le lien de partage est construit à partir de la variable
-`DATASHARE_DOWNLOAD_BASE_URL`, **pas** à partir de `Host` : c'est la limite documentée dans
-[`docs/BACKLOG.md`](../../docs/BACKLOG.md). Le HTTPS est lui aussi prévu « au reverse-proxy »,
+ne s'en sert pas aujourd'hui. De même, le lien de partage ne dépend pas de `Host` : le backend renvoie un chemin relatif
+(`/d/<token>`) et le frontend y ajoute l'origine du navigateur ; la variable optionnelle
+`DATASHARE_DOWNLOAD_BASE_URL` permet d'imposer une base absolue (voir
+[`docs/TESTS-MOBILE.md`](../../docs/TESTS-MOBILE.md)). Le HTTPS est lui aussi prévu « au reverse-proxy »,
 mais pas encore en place (`listen 80` uniquement).
 
 > 💬 **Pour un enfant de 5 ans**

@@ -123,44 +123,27 @@ complète »).
 
 ## Lien de partage (`/d/{token}`) — construction côté client
 
-**Constat** (recette manuelle Lighthouse/perf, 2026-09-28) : le lien affiché après un
-upload et dans la carte de l'historique (« Accéder ») est construit **côté backend**
-(`FileService.toSummary` / `FileService.upload`, `properties.baseDownloadUrl() + "/" +
-token`), à partir de `DATASHARE_DOWNLOAD_BASE_URL` — variable dont la valeur par défaut
-(`http://localhost:4200/d`, `application.yml`) suppose que le front tourne sur `:4200`
-(`ng serve`). Dès qu'on sert le front autrement (ex. conteneur nginx sur un autre port,
-comme pour un run Lighthouse « proche prod »), le lien pointe vers le mauvais port tant
-qu'on n'a pas resynchronisé la variable à la main — piège identique pour
-`start-backend-prod`, qui génère `deploy/.env.prod.local` avec le même défaut `:4200`
-au premier lancement.
-**Contournement en place** : fixer `DATASHARE_DOWNLOAD_BASE_URL` à la bonne valeur avant
-de démarrer le backend (`export` en dev, éditer `deploy/.env.prod.local` en prod locale).
-Fonctionne mais demande de s'en souvenir à chaque changement de port/domaine.
+**Fait** (PR « accès réseau et liens relatifs », 07/10/2026). Le constat initial (recette
+Lighthouse, 28/09/2026) : le lien affiché après un upload et dans la carte de l'historique
+(« Accéder ») était construit par le backend à partir de `DATASHARE_DOWNLOAD_BASE_URL`, dont le
+défaut (`http://localhost:4200/d`) supposait un front sur `:4200`. Dès qu'on servait le front
+autrement (nginx sur `:8082`, IP du réseau local pour un mobile, tunnel), le lien était faux.
 
-**Correctif proposé (PR dédiée)** : reconstruire le lien **côté front**, à partir de
-`window.location.origin` (l'origine réellement chargée par le navigateur) plutôt que de
-recopier tel quel le `downloadUrl` renvoyé par l'API :
+**Solution retenue**, légèrement différente de la piste initiale :
 
-- un helper partagé, ex. `shareUrl(token) = \`${window.location.origin}/d/${token}\`` ;
-- écran d'upload (`upload.ts`) : `UploadResponse` a déjà un champ `token`, aucun
-  changement backend nécessaire ;
-- carte de l'historique (`file-card.html`) : `FileSummary`/`FileSummaryResponse` n'exposent
-  aujourd'hui que `downloadUrl` déjà construit — ajouter un champ `token` (la donnée existe
-  déjà sur l'entité, `file.getDownloadToken()`) plutôt que de parser le token depuis
-  `downloadUrl` côté front (coupler le front à la forme de l'URL serveur serait fragile).
-- tests à ajuster : `upload.integ.spec.ts` (assertion sur `shareUrl()`), `file-card.spec.ts`
-  (assertion sur `href`), côté backend `FileServiceTest`/`FileControllerIT` si le DTO gagne
-  un champ `token`.
-- `downloadUrl` peut être conservé côté API pour d'éventuels consommateurs externes, ou
-  retiré avec `DATASHARE_DOWNLOAD_BASE_URL` si on juge qu'il ne sert plus à rien — à
-  trancher au moment de la PR.
+- le backend renvoie un **chemin relatif** (`/d/<token>`) quand `DATASHARE_DOWNLOAD_BASE_URL` est
+  absente, et un lien absolu quand elle est définie (production : https et domaine imposés) ;
+  le champ `downloadUrl` et les DTO ne changent pas ;
+- le frontend (`FileService`) ajoute `window.location.origin` aux liens relatifs
+  (`toAbsoluteShareUrl`) : upload et historique reçoivent un lien utilisable tel quel ;
+- on n'a **pas** ajouté de champ `token` à `FileSummaryResponse` ni fait composer tout le lien
+  par le front : le serveur reste propriétaire de la forme de l'URL, et une base canonique reste
+  possible en production.
+
+Voir [`TESTS-MOBILE.md`](TESTS-MOBILE.md) pour les scénarios (PC, mobile en Wi-Fi, mobile en 5G).
 
 **Non concerné** : les appels `/api/...` du front sont en chemin relatif (`apiUrl: '/api'`),
-proxifiés par nginx vers `backend:8080` en dur (`proxy_pass`) — cette variable n'a jamais
-influencé quel port backend est contacté, seulement quelle page s'ouvre au clic sur
-« Accéder ».
-
-**Statut : non planifié**, priorité maintenance/config de test plutôt que fonctionnelle.
+proxifiés par nginx vers `backend:8080` en dur (`proxy_pass`).
 
 ## Affichage des erreurs / notifications — différé
 

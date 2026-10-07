@@ -6,6 +6,27 @@ volontairement différés restent dans [docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## [Non publié] — depuis `DATASHARE_1.0.1`
 
+### Ajouté
+
+- **Test depuis un mobile** : l'appli est accessible depuis un mobile sur le même Wi-Fi
+  (`start-frontend-dev` écoute sur `0.0.0.0` par défaut, `--local` pour `localhost` seul) ou en 5G
+  via un tunnel Cloudflare (`scripts/start-tunnel`). Nouveaux scripts `scripts/lan-setup`
+  (pare-feu Windows + Hyper-V, `enable` / `disable` / `status`, élévation UAC attendue) et
+  `scripts/lan-check` (diagnostic réseau et URL à ouvrir sur le mobile). Guide pas à pas, retour
+  arrière et dépannage : [`docs/TESTS-MOBILE.md`](docs/TESTS-MOBILE.md). (#142)
+- **Copie du lien** : repli `document.execCommand('copy')` quand `navigator.clipboard` est absent
+  (page en HTTP sur une IP du réseau local), message « Copie impossible » annoncé aux lecteurs
+  d'écran si la copie échoue. (#142)
+
+### Modifié
+
+- **Liens de partage** : le backend renvoie un chemin relatif (`/d/<token>`) quand
+  `DATASHARE_DOWNLOAD_BASE_URL` est absente, et le frontend y ajoute l'origine du navigateur : le
+  lien est valable quelle que soit l'adresse d'ouverture (`localhost`, IP du réseau local,
+  tunnel). La variable devient **optionnelle**, y compris en production (où elle reste utile
+  pour imposer https et un domaine unique). `.env.prod.local` généré par `start-backend-prod`
+  ne la contient plus ; un fichier déjà généré garde l'ancienne ligne, à supprimer à la main. (#142)
+
 ### Sécurité
 
 - **Dépendances frontend** : `npm audit fix` (source-map-js, joi, postcss-selector-parser,

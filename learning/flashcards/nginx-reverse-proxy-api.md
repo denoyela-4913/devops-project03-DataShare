@@ -48,7 +48,7 @@ R: Il reprend l'en-tête `X-Forwarded-For` existant et y ajoute l'IP du client �
 ---
 
 Q: Le backend de DataShare exploite-t-il aujourd'hui les en-têtes `X-Forwarded-*` ?
-R: Non. Aucune lecture de ces en-têtes ni `forward-headers-strategy` dans `backend/src/main`. Ils sont envoyés mais pas utilisés. Le lien de partage vient de `DATASHARE_DOWNLOAD_BASE_URL`, pas de `Host`.
+R: Non. Aucune lecture de ces en-têtes ni `forward-headers-strategy` dans `backend/src/main`. Ils sont envoyés mais pas utilisés. Le lien de partage ne vient pas de `Host` : chemin relatif côté backend, origine du navigateur ajoutée par le frontend (base imposée seulement si `DATASHARE_DOWNLOAD_BASE_URL` est définie).
 
 ---
 

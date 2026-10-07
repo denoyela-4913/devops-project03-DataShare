@@ -24,6 +24,9 @@
 #   --bg          detache le service (PID + log dans scripts/.run/) au lieu du premier plan
 #   --hard        stop brutal (killall java / node)
 #   --with-deps   stop-backend arrete aussi la stack Docker (alias : --wd)
+#   --local       start-frontend-dev uniquement : n'ecoute que sur localhost (par defaut :
+#                 0.0.0.0, accessible depuis un mobile sur le meme Wi-Fi si le pare-feu est
+#                 ouvert - voir docs/TESTS-MOBILE.md)
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -63,6 +66,14 @@ die() {
 
 # --------------------------------------------------------------- outillage ----
 have() { command -v "$1" >/dev/null 2>&1; }
+
+# IP LAN de la machine (sous WSL en networkingMode=mirrored : celle de Windows).
+# Vide si introuvable (pas de route, ou Git Bash sous Windows : utiliser datashare.ps1).
+lan_ip() {
+  have ip || return 0
+  ip -4 route get 1.1.1.1 2>/dev/null |
+    awk '{for (i = 1; i <= NF; i++) if ($i == "src") {print $(i + 1); exit}}'
+}
 http_up() { curl -fsS -o /dev/null --max-time 3 "$1" 2>/dev/null; }
 
 mvnw_bin() {
@@ -173,7 +184,6 @@ DATASHARE_STORAGE_ENDPOINT=http://localhost:${MINIO_API_PORT:-9000}
 DATASHARE_STORAGE_BUCKET=${DATASHARE_STORAGE_BUCKET:-datashare-files}
 DATASHARE_STORAGE_ACCESS_KEY=${MINIO_ROOT_USER:-datashare}
 DATASHARE_STORAGE_SECRET_KEY=${MINIO_ROOT_PASSWORD:-datashare-secret}
-DATASHARE_DOWNLOAD_BASE_URL=http://localhost:4200/d
 EOF
   say "genere : deploy/.env.prod.local"
 }
@@ -276,6 +286,7 @@ status_appli() {
 
 # ------------------------------------------------------------------ dispatch --
 bg=0
+local_only=0
 hard=0
 with_deps=0
 action=""
@@ -283,6 +294,7 @@ for arg in "$@"; do
   case "$arg" in
     --bg) bg=1 ;;
     -f | --foreground) bg=0 ;;
+    --local) local_only=1 ;;
     --hard) hard=1 ;;
     --with-deps | --wd) with_deps=1 ;;
     -h | --help) action="help" ;;
@@ -297,6 +309,9 @@ for arg in "$@"; do
   esac
 done
 [ -n "$action" ] || die "action manquante - essayez: $(basename "$0") status-appli"
+if [ "$local_only" = 1 ] && [ "$action" != start-frontend-dev ]; then
+  die "--local est reserve a start-frontend-dev"
+fi
 
 case "$action" in
   start-backend-dev)
@@ -321,7 +336,13 @@ case "$action" in
     ;;
   start-frontend-dev)
     node_check
-    run_service frontend "$repo_root/frontend" npm start
+    if [ "$local_only" = 1 ]; then
+      run_service frontend "$repo_root/frontend" npm start
+    else
+      ip="$(lan_ip)"
+      say "reseau local : http://${ip:-<ip-du-pc>}:4200 (--local pour localhost seul)"
+      run_service frontend "$repo_root/frontend" npm start -- --host 0.0.0.0
+    fi
     ;;
   start-frontend-prod)
     node_check
@@ -329,20 +350,18 @@ case "$action" in
     ;;
   start-frontend-docker)
     have docker || die "docker introuvable"
-    # L'IP de la VM WSL (pas host.docker.internal : sous Docker Desktop + WSL2, il
-    # resout vers l'hote Windows, pas la VM WSL ou tourne le backend).
-    wsl_ip="$(hostname -I | awk '{print $1}')"
-    [ -n "$wsl_ip" ] || die "impossible de determiner l'IP a passer en --add-host backend"
+    # host-gateway : l'hote du daemon Docker, ou tourne le backend. Pas l'IP LAN de la
+    # machine (mode WSL mirrored) : depuis le conteneur, elle expire (timeout) -> 502 au login.
     say "build de l'image frontend (nginx + build prod)..."
     docker build -q -t "$frontend_docker_image" "$repo_root/frontend" >/dev/null
     docker rm -f "$frontend_docker_container" >/dev/null 2>&1 || true
     docker run -d --name "$frontend_docker_container" \
-      --add-host "backend:$wsl_ip" \
+      --add-host "backend:host-gateway" \
       -p "$frontend_docker_port:80" "$frontend_docker_image" >/dev/null
-    if http_up "http://$wsl_ip:8080/actuator/health"; then
-      say "backend detecte sur $wsl_ip:8080"
+    if http_up "http://localhost:8080/actuator/health"; then
+      say "backend detecte sur :8080"
     else
-      say "! backend introuvable sur $wsl_ip:8080 - demarrez-le (start-backend-dev/prod)"
+      say "! backend introuvable sur :8080 - demarrez-le (start-backend-dev/prod)"
     fi
     say "frontend (nginx, build prod) : http://localhost:$frontend_docker_port"
     ;;

@@ -13,7 +13,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @param defaultExpirationDays durée de validité par défaut
  * @param maxExpirationDays plafond (7 jours)
  * @param blockedExtensions extensions interdites (sans le point), en minuscules
- * @param baseDownloadUrl préfixe des liens de téléchargement
+ * @param baseDownloadUrl préfixe absolu (origine publique du frontend + {@code /d}) des liens de
+ *     téléchargement ; optionnel — vide, les liens sont relatifs ({@code /d/<token>})
  */
 @ConfigurationProperties(prefix = "datashare.files")
 public record FileProperties(
