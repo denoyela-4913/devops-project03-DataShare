@@ -114,9 +114,17 @@ mode verbeux.
 ## `security`
 
 - **gitleaks** — secrets commités
-- **`npm audit --audit-level=high`** — CVE des dépendances frontend. Une vraie
+- **`npm audit --audit-level=high`** — CVE des dépendances frontend, via
+  [`frontend/tools/audit-check.mjs`](../frontend/tools/audit-check.mjs). Une vraie
   vulnérabilité fait échouer le job ; une indisponibilité de l'endpoint d'avis npm
   (503, timeout) est traitée comme non bloquante (message `::warning::`).
+  **Exceptions temporaires** : un avis sans correctif publié peut être listé dans
+  [`frontend/audit-allowlist.json`](../frontend/audit-allowlist.json) (identifiant GHSA,
+  raison, `reviewBy`). Elle ne protège que jusqu'à `reviewBy` (7 jours) : ensuite l'avis fait
+  de nouveau échouer le job, ce qui force la réévaluation. À chaque réévaluation : un
+  correctif est-il publié (`npm audit fix`) ? sinon renouveler la date pour 7 jours ; sinon
+  retirer l'entrée. Le workflow [`audit-weekly.yml`](../.github/workflows/audit-weekly.yml)
+  relance ce contrôle chaque lundi, même sans PR, pour que l'expiration ne passe pas inaperçue.
 - **Trivy** (`aquasecurity/trivy-action`) — CVE OS/libs de l'image MinIO `silo`
   (tag épinglé, le même que [`deploy/docker-compose.yml`](../deploy/docker-compose.yml)).
   Scan par référence (pas de build), `severity: HIGH,CRITICAL`, **non bloquant**

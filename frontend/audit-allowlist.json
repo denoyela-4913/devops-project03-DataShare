@@ -1,0 +1,12 @@
+{
+  "_comment": "Exceptions temporaires à `npm audit --audit-level=high` (voir frontend/tools/audit-check.mjs et docs/CI.md). Chaque entrée expire à `reviewBy` : passé ce jour, l'avis fait échouer la CI et doit être réévalué (correctif publié ? exception à renouveler pour 7 jours, ou à retirer).",
+  "exceptions": [
+    {
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "reason": "Déni de service par motifs imbriqués, sans correctif publié. Chaîne d'outils de développement uniquement (stylelint > globby > fast-glob > micromatch > braces), absente du bundle livré.",
+      "since": "2026-10-07",
+      "reviewBy": "2026-10-14"
+    }
+  ]
+}

@@ -130,8 +130,15 @@ npm audit --audit-level=high           # échoue (code ≠ 0) à partir de « hi
 npm audit fix                          # applique les correctifs compatibles (semver), puis relancer les tests
 ```
 
-Différence avec la CI : le job `security` traite une panne du service d'avis npm comme non
-bloquante (warning) ; la commande manuelle échoue dans ce cas.
+Différence avec la CI : le job `security` (`node tools/audit-check.mjs`) traite une panne du
+service d'avis npm comme non bloquante (warning), et tolère les avis listés dans
+`frontend/audit-allowlist.json` jusqu'à leur date `reviewBy` ; la commande manuelle ci-dessus
+échoue dans ces deux cas. Pour reproduire la CI : `node tools/audit-check.mjs`.
+
+**Réévaluation hebdomadaire d'une exception** (chaque lundi, workflow `audit-weekly`) :
+`npm audit fix`, puis `node tools/audit-check.mjs`. Si un correctif existe, retirer l'entrée
+d'`audit-allowlist.json` ; sinon repousser `reviewBy` de 7 jours dans une petite PR
+`chore(deps)`.
 
 ## 2. Exploitation (runbook)
 
