@@ -7,6 +7,7 @@ import { FormError } from '../../shared/components/form-error/form-error';
 import { UiButton } from '../../shared/components/ui-button/ui-button';
 import { UiInput } from '../../shared/components/ui-input/ui-input';
 import { UiSelect } from '../../shared/components/ui-select/ui-select';
+import { copyToClipboard } from '../../shared/utils/clipboard';
 
 /** Bytes — limite Figma iPhone 16-4 : la taille affichée en rouge est > 1 Go. */
 const MAX_FILE_BYTES = 1_073_741_824; // 1 Go
@@ -48,6 +49,7 @@ export class Upload {
   readonly serverError = signal<ApiError | null>(null);
   readonly shareUrl = signal<string | null>(null);
   readonly copied = signal(false);
+  readonly copyFailed = signal(false);
   readonly expiresAt = signal<string | null>(null);
 
   readonly selectedFile = signal<File | null>(null);
@@ -132,9 +134,13 @@ export class Upload {
   copyLink(): void {
     const url = this.shareUrl();
     if (!url) return;
-    void navigator.clipboard.writeText(url).then(() => {
-      this.copied.set(true);
-      setTimeout(() => this.copied.set(false), 2000);
+    void copyToClipboard(url).then((ok) => {
+      this.copied.set(ok);
+      this.copyFailed.set(!ok);
+      setTimeout(() => {
+        this.copied.set(false);
+        this.copyFailed.set(false);
+      }, 2000);
     });
   }
 
@@ -143,6 +149,7 @@ export class Upload {
     this.shareUrl.set(null);
     this.expiresAt.set(null);
     this.copied.set(false);
+    this.copyFailed.set(false);
     this.form.reset({ password: '', expiration: '7' });
     this.state.set('landing');
   }

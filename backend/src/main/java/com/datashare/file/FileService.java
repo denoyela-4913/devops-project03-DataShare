@@ -110,7 +110,7 @@ public class FileService {
                 new StoredFile(token, name, contentType, size, storageKey, passwordHash, ownerId, expiresAt));
 
         return new UploadResponse(
-                properties.baseDownloadUrl() + "/" + token,
+                downloadUrl(token),
                 stored.getDownloadToken(),
                 stored.getOriginalName(),
                 stored.getSizeBytes(),
@@ -171,7 +171,19 @@ public class FileService {
                 file.getCreatedAt(),
                 file.getExpiresAt(),
                 file.isPasswordProtected(),
-                properties.baseDownloadUrl() + "/" + file.getDownloadToken());
+                downloadUrl(file.getDownloadToken()));
+    }
+
+    /**
+     * Lien de partage. Sans base configurée ({@code DATASHARE_DOWNLOAD_BASE_URL} absente), on renvoie le
+     * chemin relatif {@code /d/<token>} : c'est le frontend qui y ajoute l'origine réellement chargée par le
+     * navigateur (localhost, IP du réseau local, tunnel…). Avec une base, le lien est absolu et imposé
+     * (production : https garanti).
+     */
+    private String downloadUrl(String token) {
+        String base = properties.baseDownloadUrl();
+        String prefix = (base == null || base.isBlank()) ? "/d" : base;
+        return prefix + "/" + token;
     }
 
     private StoredFile findDownloadable(String token) {

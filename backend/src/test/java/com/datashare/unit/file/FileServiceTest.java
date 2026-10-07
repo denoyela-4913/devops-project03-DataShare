@@ -67,9 +67,13 @@ class FileServiceTest {
 
     @BeforeEach
     void setUp() {
-        FileProperties props = new FileProperties(1_073_741_824L, 7, 7, BLOCKED_EXTENSIONS, "http://localhost:8080/d");
-        service = new FileService(files, storage, passwordEncoder, props);
+        service = serviceWithBaseUrl("http://localhost:8080/d");
+    }
+
+    private FileService serviceWithBaseUrl(String baseDownloadUrl) {
+        FileProperties props = new FileProperties(1_073_741_824L, 7, 7, BLOCKED_EXTENSIONS, baseDownloadUrl);
         Mockito.lenient().when(files.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        return new FileService(files, storage, passwordEncoder, props);
     }
 
     /**
@@ -79,6 +83,26 @@ class FileServiceTest {
      */
     private static MultipartFile file(String name, byte[] content) {
         return new MockMultipartFile("file", name, "application/octet-stream", content);
+    }
+
+    @Test
+    void upload_returns_a_relative_link_when_no_base_url_is_configured() {
+        for (String blank : new String[] {"", "  ", null}) {
+            FileService relative = serviceWithBaseUrl(blank);
+
+            UploadResponse response = relative.upload(file("rapport.pdf", "hello".getBytes()), null, null, OWNER);
+
+            assertThat(response.downloadUrl()).isEqualTo("/d/" + response.token());
+        }
+    }
+
+    @Test
+    void list_returns_a_relative_link_when_no_base_url_is_configured() {
+        when(files.findByOwnerIdOrderByCreatedAtDesc(OWNER)).thenReturn(List.of(storedFile("hash", inOneDay())));
+
+        var history = serviceWithBaseUrl("").list(OWNER);
+
+        assertThat(history.get(0).downloadUrl()).isEqualTo("/d/tok");
     }
 
     @Test

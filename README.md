@@ -63,6 +63,7 @@ tools/       scripts de contrôle (en-têtes @figma-owned, etc.)
 - [`MAINTENANCE.md`](MAINTENANCE.md) — MAJ des dépendances, runbook, versioning
 - [`DESIGN.md`](DESIGN.md) — carte US→route→composant→endpoint, design system, accessibilité
 - [`docs/CI.md`](docs/CI.md) — pipeline · [`docs/BACKLOG.md`](docs/BACKLOG.md) — éléments différés
+- [`docs/TESTS-MOBILE.md`](docs/TESTS-MOBILE.md) — tester depuis un mobile (Wi-Fi local, 5G via tunnel)
 
 ## Workflow Git
 
@@ -114,6 +115,7 @@ Depuis la racine, `scripts/` pilote la stack sans se soucier des `cd` :
 ```
 
 Détail, options (`--bg`, `--hard`) et mode prod : [`scripts/README.md`](scripts/README.md).
+Ouvrir l'appli depuis un mobile (même Wi-Fi ou 5G) : [`docs/TESTS-MOBILE.md`](docs/TESTS-MOBILE.md).
 Les sections ci-dessous décrivent les commandes sous-jacentes.
 
 ### Dépendances (PostgreSQL + MinIO)

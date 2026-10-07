@@ -52,13 +52,41 @@ describe('FileService (integ)', () => {
     expect(body.has('password')).toBe(false);
   });
 
+  it("rend absolu un lien de partage relatif renvoyé à l'upload", () => {
+    let response: { downloadUrl: string } | undefined;
+    service
+      .upload(new File(['x'], 'a.txt'), { expirationDays: 7 })
+      .subscribe((r) => (response = r));
+    httpMock.expectOne('/api/files').flush({
+      downloadUrl: '/d/tok',
+      token: 'tok',
+      name: 'a.txt',
+      sizeBytes: 1,
+      expiresAt: '2026-01-01',
+    });
+    expect(response?.downloadUrl).toBe(`${window.location.origin}/d/tok`);
+  });
+
+  it("rend absolus les liens relatifs de l'historique et garde les liens déjà absolus", () => {
+    let response: { downloadUrl: string }[] = [];
+    service.list().subscribe((r) => (response = r));
+    httpMock.expectOne('/api/files').flush([
+      { id: 'f1', downloadUrl: '/d/tok1' },
+      { id: 'f2', downloadUrl: 'https://datashare.example/d/tok2' },
+    ]);
+    expect(response.map((f) => f.downloadUrl)).toEqual([
+      `${window.location.origin}/d/tok1`,
+      'https://datashare.example/d/tok2',
+    ]);
+  });
+
   it('list() fait un GET /api/files', () => {
     let response: unknown;
     service.list().subscribe((r) => (response = r));
     const req = httpMock.expectOne('/api/files');
     expect(req.request.method).toBe('GET');
-    req.flush([{ id: 'f1', name: 'a.pdf' }]);
-    expect(response).toEqual([{ id: 'f1', name: 'a.pdf' }]);
+    req.flush([{ id: 'f1', name: 'a.pdf', downloadUrl: 'http://x/d/t' }]);
+    expect(response).toEqual([{ id: 'f1', name: 'a.pdf', downloadUrl: 'http://x/d/t' }]);
   });
 
   it('remove(id) fait un DELETE /api/files/{id} et expose le code HTTP', () => {

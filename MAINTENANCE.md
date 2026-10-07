@@ -157,11 +157,12 @@ d'`audit-allowlist.json` ; sinon repousser `reviewBy` de 7 jours dans une petite
 | `DATASHARE_DB_URL`, `DATASHARE_DB_USERNAME`, `DATASHARE_DB_PASSWORD` | connexion PostgreSQL |
 | `DATASHARE_JWT_SECRET` | clé HMAC de signature JWT (≥ 32 octets) |
 | `DATASHARE_STORAGE_ENDPOINT`, `DATASHARE_STORAGE_BUCKET`, `DATASHARE_STORAGE_ACCESS_KEY`, `DATASHARE_STORAGE_SECRET_KEY` | accès MinIO / S3 |
-| `DATASHARE_DOWNLOAD_BASE_URL` | préfixe des liens de partage = origine publique du **frontend** + `/d` (ex. `https://datashare.example/d`) |
+| `DATASHARE_DOWNLOAD_BASE_URL` | **optionnelle** : préfixe absolu des liens de partage = origine publique du **frontend** + `/d` (ex. `https://datashare.example/d`). Absente, le backend renvoie un chemin relatif (`/d/<token>`) et le frontend y ajoute l'origine du navigateur. À définir en production pour imposer https et un domaine unique. |
 | `SPRING_PROFILES_ACTIVE=prod` | active le profil durci |
 
-Aucune valeur par défaut n'est fournie dans `application-prod.yml` : une variable
-manquante fait échouer le démarrage (comportement voulu).
+Aucune valeur par défaut n'est fournie dans `application-prod.yml` pour les variables
+ci-dessus, **sauf `DATASHARE_DOWNLOAD_BASE_URL`** (optionnelle) : une autre variable manquante
+fait échouer le démarrage (comportement voulu).
 
 ### Migrations de base (Flyway)
 

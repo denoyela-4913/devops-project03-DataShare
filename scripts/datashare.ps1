@@ -21,6 +21,9 @@
         -Bg         detache le service (PID + log dans scripts\.run\) au lieu du premier plan
         -Hard       stop brutal (Stop-Process java / node)
         -WithDeps   stop-backend arrete aussi la stack Docker (alias : -Wd)
+        -Local      start-frontend-dev uniquement : n'ecoute que sur localhost (par defaut :
+                    0.0.0.0, accessible depuis un mobile sur le meme Wi-Fi si le pare-feu est
+                    ouvert - voir docs\TESTS-MOBILE.md)
 #>
 [CmdletBinding()]
 param(
@@ -28,6 +31,7 @@ param(
     [string]$Action,
     [switch]$Bg,
     [switch]$Hard,
+    [switch]$Local,
     [Alias('Wd')]
     [switch]$WithDeps
 )
@@ -60,6 +64,14 @@ function Die { param([string]$m) Write-Host "erreur: $m" -ForegroundColor Red; e
 
 # --------------------------------------------------------------- outillage ---
 function Have { param([string]$c) [bool](Get-Command $c -ErrorAction SilentlyContinue) }
+
+# IP LAN de la machine (interface portant la route par defaut). Vide si introuvable.
+function Lan-Ip {
+    $nic = Get-NetIPConfiguration -ErrorAction SilentlyContinue |
+        Where-Object { $_.IPv4DefaultGateway -and $_.IPv4Address } | Select-Object -First 1
+    if ($nic) { return $nic.IPv4Address.IPAddress }
+    return ''
+}
 
 function Http-Up {
     param([string]$url)
@@ -167,7 +179,6 @@ function Ensure-ProdEnv {
         "DATASHARE_STORAGE_BUCKET=$(V 'DATASHARE_STORAGE_BUCKET' 'datashare-files')"
         "DATASHARE_STORAGE_ACCESS_KEY=$(V 'MINIO_ROOT_USER' 'datashare')"
         "DATASHARE_STORAGE_SECRET_KEY=$(V 'MINIO_ROOT_PASSWORD' 'datashare-secret')"
-        'DATASHARE_DOWNLOAD_BASE_URL=http://localhost:4200/d'
     ) | Set-Content -Path $f -Encoding ascii
     Say 'genere : deploy\.env.prod.local'
 }
@@ -231,6 +242,7 @@ function Status-Appli {
 }
 
 # ----------------------------------------------------------------- dispatch --
+if ($Local -and $Action -ne 'start-frontend-dev') { Die '-Local est reserve a start-frontend-dev' }
 switch ($Action) {
     'start-backend-dev' {
         Deps-Up
@@ -253,7 +265,15 @@ switch ($Action) {
     }
     'start-frontend-dev' {
         Node-Check
-        Run-Service 'frontend' (Join-Path $RepoRoot 'frontend') 'npm.cmd' @('start')
+        if ($Local) {
+            Run-Service 'frontend' (Join-Path $RepoRoot 'frontend') 'npm.cmd' @('start')
+        }
+        else {
+            $ip = Lan-Ip
+            if (-not $ip) { $ip = '<ip-du-pc>' }
+            Say "reseau local : http://${ip}:4200 (-Local pour localhost seul)"
+            Run-Service 'frontend' (Join-Path $RepoRoot 'frontend') 'npm.cmd' @('start', '--', '--host', '0.0.0.0')
+        }
     }
     'start-frontend-prod' {
         Node-Check

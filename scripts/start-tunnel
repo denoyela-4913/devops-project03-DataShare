@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Expose DataShare sur Internet via un tunnel Cloudflare (trycloudflare.com) : permet de tester
+# depuis un mobile en 5G, ou depuis n'importe quel reseau, sans toucher a la box.
+#
+#   ./scripts/start-tunnel              tunnel vers http://localhost:8082 (frontend nginx, build prod)
+#   ./scripts/start-tunnel --port 4200  tunnel vers ng serve (exige --allowed-hosts, voir docs)
+#
+# Pre-requis : cloudflared installe (winget install Cloudflare.cloudflared), et le frontend deja
+# lance : ./scripts/start-frontend-docker (puis start-backend-dev). L'URL publique est affichee
+# par cloudflared (https://xxx.trycloudflare.com, SANS numero de port). Ctrl+C arrete le tunnel.
+# Voir docs/TESTS-MOBILE.md (scenario C) pour la marche a suivre et les precautions.
+set -uo pipefail
+
+port=8082
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --port)
+      port="${2:-}"
+      [ -n "$port" ] || { echo "erreur: --port attend un numero" >&2; exit 2; }
+      shift
+      ;;
+    -h | --help)
+      sed -n '2,11p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    *)
+      echo "option inconnue : $1" >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+# cloudflared : natif (PATH), ou l'executable Windows via l'interop WSL.
+cf=""
+for c in cloudflared cloudflared.exe "/mnt/c/Program Files (x86)/cloudflared/cloudflared.exe" "/mnt/c/Program Files/cloudflared/cloudflared.exe"; do
+  if command -v "$c" >/dev/null 2>&1 || [ -x "$c" ]; then
+    cf="$c"
+    break
+  fi
+done
+if [ -z "$cf" ]; then
+  echo "erreur: cloudflared introuvable. Installer : winget install Cloudflare.cloudflared (PowerShell)" >&2
+  exit 1
+fi
+
+# On vise TOUJOURS localhost : cloudflared tourne cote Windows et, en WSL2 mirrored, une
+# connexion de Windows vers sa propre IP LAN echoue (le tunnel resterait en timeout).
+if [ "$(curl -s -o /dev/null -m 3 -w '%{http_code}' "http://localhost:$port")" = 000 ]; then
+  echo "erreur: rien ne repond sur http://localhost:$port" >&2
+  echo "  port 8082 : ./scripts/start-frontend-docker   |   port 4200 : ./scripts/start-frontend-dev" >&2
+  exit 1
+fi
+if [ "$(curl -s -o /dev/null -m 3 -w '%{http_code}' http://localhost:8080/actuator/health)" = 000 ]; then
+  echo "! backend injoignable sur :8080 - ./scripts/start-backend-dev (la page s'affichera mais pas l'API)"
+fi
+
+echo "Tunnel public vers http://localhost:$port - l'URL https://....trycloudflare.com s'affiche ci-dessous."
+echo "Attention : l'appli devient joignable par quiconque connait l'URL (inscription ouverte, Swagger"
+echo "public en dev). Donnees de test uniquement, Ctrl+C des que le test est termine."
+exec "$cf" tunnel --url "http://localhost:$port"
