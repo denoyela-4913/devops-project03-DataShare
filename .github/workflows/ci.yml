@@ -83,6 +83,17 @@ jobs:
           shellcheck "${scripts[@]}"
       - name: figma-owned headers
         run: bash tools/check-figma-owned.sh
+      - name: line endings (index must be LF)
+        # Les commits faits via l'API GitHub (ex. Dependabot) contournent la
+        # normalisation de .gitattributes : on vérifie ce qui est réellement stocké.
+        run: |
+          bad=$(git ls-files --eol | grep -E 'i/crlf.*attr/text' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Fichiers texte stockés en CRLF dans l'index (attendu : LF) :"
+            echo "$bad"
+            echo "Correctif : git add --renormalize <fichier> puis commit."
+            exit 1
+          fi
 
   commitlint:
     name: commitlint
