@@ -43,7 +43,7 @@
 		     qui ajoute la limite de 256 KiB d'en-têtes HTTP/2 (5.4.0) et le rejet des hôtes
 		     non canonicalisables par le vérificateur TLS (5.5.0). -->
 		<okhttp-jvm.version>5.5.0</okhttp-jvm.version>
-		<tika.version>4.0.0</tika.version>
+		<tika.version>4.1.0</tika.version>
 
 		<spotless.version>3.10.2</spotless.version>
 		<checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
