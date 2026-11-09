@@ -37,7 +37,7 @@
 		     Depuis 8.6.0, okhttp passe en 4.x -> 5.x (okio suit) : la résolution Maven pure est
 		     contournée par l'exclusion du stub okhttp + okhttp-jvm redéclaré (voir plus bas
 		     et docs/BACKLOG.md). -->
-		<minio.version>9.0.3</minio.version>
+		<minio.version>9.0.4</minio.version>
 		<!-- Classes réelles d'okhttp (le jar "okhttp" plain-Maven est un stub, voir plus bas).
 		     MinIO 9.0.3 déclare okhttp 5.3.2 ; on garde volontairement 5.5.0 (aucun CVE connu),
 		     qui ajoute la limite de 256 KiB d'en-têtes HTTP/2 (5.4.0) et le rejet des hôtes
